@@ -4,9 +4,10 @@ import * as THREE from 'three';
 
 import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
-import { degToRad } from 'three/src/math/MathUtils.js';
 
 import '../styles/Beams.css';
+
+const degToRad = (degrees: number) => degrees * (Math.PI / 180);
 
 type UniformValue = THREE.IUniform<unknown> | unknown;
 

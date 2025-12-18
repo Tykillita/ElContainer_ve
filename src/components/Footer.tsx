@@ -5,7 +5,7 @@ export default function Footer() {
         {/* Top row: logo, nav, social */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between py-5 gap-4">
           <div className="flex items-center gap-2">
-            <img src="/public/resources/img/lanyard/logo.png" alt="El Container Logo" className="w-7 h-7 object-contain bg-white rounded" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img src="/public/elcontainerBN_vector.svg" alt="El Container Logo" className="w-7 h-7 object-contain bg-white rounded" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             <span className="font-bold tracking-wide text-base">El Container</span>
           </div>
           <nav className="flex flex-wrap gap-6 font-medium text-white/80">
@@ -32,7 +32,7 @@ export default function Footer() {
           <span>© 2024-{new Date().getFullYear()} El Container. Todos los derechos reservados.</span>
           <div className="flex gap-4">
             <a href="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</a>
-            <a href="/terminos" className="hover:text-white transition-colors">Términos &amp; Condiciones</a>
+            <a href="/terminos" className="hover:text-white transition-colors">Términos & Condiciones</a>
           </div>
         </div>
       </div>
