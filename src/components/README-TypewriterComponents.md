@@ -48,7 +48,6 @@ Componente principal de máquina de escribir diseñado específicamente para tra
 - ✅ Compatible con todos los indicadores del Stepper
 - ✅ Estilos optimizados para tema naranja
 
-### 3. `TypewriterExamples.tsx`
 
 Ejemplos adicionales de uso de los componentes typewriter con diferentes configuraciones y casos de uso.
 
@@ -241,6 +240,5 @@ import TypewriterForAutoStepper from './TypewriterForAutoStepper';
 - `src/components/TypewriterForAutoStepper.tsx` - Componente de máquina de escribir principal
 - `src/components/AutoStepper.tsx` - AutoStepper mejorado con integración typewriter
 - `src/components/AutoStepperDemo.tsx` - Demo interactivo de la integración
-- `src/components/TypewriterExamples.tsx` - Ejemplos adicionales de uso
 - `src/styles/autosteper.css` - Estilos específicos para AutoStepper
 - `src/components/Stepper.tsx` - Componente Stepper base
