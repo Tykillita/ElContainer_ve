@@ -6,53 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ...existing code... */
-option {
-  background-color: #181824 !important;
-  color: #f3f3f3 !important;
-}
-
-/* Edge/IE: */
-select::-ms-expand {
-  background: #181824;
-  color: #f3f3f3;
-}
-
-/* Webkit (Chrome, Safari): */
-select::-webkit-input-placeholder {
-  color: #f3f3f3;
-}
-select:focus {
-  outline: 2px solid #e35c27;
-  border-color: #e35c27;
-}
-/* Estilos para selects en modo oscuro */
-select, select option, select optgroup {
-  background-color: #181824;
-  color: #f3f3f3;
-}
-
-select:focus {
-  outline: 2px solid #e35c27;
-  border-color: #e35c27;
-}
-
-/* Para navegadores que permiten ::-webkit-scrollbar en selects */
-select::-webkit-scrollbar {
-  background: #181824;
-  width: 8px;
-}
-select::-webkit-scrollbar-thumb {
-  background: #333;
-}
-@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
-@import './styles/theme.css';
-@import './styles/stepper.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 html {
   overflow-y: scroll;
 }
@@ -106,6 +59,78 @@ html {
   a {
     color: inherit;
   }
+  
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+   
+  /* Improve select option visibility */
+  select option {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    padding: 0.5rem !important;
+  }
+   
+  select {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+   
+  /* More specific select styling */
+  select, select * {
+    color: #ffffff !important;
+  }
+   
+  select option, select optgroup {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+  }
+   
+  /* Force select option styling for booking form */
+  form select option,
+  .card select option,
+  .booking-form select option {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    padding: 0.5rem !important;
+  }
+   
+  /* Fallback for stubborn select elements */
+  select[style*="color"] option {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+  }
+   
+  /* Booking form specific styles */
+  .booking-form select {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+   
+  .booking-form select option {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    padding: 0.5rem !important;
+  }
+   
+  /* Force all select elements in booking form */
+  .booking-form form select,
+  .booking-form .card select {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+   
+  .booking-form form select option,
+  .booking-form .card select option {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+  }
+  
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -150,76 +175,42 @@ html {
   height: 100%;
 }
 
+/* Standalone select styles (outside @layer to avoid conflicts) */
+option {
+  background-color: #181824 !important;
+  color: #f3f3f3 !important;
+}
 
+/* Edge/IE: */
+select::-ms-expand {
+  background: #181824;
+  color: #f3f3f3;
+}
 
-@layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  
-  /* Improve select option visibility */
-  select option {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-    padding: 0.5rem !important;
-  }
-  
-  select {
-    color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-  }
-  
-  /* More specific select styling */
-  select, select * {
-    color: #ffffff !important;
-  }
-  
-  select option, select optgroup {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-  }
-  
-  /* Force select option styling for booking form */
-  form select option,
-  .card select option,
-  .booking-form select option {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-    padding: 0.5rem !important;
-  }
-  
-  /* Fallback for stubborn select elements */
-  select[style*="color"] option {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-  }
-  
-  /* Booking form specific styles */
-  .booking-form select {
-    color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-  }
-  
-  .booking-form select option {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-    padding: 0.5rem !important;
-  }
-  
-  /* Force all select elements in booking form */
-  .booking-form form select,
-  .booking-form .card select {
-    color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.05) !important;
-  }
-  
-  .booking-form form select option,
-  .booking-form .card select option {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #ffffff !important;
-  }
+/* Webkit (Chrome, Safari): */
+select::-webkit-input-placeholder {
+  color: #f3f3f3;
+}
+select:focus {
+  outline: 2px solid #e35c27;
+  border-color: #e35c27;
+}
+/* Estilos para selects en modo oscuro */
+select, select option, select optgroup {
+  background-color: #181824;
+  color: #f3f3f3;
+}
+
+select:focus {
+  outline: 2px solid #e35c27;
+  border-color: #e35c27;
+}
+
+/* Para navegadores que permiten ::-webkit-scrollbar en selects */
+select::-webkit-scrollbar {
+  background: #181824;
+  width: 8px;
+}
+select::-webkit-scrollbar-thumb {
+  background: #333;
 }
