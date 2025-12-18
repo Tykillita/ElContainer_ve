@@ -1,0 +1,148 @@
+/* AutoStepper specific styles with orange numbers */
+
+/* Elimina estilos de tarjeta duplicados, usa la clase .card global */
+.auto-stepper {
+  /* Solo layout, el fondo y border lo da .card */
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Mobile responsive height adjustment */
+@media (max-width: 640px) {
+  .auto-stepper {
+    min-height: 120px;
+    padding: 0.75rem;
+  }
+}
+
+.auto-stepper .step-content {
+  /* Flex container for step content */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.auto-stepper .step-circle-container {
+  /* Override stepper container styles */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.auto-stepper .step-indicator-row {
+  /* Override step indicator row styles */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.auto-stepper .step-content-default {
+  /* Override step content styles */
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.auto-stepper .footer-container {
+  /* Hide footer */
+  display: none !important;
+}
+
+.auto-stepper .step-item {
+  /* Step item container */
+  padding-top: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 1rem;
+  min-height: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+@media (min-width: 640px) {
+  .auto-stepper .step-item {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    min-height: 140px;
+    height: 140px;
+    padding-bottom: 1.5rem;
+  }
+}
+
+.auto-stepper .step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fb923c; /* orange-400 */
+  margin-bottom: 0.25rem;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.auto-stepper .step-description {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9); /* white/90 */
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .auto-stepper .step-title {
+    font-size: 1.125rem;
+    margin-bottom: 0.375rem;
+  }
+  
+  .auto-stepper .step-description {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+}
+
+/* Prevent transform inheritance that causes text deformation */
+.auto-stepper .step-indicator {
+  transform: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+.auto-stepper .step-indicator * {
+  transform: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* Override any motion transforms */
+.auto-stepper [style*="transform"] {
+  transform: none !important;
+}
+
+/* Ensure text rendering is clean */
+.auto-stepper .step-indicator,
+.auto-stepper .step-indicator * {
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  font-smooth: always !important;
+}
+
+/* Typewriter cursor animations for AutoStepper */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typewriter-cursor.cursor-visible {
+  opacity: 1;
+}
+
+.typewriter-cursor.cursor-blink {
+  animation: cursor-blink 1s infinite;
+}
