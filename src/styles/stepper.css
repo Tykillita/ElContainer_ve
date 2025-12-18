@@ -1,0 +1,229 @@
+.outer-container {
+  display: flex;
+  min-height: 100%;
+  flex: 1 1 0%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.step-inline-root {
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  min-height: auto;
+  --accent: #e35c27;
+}
+
+.step-card-root {
+  display: block;
+  padding: 0;
+  min-height: auto;
+  --accent: #e35c27;
+}
+
+/* Removed fixed aspect ratios to allow flexible sizing */
+
+.step-circle-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 28rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 12, 29, 0.25);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -5px rgba(0, 0, 0, 0.25);
+}
+
+.step-card-container {
+  max-width: none;
+  padding: 1rem 1.25rem 1.25rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+.step-inline-container {
+  max-width: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  box-shadow: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.step-indicator-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 1.5rem 1.75rem;
+  gap: 0.25rem;
+}
+
+.step-inline-row {
+  padding: 0.5rem 0.25rem;
+  gap: 0.5rem;
+}
+
+.stepper-header {
+  padding: 0.75rem 1.25rem 0.5rem;
+}
+
+.step-content-default {
+  position: relative;
+  overflow: hidden;
+}
+
+.step-inline-content {
+  padding: 0.5rem 0.5rem 0.75rem;
+}
+
+.step-default {
+  padding: 0 1.75rem 1rem;
+}
+
+.footer-container {
+  padding: 0rem 1.5rem 1rem;
+}
+
+.step-inline-footer {
+  padding: 0rem 0.25rem 0.5rem;
+}
+
+.footer-nav {
+  margin-top: 0;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.footer-nav.spread {
+  justify-content: space-between;
+}
+
+.footer-nav.end {
+  justify-content: flex-end;
+}
+
+.back-button {
+  transition: all 250ms ease;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.back-button.inactive {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.next-button {
+  transition: all 250ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #0c0c1d;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.next-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.28);
+}
+
+.next-button:active {
+  transform: translateY(0);
+}
+
+.step-indicator {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+}
+
+.step-indicator-inner {
+  display: flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+
+.active-dot {
+  position: relative;
+  height: 0.8rem;
+  width: 0.8rem;
+  border-radius: 9999px;
+  background-color: #0c0c1d;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-number-overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.9rem;
+  color: #fff;
+  pointer-events: none;
+  z-index: 2;
+  font-weight: 700;
+  text-shadow: 0 1px 4px #000, 0 0 2px #fff;
+  opacity: 0.85;
+}
+
+.step-number {
+  font-size: 0.9rem;
+}
+
+.step-connector {
+  position: relative;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  height: 0.125rem;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.step-connector-inner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background-color: var(--accent, #e35c27);
+}
+
+.check-icon {
+  height: 1rem;
+  width: 1rem;
+  color: #0c0c1d;
+}

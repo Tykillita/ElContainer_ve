@@ -1,0 +1,14 @@
+:root {
+  --accent: #8ef1b2;
+  --muted: #a3adc2;
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-border: rgba(255, 255, 255, 0.08);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.35);
+}
