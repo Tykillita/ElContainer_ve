@@ -1,63 +1,12 @@
-/* Ensure .card elements have a visible background and border */
-.card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 1.5rem;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
-  backdrop-filter: blur(8px);
-  padding: 1.5rem 1.5rem 1.2rem 1.5rem;
-  margin-bottom: 1.2rem;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+@import './styles/theme.css';
+@import './styles/stepper.css';
 
-.card .card-title {
-  font-size: 1.18rem;
-  font-weight: 600;
-  margin-bottom: 0.7rem;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.card .card-section:not(:last-child) {
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  margin-bottom: 0.8rem;
-  padding-bottom: 0.8rem;
-}
-
-/* For button groups inside cards (like payment methods) */
-.card .button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  margin-bottom: 0.7rem;
-}
-
-.card .button-group button,
-.card .button-group .btn {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.18);
-  color: #fff;
-  border-radius: 999px;
-  padding: 0.4rem 1.1rem;
-  font-size: 1rem;
-  transition: background 0.15s, border-color 0.15s;
-}
-.card .button-group button:hover,
-.card .button-group .btn:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: #fff;
-}
-/* Forzar fondo oscuro en select y opciones desplegables en la mayoría de navegadores */
-select,
-select option,
-select optgroup {
-  background-color: #181824 !important;
-  color: #f3f3f3 !important;
-}
-
-/* Firefox: opciones del menú desplegable */
-select:-moz-focusring {
-  color: #f3f3f3;
-  background: #181824;
-}
+/* ...existing code... */
 option {
   background-color: #181824 !important;
   color: #f3f3f3 !important;
