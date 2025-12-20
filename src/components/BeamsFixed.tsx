@@ -118,7 +118,7 @@ const hexToNormalizedRGB = (hex: string): [number, number, number] => {
 const noise = `
 float random (in vec2 st) {
     return fract(sin(dot(st.xy,
-                         vec2(12.9898,78.233)))*
+                         vec2(12.9898,78.233)))* 
         43758.5453123);
 }
 float noise (in vec2 st) {
@@ -203,15 +203,15 @@ interface BeamsProps {
   rotation?: number;
 }
 
-const Beams: FC<BeamsProps> = ({
+const BeamsFixed: FC<BeamsProps> = ({
   beamWidth = 4,
-  beamHeight = 30,
-  beamNumber = 20,
+  beamHeight = 60,
+  beamNumber = 16,
   lightColor = '#ffffff',
-  speed = 3.1,
-  noiseIntensity = 1.75,
-  scale = 0.2,
-  rotation = 30
+  speed = 2.8,
+  noiseIntensity = 1.5,
+  scale = 0.15,
+  rotation = 25
 }) => {
   // Detectar dispositivo para optimizar parámetros
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -239,7 +239,7 @@ const Beams: FC<BeamsProps> = ({
         vertexHeader: `
   float getPos(vec3 pos) {
     vec3 noisePos =
-      vec3(pos.x * 0., pos.y - uv.y, pos.z + time * uSpeed * 3.) * uScale;
+      vec3(pos.x * 0., pos.y - vUv.y, pos.z + time * uSpeed * 3.) * uScale;
     return cnoise(noisePos);
   }
   vec3 getCurrentPos(vec3 pos) {
@@ -402,4 +402,4 @@ const DirLight: FC<{ position: [number, number, number]; color: string }> = ({ p
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
 
-export default Beams;
+export default BeamsFixed;

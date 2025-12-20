@@ -10,9 +10,8 @@ import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import AutoStepperDemo from './components/AutoStepperDemo';
-import Beams from './components/Beams';
+import SimpleBackground from './components/SimpleBackground';
 import { AppProvider } from './context/AppContext';
-import DebugInfo from './components/DebugInfo';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -24,18 +23,9 @@ function ScrollToTop() {
 
 function AppLayout() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-sand">
+    <div className="relative min-h-screen overflow-hidden text-sand" style={{backgroundColor: 'transparent'}}>
       {/* Fondo 3D optimizado para producción */}
-      <Beams 
-        beamNumber={16}
-        beamWidth={3}
-        beamHeight={25}
-        speed={2.8}
-        noiseIntensity={1.5}
-        scale={0.15}
-        rotation={25}
-        lightColor="#ffffff"
-      />
+      <SimpleBackground />
       {/* Fallback CSS en caso de que Three.js no cargue */}
       <div className="pointer-events-none absolute inset-0 z-0 opacity-60">
         <div 
@@ -51,10 +41,9 @@ function AppLayout() {
           }}
         />
       </div>
-      <div className="relative z-10 flex min-h-screen flex-col">
+      <div className="relative z-20 flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 px-6 pt-28 pb-10">
-          <DebugInfo componentName={`Page: ${window.location.pathname}`} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/servicios" element={<Services />} />
@@ -75,7 +64,6 @@ function AppLayout() {
 function App() {
   return (
     <AppProvider>
-      <DebugInfo componentName="App" />
       <BrowserRouter>
         <ScrollToTop />
         <AppLayout />

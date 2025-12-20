@@ -1,3 +1,40 @@
+/* Logo header responsive fix - tamaño final en móvil */
+@media (max-width: 768px) {
+  header .flex.items-center.gap-2 .header-logo,
+  header .flex.items-center.gap-2 img[src*="logo"],
+  header .flex.items-center.gap-2 img[src*="container"],
+  header .flex.items-center.gap-2 img[alt*="Container"],
+  header .flex.items-center.gap-2 img[alt*="logo"] {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    box-shadow: none !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+  }
+  
+  /* También ajustar el texto junto al logo */
+  header .text-xs {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Fallback con selectores aún más específicos */
+  div[class*="flex items-center gap-2"] img[alt*="Container"] {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import './styles/theme.css';
 @import './styles/stepper.css';
