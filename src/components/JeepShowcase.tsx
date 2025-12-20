@@ -1,4 +1,5 @@
 import jeepImage from '../resources/img/jeep_gladiador.png'
+import OptimizedImage from './OptimizedImage'
 
 type JeepShowcaseProps = {
   variant?: 'dark' | 'clean'
@@ -30,7 +31,7 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
             : 'relative mx-auto flex h-[22rem] max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[36rem]'
         }
       >
-        <img
+        <OptimizedImage
           src={jeepImage}
           alt="Jeep Gladiador"
           className={

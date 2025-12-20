@@ -82,11 +82,30 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
   return mat;
 }
 
-const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => (
-  <Canvas dpr={[1, 2]} frameloop="always" className="beams-container" gl={{ alpha: true }}>
-    {children}
-  </Canvas>
-);
+const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+  // Detectar dispositivo móvil para optimizar rendimiento
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+  
+  // Configuración adaptativa según el dispositivo
+  const dpr = isMobile || isLowEnd ? [0.5, 1] as [number, number] : [1, 2] as [number, number];
+  const frameloop = isMobile || isLowEnd ? "demand" : "always";
+  
+  return (
+    <Canvas 
+      dpr={dpr} 
+      frameloop={frameloop} 
+      className="beams-container" 
+      gl={{ 
+        alpha: true,
+        antialias: !isMobile, // Desactivar antialias en móviles
+        powerPreference: isMobile ? "low-power" : "high-performance"
+      }}
+    >
+      {children}
+    </Canvas>
+  );
+};
 
 const hexToNormalizedRGB = (hex: string): [number, number, number] => {
   const clean = hex.replace('#', '');
@@ -194,6 +213,14 @@ const Beams: FC<BeamsProps> = ({
   scale = 0.2,
   rotation = 30
 }) => {
+  // Detectar dispositivo para optimizar parámetros
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+  
+  // Parámetros optimizados para móviles
+  const optimizedBeamNumber = (isMobile || isLowEnd) ? Math.max(8, Math.floor(beamNumber * 0.6)) : beamNumber;
+  const optimizedNoiseIntensity = (isMobile || isLowEnd) ? noiseIntensity * 0.7 : noiseIntensity;
+  const optimizedScale = (isMobile || isLowEnd) ? scale * 0.8 : scale;
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
 
   const beamMaterial = useMemo(
@@ -246,8 +273,8 @@ const Beams: FC<BeamsProps> = ({
           metalness: 0.15,
           uSpeed: { shared: true, mixed: true, linked: true, value: speed },
           envMapIntensity: 10,
-          uNoiseIntensity: noiseIntensity,
-          uScale: scale
+          uNoiseIntensity: optimizedNoiseIntensity,
+          uScale: optimizedScale
         }
       }),
     [speed, noiseIntensity, scale]
@@ -256,7 +283,7 @@ const Beams: FC<BeamsProps> = ({
   return (
     <CanvasWrapper>
       <group rotation={[0, 0, degToRad(rotation)]}>
-        <PlaneNoise ref={meshRef} material={beamMaterial} count={beamNumber} width={beamWidth} height={beamHeight} />
+        <PlaneNoise ref={meshRef} material={beamMaterial} count={optimizedBeamNumber} width={beamWidth} height={beamHeight} />
         <DirLight color={lightColor} position={[0, 3, 10]} />
       </group>
       <ambientLight intensity={1} />

@@ -10,6 +10,7 @@ import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import AutoStepperDemo from './components/AutoStepperDemo';
+import Beams from './components/Beams';
 import { AppProvider } from './context/AppContext';
 import DebugInfo from './components/DebugInfo';
 
@@ -24,11 +25,31 @@ function ScrollToTop() {
 function AppLayout() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050505] text-sand">
-      <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-95"
-        style={{ background: '#050505', height: '600px' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
+      {/* Fondo 3D optimizado para producción */}
+      <Beams 
+        beamNumber={16}
+        beamWidth={3}
+        beamHeight={25}
+        speed={2.8}
+        noiseIntensity={1.5}
+        scale={0.15}
+        rotation={25}
+        lightColor="#ffffff"
+      />
+      {/* Fallback CSS en caso de que Three.js no cargue */}
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-60">
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: '#050505',
+            backgroundImage: `
+              radial-gradient(circle at 25% 25%, rgba(235, 82, 40, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+              linear-gradient(180deg, #050505 0%, #0a0a0a 50%, #050505 100%)
+            `,
+            height: '100vh'
+          }}
+        />
       </div>
       <div className="relative z-10 flex min-h-screen flex-col">
         <Header />

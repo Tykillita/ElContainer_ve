@@ -6,8 +6,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Optimizaciones de rendimiento móvil */
 html {
   overflow-y: scroll;
+  /* Prevenir zoom en iOS */
+  -webkit-text-size-adjust: 100%;
+  /* Optimizar renderizado */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimizaciones para dispositivos móviles */
+@media (max-width: 768px) {
+  /* Reducir animaciones en móviles para mejorar rendimiento */
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Optimizar repaints */
+  .card, .beams-container {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 }
 
 @layer base {
