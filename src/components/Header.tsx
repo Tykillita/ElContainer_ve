@@ -85,7 +85,16 @@ export default function Header() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="relative flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 px-6 py-3 shadow-[0_10px_50px_rgba(0,0,0,0.35)] backdrop-blur">
           <div className="flex items-center gap-3 text-lg font-semibold tracking-tight text-white">
-            <img src={logo} alt="El Container" className="h-10 w-auto drop-shadow-[0_6px_18px_rgba(0,0,0,0.35)]" />
+            <img 
+              src={logo} 
+              alt="El Container" 
+              className="h-10 max-w-full object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.35)]"
+              style={{
+                imageRendering: 'auto',
+                maxHeight: '40px',
+                maxWidth: '120px'
+              }}
+            />
             <span>EL CONTAINER</span>
           </div>
 

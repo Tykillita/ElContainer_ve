@@ -64,7 +64,12 @@ export default function Home() {
           <img
             src={logo}
             alt="El Container Autolavado"
-            className="h-[18rem] w-auto drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem]"
+            className="h-[18rem] max-w-full object-contain drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem]"
+            style={{
+              imageRendering: 'auto',
+              maxHeight: '70vh',
+              maxWidth: '90vw'
+            }}
           />
           <h1
             className="font-hero text-[clamp(2.8rem,8vw,5.8rem)] md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)] leading-[0.95] tracking-[0.12em] uppercase text-transparent bg-clip-text inline-block mb-5"
