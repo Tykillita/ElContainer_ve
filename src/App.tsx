@@ -10,6 +10,7 @@ import Blog from './pages/Blog'
 import Contact from './pages/Contact'
 import AutoStepperDemo from './components/AutoStepperDemo'
 import { AppProvider } from './context/AppContext'
+import DebugInfo from './components/DebugInfo'
 
 type Page = 'home' | 'services' | 'booking' | 'blog' | 'contact' | 'onboarding' | 'demo'
 
@@ -18,6 +19,7 @@ function App() {
 
   return (
     <AppProvider>
+      <DebugInfo componentName="App" />
       <div className="relative min-h-screen overflow-hidden bg-[#050505] text-sand">
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-95"
@@ -28,6 +30,7 @@ function App() {
         <div className="relative z-10 flex min-h-screen flex-col">
           <Header currentPage={page} onNavigate={setPage} />
           <main className="flex-1 px-6 pt-28 pb-10">
+            <DebugInfo componentName={`Page: ${page}`} />
             {page === 'home' && <Home />}
             {page === 'services' && <Services />}
             {page === 'booking' && <Booking />}
