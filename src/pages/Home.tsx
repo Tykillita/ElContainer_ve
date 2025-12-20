@@ -3,7 +3,7 @@ import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
-import { FloatingElement, GlowEffect } from '../components/ParticleSystem'
+import { FloatingElement } from '../components/ParticleSystem'
 import logo from '../resources/img/elcontainer_logo.png'
 
 const featuredServices = [
