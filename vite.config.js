@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path.dirname(__filename);
 export default defineConfig({
+    base: './',
     plugins: [react()],
     assetsInclude: ['**/*.glb'],
     resolve: {

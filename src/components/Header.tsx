@@ -1,39 +1,60 @@
-import { useEffect, useRef, useState } from 'react'
-import logo from '../resources/svg/elcontainer_vector.svg'
 
-type Page = 'home' | 'services' | 'booking' | 'blog' | 'contact' | 'onboarding' | 'demo'
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import logo from '../resources/svg/elcontainer_vector.svg';
 
-interface HeaderProps {
-  currentPage: Page
-  onNavigate: (page: Page) => void
-}
+const navItems = [
+  { to: '/', label: 'Inicio' },
+  { to: '/servicios', label: 'Servicios' },
+  { to: '/reservas', label: 'Reservas' },
+  { to: '/blog', label: 'Blog' },
+  { to: '/contacto', label: 'Contacto' },
+  { to: '/demo', label: 'Demo' },
+];
 
-export default function Header({ currentPage, onNavigate }: HeaderProps) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement | null>(null)
-  const toggleRef = useRef<HTMLButtonElement | null>(null)
-  const delayStep = 70
-  const navItems: Array<{ page: Page; label: string }> = [
-    { page: 'home', label: 'Inicio' },
-    { page: 'services', label: 'Servicios' },
-    { page: 'booking', label: 'Reservas' },
-    { page: 'blog', label: 'Blog' },
-    { page: 'contact', label: 'Contacto' },
-    { page: 'demo', label: 'Demo' }
-  ]
+export default function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const location = useLocation();
+  const delayStep = 70;
 
-  const linkClass = (page: Page) =>
-    `hover:text-white/80 transition ${currentPage === page ? 'text-white' : 'text-white/70'}`
+  const linkClass = (to: string) =>
+    `hover:text-white/80 transition ${location.pathname === to ? 'text-white' : 'text-white/70'}`;
 
-  const itemClass = (page: Page) =>
-    `${linkClass(page)} w-full text-right rounded-lg px-3 py-2 transition-all hover:bg-white/10 active:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 ${
-      currentPage === page ? 'bg-white/10 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]' : 'text-white/80'
-    }`
+  const itemClass = (to: string) =>
+    `${linkClass(to)} w-full text-right rounded-lg px-3 py-2 transition-all hover:bg-white/10 active:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30 ${
+      location.pathname === to ? 'bg-white/10 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]' : 'text-white/80'
+    }`;
 
-  const handleNav = (page: Page) => {
-    onNavigate(page)
-    setMenuOpen(false)
-  }
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!menuOpen) return;
+      const target = event.target as Node;
+      if (menuRef.current?.contains(target)) return;
+      if (toggleRef.current?.contains(target)) return;
+      setMenuOpen(false);
+    };
+
+    const handleKey = (event: KeyboardEvent) => {
+      if (!menuOpen) return;
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [menuOpen]);
+
+  // ...existing code...
+
+  // Render navigation using <Link> for SPA navigation
+  // Replace all button-based navigation with <Link>
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -70,16 +91,16 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
 
           <nav className="hidden flex-1 items-center justify-center gap-6 text-sm uppercase tracking-[0.08em] text-white/80 md:flex">
             {navItems.map((item) => (
-              <button key={item.page} className={linkClass(item.page)} onClick={() => handleNav(item.page)}>
+              <Link key={item.to} to={item.to} className={linkClass(item.to)} onClick={() => setMenuOpen(false)}>
                 {item.label}
-              </button>
+              </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-3 text-sm uppercase tracking-[0.08em]">
-            <button className={linkClass('onboarding')} onClick={() => handleNav('onboarding')}>
+            <Link to="/onboarding" className={linkClass('/onboarding')} onClick={() => setMenuOpen(false)}>
               Iniciar sesion
-            </button>
+            </Link>
             <button
               className="group flex h-10 w-10 items-center justify-center text-white transition hover:text-white md:hidden"
               onClick={() => setMenuOpen((v) => !v)}
@@ -127,19 +148,20 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/04 via-white/02 to-transparent pointer-events-none" />
             <div className="relative flex flex-col gap-2">
               {navItems.map((item, idx) => {
-                const delay = menuOpen ? idx * delayStep : (navItems.length - 1 - idx) * delayStep
+                const delay = menuOpen ? idx * delayStep : (navItems.length - 1 - idx) * delayStep;
                 return (
-                  <button
-                    key={item.page}
-                    className={`${itemClass(item.page)} transform transition-all duration-220 ease-out ${
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`${itemClass(item.to)} transform transition-all duration-220 ease-out ${
                       menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
                     }`}
                     style={{ transitionDelay: `${delay}ms` }}
-                    onClick={() => handleNav(item.page)}
+                    onClick={() => setMenuOpen(false)}
                   >
                     {item.label}
-                  </button>
-                )
+                  </Link>
+                );
               })}
             </div>
           </div>
