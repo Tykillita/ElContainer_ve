@@ -32,6 +32,22 @@ html {
     backface-visibility: hidden;
     perspective: 1000px;
   }
+  
+  /* Prevenir estiramiento de imágenes en móviles */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    image-rendering: auto !important;
+  }
+  
+  /* Específicamente para logos */
+  img[alt*="Container"], img[alt*="logo"], img[alt*="Logo"] {
+    max-height: 40vh !important;
+    max-width: 90vw !important;
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
 @layer base {
