@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import Stepper from './Stepper';
 import TypewriterForAutoStepper from './TypewriterForAutoStepper';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
+import { FloatingElement } from './ParticleSystem';
 import '../styles/autosteper.css';
 
 interface StepData {
@@ -58,7 +59,8 @@ export default function AutoStepper({
   };
 
   return (
-    <div className="auto-stepper card space-y-3 h-full min-h-[260px] flex flex-col p-4 md:p-5">
+    <FloatingElement delay={current * 0.1} duration={6}>
+      <div className="auto-stepper card space-y-3 h-full min-h-[260px] flex flex-col p-4 md:p-5 card-floating-particles">
       <Stepper
           initialStep={current}
           disableStepIndicators={false}
@@ -115,7 +117,7 @@ export default function AutoStepper({
           {steps.map((step, index) => {
             if (current === index + 1) {
               return (
-                <div key={index} className="step-item">
+                <div key={index} className="step-item card-ripple">
                   <h2 className="step-title">
                     {typewriterEnabled ? (
                       <TypewriterForAutoStepper
@@ -127,10 +129,10 @@ export default function AutoStepper({
                         className="typewriter-title"
                       />
                     ) : (
-                      step.title
+                      <span>{step.title}</span>
                     )}
                   </h2>
-                  <p className="step-description">
+                  <p className="step-description interactive-element">
                     {typewriterEnabled ? (
                       <TypewriterForAutoStepper
                         text={step.desc}
@@ -155,6 +157,7 @@ export default function AutoStepper({
             }
           })}
         </Stepper>
-    </div>
+        </div>
+    </FloatingElement>
   );
 }

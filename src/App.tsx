@@ -10,7 +10,9 @@ import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import AutoStepperDemo from './components/AutoStepperDemo';
-import SimpleBackground from './components/SimpleBackground';
+import BeamsFixed from './components/BeamsFixed';
+import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
+import BackgroundCompositor from './components/BackgroundEffects';
 import { AppProvider } from './context/AppContext';
 
 function ScrollToTop() {
@@ -23,11 +25,46 @@ function ScrollToTop() {
 
 function AppLayout() {
   return (
-    <div className="relative min-h-screen overflow-hidden text-sand" style={{backgroundColor: 'transparent'}}>
-      {/* Fondo 3D optimizado para producción */}
-      <SimpleBackground />
+    <div className="relative min-h-screen overflow-hidden text-sand" style={{backgroundColor: 'rgba(0,0,0,0)'}}>
+      {/* Fondo 3D con beams */}
+      <div className="fixed inset-0 z-[-1]">
+        <BeamsFixed
+          beamWidth={3}
+          beamHeight={50}
+          beamNumber={14}
+          lightColor="#ffffff"
+          speed={2.8}
+          noiseIntensity={1.5}
+          scale={0.15}
+          rotation={25}
+        />
+      </div>
+      
+      {/* Sistema de partículas flotantes */}
+      <ParticleSystem
+        particleCount={30}
+        colors={['#ffffff', '#e35c27', '#fb923c', '#ffffffaa']}
+        className="z-0"
+        enabled={true}
+      />
+      
+      {/* Luz ambiental animada */}
+      <AmbientLight
+        color="#e35c27"
+        intensity={0.08}
+        className="z-0"
+      />
+      
+      {/* Compositor de efectos de fondo avanzados */}
+      <BackgroundCompositor
+        showAnimatedBackground={true}
+        showGeometricShapes={true}
+        showEnergyWaves={true}
+        showAurora={true}
+        className="z-[-3]"
+      />
       {/* Fallback CSS en caso de que Three.js no cargue */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-60">
+      <div className="pointer-events-none absolute inset-0 z-[-2] opacity-40">
         <div 
           className="absolute inset-0"
           style={{
@@ -41,7 +78,7 @@ function AppLayout() {
           }}
         />
       </div>
-      <div className="relative z-20 flex min-h-screen flex-col">
+      <div className="relative z-50 flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 px-6 pt-28 pb-10">
           <Routes>
@@ -64,7 +101,12 @@ function AppLayout() {
 function App() {
   return (
     <AppProvider>
-      <BrowserRouter>
+      <BrowserRouter 
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <ScrollToTop />
         <AppLayout />
       </BrowserRouter>

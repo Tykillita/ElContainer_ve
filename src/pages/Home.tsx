@@ -3,6 +3,7 @@ import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
+import { FloatingElement, GlowEffect } from '../components/ParticleSystem'
 import logo from '../resources/img/elcontainer_logo.png'
 
 const featuredServices = [
@@ -62,16 +63,18 @@ export default function Home() {
     <>
       <section className="container-shell space-y-14">
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4">
-          <img
-            src={logo}
-            alt="El Container Autolavado"
-            className="h-[18rem] max-w-full object-contain drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem]"
-            style={{
-              imageRendering: 'auto',
-              maxHeight: '70vh',
-              maxWidth: '90vw'
-            }}
-          />
+          <FloatingElement delay={0} duration={8}>
+            <img
+              src={logo}
+              alt="El Container Autolavado"
+              className="h-[18rem] max-w-full object-contain drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem] card-ripple"
+              style={{
+                imageRendering: 'auto',
+                maxHeight: '70vh',
+                maxWidth: '90vw'
+              }}
+            />
+          </FloatingElement>
           <h1
             className="font-hero text-[clamp(2.8rem,8vw,5.8rem)] md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)] leading-[0.95] tracking-[0.12em] uppercase text-transparent bg-clip-text inline-block mb-5"
             style={{
@@ -82,13 +85,13 @@ export default function Home() {
               WebkitTextStroke: '0.6px #0b0b0b'
             }}
           >
-            <span className="block md:text-[1.25em] text-[1.45em]">
+            <span className="block md:text-[1.1em] text-[1.3em]">
               EL CONTAINER
             </span>
             <span
               className="block text-white"
               style={{
-                fontSize: '0.52em',
+                fontSize: '0.45em',
                 letterSpacing: '0.58em',
                 WebkitTextStroke: '0.6px #0b0b0b',
                 textShadow: '0 1px 0 #0c0c0c, 0 2px 6px rgba(0,0,0,0.5), 0 0 18px rgba(32, 10, 4, 0.9)',
@@ -117,7 +120,7 @@ export default function Home() {
 
       <LazySection threshold={0.1} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
-          <div className="flex justify-center lg:hidden mt-0 mb-20">
+          <div className="flex justify-center lg:hidden mt-8 mb-20">
             <button
               onClick={handleScrollInfo}
               className="rounded-full bg-white text-black px-12 py-4 text-lg font-semibold shadow-[0_14px_38px_rgba(0,0,0,0.35)] transition hover:bg-white/90"
@@ -136,7 +139,7 @@ export default function Home() {
             </div>
             <div className="text-white flex justify-center min-w-0 lg:justify-start">
               <div className="flex flex-col gap-6 w-full max-w-xl lg:ml-72 xl:ml-90 mt-6 mb-10 sm:mt-0 sm:mb-0">
-                <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
+                <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
                   <div className="space-y-2">
                     <p className="text-sm uppercase tracking-[0.16em] text-white/60">Para cualquier modelo</p>
                     <h2 className="text-3xl font-semibold leading-tight lg:text-4xl">Cualquier auto merece el mejor lavado</h2>
@@ -160,7 +163,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="card space-y-4 bg-white/5 backdrop-blur-sm border border-white/10 p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_18px_60px_rgba(0,0,0,0.18)] mt-8 sm:mt-0">
+                <div className="card space-y-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_18px_60px_rgba(0,0,0,0.18)] mt-8 sm:mt-0">
                   <p className="text-sm uppercase tracking-[0.16em] text-white/60">Promoción especial</p>
                   <h2 className="text-2xl font-semibold leading-tight">¡Diciembre de brillo total!</h2>
                   <p className="text-white/75 text-base lg:text-lg">
@@ -227,37 +230,42 @@ export default function Home() {
 
         <div className="grid gap-6 grid-cols-3 my-8">
           {benefits.map((b, i) => (
-            <article
-              key={b.title}
-              className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 transition-transform duration-200 hover:scale-[1.03] hover:shadow-lg hover:border-white/20 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0"
-            >
-              <div className="flex flex-col items-center mb-2">
-                <span className="mb-2">
-                  {i === 0 && <SpeedIcon width={32} height={32} className="text-orange-500" />}
-                  {i === 1 && <PaintIcon width={32} height={32} className="text-orange-500" />}
-                  {i === 2 && <SecurityIcon width={32} height={32} className="text-orange-500" />}
-                </span>
-                <h3 className="text-lg font-bold text-white mb-1 leading-tight">{b.title}</h3>
-              </div>
-              <p className="text-base text-white/80 leading-snug">{b.desc}</p>
-            </article>
+            <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
+              <article
+                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 transition-all duration-300 hover:scale-[1.05] hover:shadow-2xl hover:border-white/30 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
+              >
+                <div className="flex flex-col items-center mb-2">
+                  <span className="mb-2 interactive-element">
+                    {i === 0 && <SpeedIcon width={32} height={32} className="text-orange-500" />}
+                    {i === 1 && <PaintIcon width={32} height={32} className="text-orange-500" />}
+                    {i === 2 && <SecurityIcon width={32} height={32} className="text-orange-500" />}
+                  </span>
+                  <h3 className="text-lg font-bold text-white mb-1 leading-tight">{b.title}</h3>
+                </div>
+                <p className="text-base text-white/80 leading-snug">{b.desc}</p>
+              </article>
+            </FloatingElement>
           ))}
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 items-stretch">
           <LazySection threshold={0.2}>
-            <AutoStepper steps={steps} />
+            <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
+              <AutoStepper steps={steps} />
+            </div>
           </LazySection>
-          <div className="card space-y-3 h-full min-h-[260px] flex flex-col">
+          <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col card-ripple">
             <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
             <p className="text-sm text-white/70">
               Pagas al finalizar el servicio en el local. Elige el metodo que prefieras.
             </p>
             <div className="flex flex-wrap gap-2">
-              {payments.map((p) => (
-                <span key={p} className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80">
-                  {p}
-                </span>
+              {payments.map((p, index) => (
+                <FloatingElement key={p} delay={index * 0.2}>
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80 hover:border-white/40 hover:bg-white/10 transition-all duration-200 interactive-element">
+                    {p}
+                  </span>
+                </FloatingElement>
               ))}
             </div>
             <div className="text-xs text-white/60">Confirma tu cita y lleva el vehiculo a la hora acordada.</div>

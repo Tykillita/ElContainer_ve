@@ -52,9 +52,9 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-30 py-2 sm:py-4 bg-transparent">
+    <header className="fixed top-0 left-0 w-full z-30 py-1 sm:py-3 bg-transparent">
       <div className="mx-auto max-w-6xl px-2 sm:px-4">
-        <div className="relative flex items-center justify-between gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 px-3 sm:px-6 py-2 sm:py-3 shadow-[0_10px_50px_rgba(0,0,0,0.35)] backdrop-blur">
+        <div className="relative flex items-center justify-between gap-2 sm:gap-4 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 px-3 sm:px-6 py-1 sm:py-3 shadow-[0_10px_50px_rgba(0,0,0,0.35)] backdrop-blur">
           <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base font-semibold tracking-tight text-white min-w-0 flex-1">
             <img 
               src={logo}

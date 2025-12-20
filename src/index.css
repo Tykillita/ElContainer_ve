@@ -38,6 +38,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import './styles/theme.css';
 @import './styles/stepper.css';
+@import './styles/card-animations.css';
 
 @tailwind base;
 @tailwind components;
@@ -45,12 +46,37 @@
 
 /* Optimizaciones de rendimiento móvil */
 html {
-  overflow-y: scroll;
+  overflow-y: auto;
   /* Prevenir zoom en iOS */
   -webkit-text-size-adjust: 100%;
   /* Optimizar renderizado */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Asegurar que el scrollbar esté visible por encima del header */
+body {
+  position: relative;
+}
+
+/* Scrollbar styling to ensure visibility */
+::-webkit-scrollbar {
+  width: 8px;
+  position: relative;
+  z-index: 9999;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Optimizaciones para dispositivos móviles */
@@ -61,6 +87,14 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  
+  /* Excluir scrollbar de las optimizaciones agresivas */
+  ::-webkit-scrollbar,
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-thumb {
+    animation-duration: normal !important;
+    transition-duration: normal !important;
   }
   
   /* Optimizar repaints */
