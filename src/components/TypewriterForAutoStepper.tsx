@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface TypewriterForAutoStepperProps {
   text: string;
@@ -29,37 +29,7 @@ export default function TypewriterForAutoStepper({
   const doneRef = useRef(false);
   const cursorIntervalRef = useRef<number | null>(null);
 
-  // Restart animation when restartTrigger changes
-  useEffect(() => {
-    if (restartTrigger !== undefined) {
-      resetAnimation();
-      startAnimation();
-    }
-  }, [restartTrigger]);
-
-  // Cursor blinking effect
-  useEffect(() => {
-    if (showCursor && isTyping) {
-      cursorIntervalRef.current = window.setInterval(() => {
-        setShowCursorState(prev => !prev);
-      }, 530); // Standard cursor blink rate
-    } else {
-      setShowCursorState(showCursor);
-      if (cursorIntervalRef.current) {
-        clearInterval(cursorIntervalRef.current);
-        cursorIntervalRef.current = null;
-      }
-    }
-
-    return () => {
-      if (cursorIntervalRef.current) {
-        clearInterval(cursorIntervalRef.current);
-        cursorIntervalRef.current = null;
-      }
-    };
-  }, [showCursor, isTyping]);
-
-  const resetAnimation = () => {
+  const resetAnimation = useCallback(() => {
     setDisplayed('');
     setIsTyping(false);
     doneRef.current = false;
@@ -73,9 +43,9 @@ export default function TypewriterForAutoStepper({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-  };
+  }, []);
 
-  const startAnimation = () => {
+  const startAnimation = useCallback(() => {
     if (!text) {
       if (onTypeComplete && !doneRef.current) {
         onTypeComplete();
@@ -115,7 +85,37 @@ export default function TypewriterForAutoStepper({
       
       frameRef.current = requestAnimationFrame(step);
     }, delay);
-  };
+  }, [text, speed, delay, onTypeStart, onTypeComplete]);
+
+  // Restart animation when restartTrigger changes
+  useEffect(() => {
+    if (restartTrigger !== undefined) {
+      resetAnimation();
+      startAnimation();
+    }
+  }, [restartTrigger, startAnimation, resetAnimation]);
+
+  // Cursor blinking effect
+  useEffect(() => {
+    if (showCursor && isTyping) {
+      cursorIntervalRef.current = window.setInterval(() => {
+        setShowCursorState(prev => !prev);
+      }, 530); // Standard cursor blink rate
+    } else {
+      setShowCursorState(showCursor);
+      if (cursorIntervalRef.current) {
+        clearInterval(cursorIntervalRef.current);
+        cursorIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (cursorIntervalRef.current) {
+        clearInterval(cursorIntervalRef.current);
+        cursorIntervalRef.current = null;
+      }
+    };
+  }, [showCursor, isTyping]);
 
   // Start animation on mount and when text changes
   useEffect(() => {
@@ -125,14 +125,14 @@ export default function TypewriterForAutoStepper({
     return () => {
       resetAnimation();
     };
-  }, [text, speed, delay]);
+  }, [text, speed, delay, startAnimation, resetAnimation]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       resetAnimation();
     };
-  }, []);
+  }, [resetAnimation]);
 
   return (
     <span className={className}>

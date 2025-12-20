@@ -277,7 +277,7 @@ const Beams: FC<BeamsProps> = ({
           uScale: optimizedScale
         }
       }),
-    [speed, noiseIntensity, scale]
+    [speed, optimizedNoiseIntensity, optimizedScale]
   );
 
   return (

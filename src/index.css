@@ -48,6 +48,39 @@ html {
     width: auto !important;
     height: auto !important;
   }
+  
+  /* Optimizaciones de scroll y layout para fluidez */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    /* Mejorar performance de scroll */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Optimizar transiciones de secciones */
+  .transition-all {
+    transition-property: transform, opacity, visibility !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  /* Reducir trabajo de GPU en scroll */
+  .card {
+    contain: layout style paint;
+    transform: translateZ(0);
+  }
+  
+  /* Optimizar AutoStepper para móviles */
+  .auto-stepper {
+    contain: layout;
+    will-change: auto;
+  }
+  
+  .typewriter-title, .typewriter-description {
+    contain: layout;
+  }
 }
 
 @layer base {

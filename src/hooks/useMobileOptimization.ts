@@ -7,6 +7,28 @@ interface UseMobileOptimizationReturn {
   isOnline: boolean;
 }
 
+interface NetworkInformation extends EventTarget {
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformation;
+  mozConnection?: NetworkInformation;
+  webkitConnection?: NetworkInformation;
+  deviceMemory?: number;
+  getBattery?: () => Promise<BatteryManager>;
+}
+
+interface BatteryManager extends EventTarget {
+  charging: boolean;
+  chargingTime: number;
+  dischargingTime: number;
+  level: number;
+}
+
 export function useMobileOptimization(): UseMobileOptimizationReturn {
   const [isMobile, setIsMobile] = useState(false);
   const [isLowEndDevice, setIsLowEndDevice] = useState(false);
@@ -28,14 +50,17 @@ export function useMobileOptimization(): UseMobileOptimizationReturn {
 
     // Detectar dispositivo de gama baja
     const checkLowEndDevice = () => {
-      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+      const navigatorWithConnection = navigator as NavigatorWithConnection;
+      const connection = navigatorWithConnection.connection || 
+                        navigatorWithConnection.mozConnection || 
+                        navigatorWithConnection.webkitConnection;
       const isSlowConnection = connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g';
       
       // Verificar memoria del dispositivo si está disponible
-      const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory < 4;
+      const isLowMemory = !!(navigatorWithConnection.deviceMemory && navigatorWithConnection.deviceMemory < 4);
       
       // Verificar número de núcleos de CPU
-      const isLowCpuCores = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+      const isLowCpuCores = !!(navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4);
       
       setIsLowEndDevice(isSlowConnection || isLowMemory || isLowCpuCores);
     };
@@ -43,8 +68,6 @@ export function useMobileOptimization(): UseMobileOptimizationReturn {
     // Verificar si se deben reducir animaciones
     const checkAnimations = () => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const isLowPowerMode = (navigator as any).getBattery && 
-        (navigator as any).getBattery().then((battery: any) => battery.level < 0.2);
       
       setShouldReduceAnimations(prefersReducedMotion || isLowEndDevice);
     };
@@ -74,7 +97,8 @@ export function useMobileOptimization(): UseMobileOptimizationReturn {
     window.addEventListener('offline', handleOffline);
 
     // Escuchar cambios en la conexión
-    const connection = (navigator as any).connection;
+    const navigatorWithConnection = navigator as NavigatorWithConnection;
+    const connection = navigatorWithConnection.connection;
     if (connection) {
       connection.addEventListener('change', () => {
         checkLowEndDevice();

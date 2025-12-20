@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Stepper from './Stepper';
 import TypewriterForAutoStepper from './TypewriterForAutoStepper';
+import { useMobileOptimization } from '../hooks/useMobileOptimization';
 import '../styles/autosteper.css';
 
 interface StepData {
@@ -24,8 +25,14 @@ export default function AutoStepper({
   const [current, setCurrent] = useState(1);
   const timeoutRef = useRef<number | null>(null);
   const stepChangeTriggerRef = useRef(0);
+  const { isMobile } = useMobileOptimization();
+  
+  // Optimizar velocidades para móviles
+  const optimizedTypewriterSpeed = isMobile ? typewriterSpeed * 1.5 : typewriterSpeed;
+  const optimizedDelay = isMobile ? typewriterDelay * 0.8 : typewriterDelay;
+  const optimizedStepDuration = isMobile ? 12000 : 8000; // Más lento en móviles
 
-  // Auto-advance to next step every 8 seconds
+  // Auto-advance to next step - más lento en móviles para mejor rendimiento
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = window.setTimeout(() => {
@@ -33,11 +40,11 @@ export default function AutoStepper({
         const next = prev >= steps.length ? 1 : prev + 1;
         return next;
       });
-    }, 8000);
+    }, optimizedStepDuration);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [current, steps.length]);
+  }, [current, steps.length, optimizedStepDuration]);
 
   // Trigger typewriter restart when step changes
   useEffect(() => {
@@ -113,8 +120,8 @@ export default function AutoStepper({
                     {typewriterEnabled ? (
                       <TypewriterForAutoStepper
                         text={step.title}
-                        speed={typewriterSpeed}
-                        delay={typewriterDelay}
+                        speed={optimizedTypewriterSpeed}
+                        delay={optimizedDelay}
                         restartTrigger={stepChangeTriggerRef.current}
                         onTypeComplete={handleTitleComplete}
                         className="typewriter-title"
@@ -127,8 +134,8 @@ export default function AutoStepper({
                     {typewriterEnabled ? (
                       <TypewriterForAutoStepper
                         text={step.desc}
-                        speed={typewriterSpeed * 1.2} // Slightly slower for description
-                        delay={typewriterDelay + (step.title.length * typewriterSpeed) + 500}
+                        speed={optimizedTypewriterSpeed * 1.2} // Slightly slower for description
+                        delay={optimizedDelay + (step.title.length * optimizedTypewriterSpeed) + 500}
                         restartTrigger={stepChangeTriggerRef.current}
                         className="typewriter-description"
                       />

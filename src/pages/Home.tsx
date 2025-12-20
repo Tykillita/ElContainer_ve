@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
+import LazySection from '../components/LazySection'
 import logo from '../resources/img/elcontainer_logo.png'
 
 const featuredServices = [
@@ -114,7 +115,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section ref={infoRef} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
+      <LazySection threshold={0.1} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
           <div className="flex justify-center lg:hidden mt-0 mb-20">
             <button
@@ -175,9 +176,9 @@ export default function Home() {
         <div className="block sm:hidden w-full" style={{ marginTop: 64, marginBottom: 0 }}>
           <hr className="border-t border-white/15" />
         </div>
-      </section>
+      </LazySection>
 
-      <section className="relative" style={{ marginTop: 0, paddingTop: 0 }}>
+      <LazySection threshold={0.15} className="relative" style={{ marginTop: 0, paddingTop: 0 }}>
         <div className="container-shell">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-4">
@@ -244,7 +245,9 @@ export default function Home() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2 items-stretch">
-          <AutoStepper steps={steps} />
+          <LazySection threshold={0.2}>
+            <AutoStepper steps={steps} />
+          </LazySection>
           <div className="card space-y-3 h-full min-h-[260px] flex flex-col">
             <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
             <p className="text-sm text-white/70">
@@ -261,7 +264,7 @@ export default function Home() {
           </div>
         </div>
         </div>
-      </section>
+      </LazySection>
     </>
   )
 }

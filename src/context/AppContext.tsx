@@ -1,15 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-
-type Theme = 'dark' | 'light'
-
-type AppState = {
-  theme: Theme
-}
-
-type AppContextValue = {
-  state: AppState
-  setTheme: (theme: Theme) => void
-}
+import type { Theme, AppContextValue } from './types'
 
 const AppContext = createContext<AppContextValue | undefined>(undefined)
 
@@ -20,6 +10,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppContext() {
   const ctx = useContext(AppContext)
   if (!ctx) {
