@@ -4,6 +4,7 @@ import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
 import { FloatingElement } from '../components/ParticleSystem'
+import ScrollButton from '../components/ScrollButton'
 import logo from '../resources/img/elcontainer_logo.png'
 
 const featuredServices = [
@@ -28,36 +29,6 @@ const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
 
 export default function Home() {
   const infoRef = useRef<HTMLDivElement | null>(null)
-
-  const handleScrollInfo = () => {
-    const target = infoRef.current;
-    if (!target) return;
-
-    const start = window.scrollY || window.pageYOffset;
-    // Ajuste: en desktop, el menú es más alto, así que restamos más offset
-    let extraOffset = 0;
-    if (window.innerWidth < 1024) {
-      extraOffset = 100; // mobile
-    } else {
-      extraOffset = -60; // desktop: sube menos para que el menú no tape el Jeep
-    }
-    const end = target.getBoundingClientRect().top + start - 40 + extraOffset;
-    const distance = end - start;
-    const duration = 750;
-    const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    let startTime: number | null = null;
-
-    const step = (timestamp: number) => {
-      if (startTime === null) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = easeInOut(progress);
-      window.scrollTo(0, start + distance * eased);
-      if (progress < 1) requestAnimationFrame(step);
-    };
-
-    requestAnimationFrame(step);
-  };
 
   return (
     <>
@@ -109,24 +80,25 @@ export default function Home() {
             <span className="rounded-full border border-white/25 px-3 py-1">Confirmacion por WhatsApp</span>
             <span className="rounded-full border border-white/25 px-3 py-1">Pago en sitio</span>
           </div>
-          <button
-            onClick={handleScrollInfo}
-            className="rounded-full bg-white text-black px-12 py-4 text-lg font-semibold shadow-[0_14px_38px_rgba(0,0,0,0.35)] transition hover:bg-white/90 lg:block hidden mt-4 mb-12"
+          <ScrollButton
+            targetRef={infoRef}
+            delay={300}
+            className="lg:block hidden mt-4 mb-12"
           >
             Ver mas
-          </button>
+          </ScrollButton>
         </div>
       </section>
 
       <LazySection threshold={0.1} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
           <div className="flex justify-center lg:hidden mt-8 mb-20">
-            <button
-              onClick={handleScrollInfo}
-              className="rounded-full bg-white text-black px-12 py-4 text-lg font-semibold shadow-[0_14px_38px_rgba(0,0,0,0.35)] transition hover:bg-white/90"
+            <ScrollButton
+              targetRef={infoRef}
+              delay={300}
             >
               Ver mas
-            </button>
+            </ScrollButton>
           </div>
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
             <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-10 sm:mt-0">
@@ -181,7 +153,7 @@ export default function Home() {
         </div>
       </LazySection>
 
-      <LazySection threshold={0.15} className="relative" style={{ marginTop: 0, paddingTop: 0 }}>
+      <div className="relative" style={{ marginTop: 0, paddingTop: 0 }} ref={infoRef}>
         <div className="container-shell">
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-4">
@@ -272,7 +244,7 @@ export default function Home() {
           </div>
         </div>
         </div>
-      </LazySection>
+      </div>
     </>
   )
 }

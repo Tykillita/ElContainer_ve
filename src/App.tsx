@@ -25,7 +25,7 @@ function ScrollToTop() {
 
 function AppLayout() {
   return (
-    <div className="relative min-h-screen overflow-hidden text-sand" style={{backgroundColor: 'rgba(0,0,0,0)'}}>
+    <div className="relative min-h-screen text-sand" style={{backgroundColor: 'rgba(0,0,0,0)'}}>
       {/* Fondo 3D con beams */}
       <div className="fixed inset-0 z-[-1]">
         <BeamsFixed

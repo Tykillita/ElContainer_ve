@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback, ReactNode, forwardRef } from 'react';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
-interface LazySectionProps {
+interface LazySectionProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   threshold?: number;
@@ -10,18 +10,31 @@ interface LazySectionProps {
   style?: React.CSSProperties;
 }
 
-export default function LazySection({ 
+const LazySection = forwardRef<HTMLDivElement, LazySectionProps>(({ 
   children, 
   className = '',
   threshold = 0.1,
   rootMargin = '100px',
   placeholder,
-  style
-}: LazySectionProps) {
+  style,
+  ...props
+}, ref) => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const internalRef = useRef<HTMLDivElement>(null);
   const { isMobile, isLowEndDevice } = useMobileOptimization();
+
+  // Combinar refs externos e internos
+  const combinedRef = useCallback((node: HTMLDivElement | null) => {
+    // Asignar ref interno para el IntersectionObserver
+    internalRef.current = node;
+    // Reenviar ref externo
+    if (typeof ref === 'function') {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+  }, [ref]);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
@@ -31,20 +44,43 @@ export default function LazySection({
     }
   }, [hasLoaded]);
 
+  // Expose a method to force load the section
   useEffect(() => {
-    if (!sectionRef.current) return;
+    if (internalRef.current) {
+      // @ts-ignore - attaching method to DOM element
+      internalRef.current.forceLoad = () => {
+        if (!hasLoaded) {
+          setIsVisible(true);
+          setHasLoaded(true);
+        }
+      };
+    }
+    
+    return () => {
+      if (internalRef.current) {
+        // @ts-ignore - cleaning up
+        delete internalRef.current.forceLoad;
+      }
+    };
+  }, [hasLoaded]);
+
+  useEffect(() => {
+    if (!internalRef.current) return;
 
     const observer = new IntersectionObserver(handleIntersection, {
       threshold: isMobile ? 0.05 : threshold,
       rootMargin: isMobile ? '50px' : rootMargin
     });
 
-    const currentElement = sectionRef.current;
-    observer.observe(currentElement);
+    const element = internalRef.current;
+    observer.observe(element);
 
     return () => {
-      // Use the stored reference to avoid the stale closure warning
-      observer.unobserve(currentElement);
+      // Verificar que el elemento aún existe antes de unobserve
+      if (element && document.contains(element)) {
+        observer.unobserve(element);
+      }
+      observer.disconnect();
     };
   }, [handleIntersection, threshold, rootMargin, isMobile]);
 
@@ -56,7 +92,7 @@ export default function LazySection({
 
   return (
     <div 
-      ref={sectionRef}
+      ref={combinedRef}
       className={`transition-all duration-500 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       } ${className}`}
@@ -66,10 +102,15 @@ export default function LazySection({
         transform: isMobile ? 'translateZ(0)' : (style?.transform || undefined),
         willChange: isMobile ? 'transform, opacity' : (style?.willChange || 'auto')
       }}
+      {...props}
     >
       {isVisible ? children : (placeholder || (
         <div className="min-h-[200px] bg-white/5 rounded-lg animate-pulse" />
       ))}
     </div>
   );
-}
+});
+
+LazySection.displayName = 'LazySection';
+
+export default LazySection;

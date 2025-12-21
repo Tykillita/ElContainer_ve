@@ -125,6 +125,35 @@ body {
     scroll-behavior: smooth;
   }
   
+  /* Permitir scroll suave para el botón "Ver más" específicamente */
+  html[data-page="home"] {
+    scroll-behavior: smooth !important;
+  }
+  
+  /* Scroll suave personalizado para toda la página principal */
+  .smooth-scroll {
+    scroll-behavior: smooth !important;
+  }
+  
+  /* Animación de scroll personalizada más lenta */
+  .slow-scroll {
+    scroll-behavior: smooth;
+    transition-duration: 2s !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  /* Asegurar que el scroll suave funcione en móviles para elementos específicos */
+  @media (max-width: 768px) {
+    .smooth-scroll {
+      scroll-behavior: smooth !important;
+    }
+    
+    .slow-scroll {
+      scroll-behavior: smooth;
+      transition-duration: 2.5s !important;
+    }
+  }
+  
   body {
     /* Mejorar performance de scroll */
     -webkit-overflow-scrolling: touch;
@@ -329,6 +358,44 @@ option {
 select::-ms-expand {
   background: #181824;
   color: #f3f3f3;
+}
+
+/* Float animation for ScrollButton particles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(-5px) rotate(-1deg);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* Preserve scroll functionality but make it instant */
+  html {
+    scroll-behavior: auto;
+  }
+  
+  /* Preserve scroll button animations but make them instant */
+  .scroll-button-animations {
+    animation-duration: 0.01ms !important;
+  }
+  
+  .scroll-progress-bar {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Webkit (Chrome, Safari): */
