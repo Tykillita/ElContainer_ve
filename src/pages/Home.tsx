@@ -97,10 +97,10 @@ export default function Home() {
           <p className="-mt-2 max-w-3xl text-base text-white/75 sm:text-lg">
             Lavado rapido, seguro y sin sorpresas. Reserva en linea, llega a tu hora y paga en el local.
           </p>
-          <div className="flex flex-wrap justify-center gap-3 text-sm text-white/80">
-            <span className="rounded-full border border-white/25 px-3 py-1">Reservas flexibles</span>
-            <span className="rounded-full border border-white/25 px-3 py-1">Confirmacion por WhatsApp</span>
-            <span className="rounded-full border border-white/25 px-3 py-1">Pago en sitio</span>
+          <div className="flex flex-nowrap justify-center gap-3 text-sm text-white/80 overflow-x-auto w-full" style={{WebkitOverflowScrolling: 'touch'}}>
+            <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Reservas flexibles</span>
+            <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Confirmacion por WhatsApp</span>
+            <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Pago en sitio</span>
           </div>
           <ScrollButton
             targetRef={infoRef}
