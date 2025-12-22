@@ -35,6 +35,20 @@
     max-height: 36px !important;
   }
 }
+
+/* Desktop logo sizing */
+@media (min-width: 769px) {
+  header .header-logo {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    max-width: 42px !important;
+    max-height: 42px !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import './styles/theme.css';
 @import './styles/stepper.css';
@@ -59,11 +73,46 @@ body {
   position: relative;
 }
 
+/* Adjust header padding for better balance */
+@media (min-width: 769px) {
+  header.py-2.sm\:py-4 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  header .rounded-2xl.border.border-white\/15.bg-white\/10.px-4.sm\:px-8.py-2.sm\:py-4 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+/* Navigation link adjustments for better spacing */
+@media (min-width: 769px) {
+  header nav.hidden.md\:flex a {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+}
+
 /* Scrollbar styling to ensure visibility */
 ::-webkit-scrollbar {
   width: 8px;
   position: relative;
   z-index: 9999;
+}
+
+/* Navigation link adjustments for better spacing */
+@media (min-width: 769px) {
+  header nav.hidden.md\:flex a {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
 }
 
 ::-webkit-scrollbar-track {

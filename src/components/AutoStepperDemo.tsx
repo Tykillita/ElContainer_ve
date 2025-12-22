@@ -1,38 +1,11 @@
-import { useState } from 'react';
-import AutoStepper from './AutoStepper';
-import TypewriterForAutoStepper from './TypewriterForAutoStepper';
-
-/**
- * Demo component showing the integration of typewriter animation 
- * into the original AutoStepper component
- */
-
-const demoSteps = [
-  {
-    title: "Bienvenido al Servicio",
-    desc: "Descubre cómo podemos ayudarte a alcanzar tus objetivos con nuestras soluciones profesionales y especializadas."
-  },
-  {
-    title: "Proceso Simplificado", 
-    desc: "Nuestro método probado garantiza resultados eficientes en tiempo record, optimizando cada paso del proceso."
-  },
-  {
-    title: "Resultados Garantizados",
-    desc: "Miles de clientes satisfechos confirman la calidad de nuestro servicio excepcional y confiable."
-  },
-  {
-    title: "Soporte 24/7",
-    desc: "Nuestro equipo de expertos está disponible las 24 horas para brindarte la mejor asistencia y resolver cualquier consulta."
-  }
-];
+// AutoStepper demo removed
+// This file is intentionally left as a small stub for history and reference.
 
 export default function AutoStepperDemo() {
-  const [typewriterEnabled, setTypewriterEnabled] = useState(true);
-  const [typewriterSpeed, setTypewriterSpeed] = useState(50);
-  const [typewriterDelay, setTypewriterDelay] = useState(300);
-
-  return (
-    <div style={{ 
+  // Demo removed — use the `AutoStepper` component directly in your pages.
+  return null;
+}
+ 
       padding: '2rem', 
       backgroundColor: '#0f0f0f', 
       color: 'white',

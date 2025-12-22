@@ -9,7 +9,6 @@ import Services from './pages/Services';
 import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
-import AutoStepperDemo from './components/AutoStepperDemo';
 import BeamsFixed from './components/BeamsFixed';
 import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 import BackgroundCompositor from './components/BackgroundEffects';
@@ -88,7 +87,7 @@ function AppLayout() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/contacto" element={<Contact />} />
             <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/demo" element={<AutoStepperDemo />} />
+            {/* Demo eliminado: AutoStepperDemo ya no está disponible */}
             {/* Puedes agregar más rutas aquí */}
           </Routes>
         </main>

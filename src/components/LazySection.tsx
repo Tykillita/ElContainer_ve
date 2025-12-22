@@ -47,7 +47,7 @@ const LazySection = forwardRef<HTMLDivElement, LazySectionProps>(({
   // Expose a method to force load the section
   useEffect(() => {
     if (internalRef.current) {
-      // @ts-ignore - attaching method to DOM element
+      // @ts-expect-error - attaching method to DOM element
       internalRef.current.forceLoad = () => {
         if (!hasLoaded) {
           setIsVisible(true);
@@ -58,7 +58,7 @@ const LazySection = forwardRef<HTMLDivElement, LazySectionProps>(({
     
     return () => {
       if (internalRef.current) {
-        // @ts-ignore - cleaning up
+        // @ts-expect-error - cleaning up
         delete internalRef.current.forceLoad;
       }
     };
