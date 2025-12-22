@@ -7,6 +7,10 @@ import { FloatingElement } from '../components/ParticleSystem'
 import ScrollButton from '../components/ScrollButton'
 import logo from '../resources/img/elcontainer_logo.png'
 import { useState, useEffect } from 'react';
+// Import the MarqueeBenefitsMobile component (adjust the path if needed)
+import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
+// Import the CSS for styles (optional, if needed)
+import '../styles/MarqueeBenefitsMobile.css';
 
 const featuredServices = [
   { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
@@ -97,7 +101,12 @@ export default function Home() {
           <p className="-mt-2 max-w-3xl text-base text-white/75 sm:text-lg">
             Lavado rapido, seguro y sin sorpresas. Reserva en linea, llega a tu hora y paga en el local.
           </p>
-          <div className="flex flex-nowrap justify-center gap-3 text-sm text-white/80 overflow-x-auto w-full" style={{WebkitOverflowScrolling: 'touch'}}>
+          {/* Marquee solo en móvil */}
+          <div className="block sm:hidden w-full">
+            <MarqueeBenefitsMobile />
+          </div>
+          {/* Layout estático en desktop */}
+          <div className="hidden sm:flex flex-nowrap justify-center gap-3 text-sm text-white/80 w-full">
             <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Reservas flexibles</span>
             <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Confirmacion por WhatsApp</span>
             <span className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap">Pago en sitio</span>

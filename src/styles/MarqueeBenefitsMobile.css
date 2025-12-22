@@ -1,0 +1,29 @@
+.marquee-benefits-mobile {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  height: 2.5rem;
+  display: block;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-benefits-move 10s linear infinite;
+  align-items: center;
+}
+
+@keyframes marquee-benefits-move {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 640px) {
+  .marquee-benefits-mobile {
+    display: none;
+  }
+}
