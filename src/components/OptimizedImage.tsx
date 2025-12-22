@@ -55,9 +55,9 @@ export default function OptimizedImage({
     ...style,
     // En móviles, usar transform para evitar repaints costosos
     transform: isMobile ? 'translateZ(0)' : style?.transform,
-    willChange: isMobile ? 'transform' : 'auto',
-    backfaceVisibility: 'hidden',
-    imageRendering: isMobile ? 'optimizeSpeed' : 'auto',
+    willChange: isMobile ? 'transform' as const : 'auto' as const,
+    backfaceVisibility: 'hidden' as const,
+    imageRendering: isMobile ? 'optimizeSpeed' as const : 'auto' as const,
   }), [style, isMobile]);
 
   return (

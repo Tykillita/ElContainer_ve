@@ -28,7 +28,7 @@ type ShaderWithDefines = THREE.ShaderLibShader & {
 function extendMaterial<T extends THREE.Material = THREE.Material>(
   BaseMaterial: new (params?: THREE.MaterialParameters) => T,
   cfg: ExtendMaterialConfig
-): THREE.ShaderMaterial {
+): THREE.Material {
   try {
     const physical = THREE.ShaderLib.physical as ShaderWithDefines;
     const { vertexShader: baseVert, fragmentShader: baseFrag, uniforms: baseUniforms } = physical;
@@ -101,7 +101,7 @@ const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { isMobile, isLowEndDevice } = useMobileOptimization();
   
   // Optimize performance while maintaining quality
-  const dpr = useMemo(() => isMobile || isLowEndDevice ? [1, 1.5] : [1, 2], [isMobile, isLowEndDevice]);
+  const dpr: [number, number] | number = useMemo(() => isMobile || isLowEndDevice ? [1, 1.5] : [1, 2], [isMobile, isLowEndDevice]);
   // Use 'always' for consistent animation but optimize internally
   const frameloop = "always";
   
@@ -245,17 +245,16 @@ const Beams: FC<BeamsProps> = ({
   rotation = 30
 }) => {
   const { isMobile, isLowEndDevice } = useMobileOptimization();
-  const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
+  const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.Material>>(null!);
 
   // Maintain visual quality while optimizing performance
   const adjustedBeamNumber = useMemo(() => isMobile || isLowEndDevice ? Math.max(8, Math.floor(beamNumber * 0.8)) : beamNumber, [isMobile, isLowEndDevice, beamNumber]);
-  const adjustedHeightSegments = useMemo(() => isMobile || isLowEndDevice ? 70 : 100, [isMobile, isLowEndDevice]);
   // Keep animation speed consistent for visual experience
   const adjustedSpeed = speed;
   const adjustedNoiseIntensity = useMemo(() => isMobile || isLowEndDevice ? noiseIntensity * 0.85 : noiseIntensity, [isMobile, isLowEndDevice, noiseIntensity]);
 
   const beamMaterial = useMemo(
-    () => {
+    (): THREE.Material => {
       try {
         return extendMaterial(THREE.MeshStandardMaterial, {
           header: `
@@ -311,11 +310,24 @@ const Beams: FC<BeamsProps> = ({
         });
       } catch (error) {
         console.error('Error creating beam material:', error);
-        // Return a basic material as fallback
-        return new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        // Return a shader material fallback with basic properties
+        return new THREE.ShaderMaterial({
+          uniforms: {},
+          vertexShader: `
+            void main() {
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            void main() {
+              gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Red color
+            }
+          `,
+          lights: false
+        });
       }
     },
-    [adjustedSpeed, adjustedNoiseIntensity, scale, noise]
+    [adjustedSpeed, adjustedNoiseIntensity, scale]
   );
 
   try {
@@ -411,9 +423,9 @@ function createStackedPlanesBufferGeometry(
 }
 
 const MergedPlanes = forwardRef<
-  THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>,
+  THREE.Mesh<THREE.BufferGeometry, THREE.Material>,
   {
-    material: THREE.ShaderMaterial;
+    material: THREE.Material;
     width: number;
     count: number;
     height: number;
@@ -444,7 +456,7 @@ const MergedPlanes = forwardRef<
     if (mesh.current && mesh.current.material && mesh.current.material.uniforms && mesh.current.material.uniforms.time) {
       mesh.current.material.uniforms.time.value += 0.1 * delta * frameRateMultiplier;
     }
-  }, [isMobile, isLowEndDevice]);
+  });
   
   try {
     return <mesh ref={mesh} geometry={geometry} material={material} />;
@@ -456,9 +468,9 @@ const MergedPlanes = forwardRef<
 MergedPlanes.displayName = 'MergedPlanes';
 
 const PlaneNoise = forwardRef<
-  THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>,
+  THREE.Mesh<THREE.BufferGeometry, THREE.Material>,
   {
-    material: THREE.ShaderMaterial;
+    material: THREE.Material;
     width: number;
     count: number;
     height: number;
