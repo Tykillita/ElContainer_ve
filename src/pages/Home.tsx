@@ -6,6 +6,7 @@ import LazySection from '../components/LazySection'
 import { FloatingElement } from '../components/ParticleSystem'
 import ScrollButton from '../components/ScrollButton'
 import logo from '../resources/img/elcontainer_logo.png'
+import { useState, useEffect } from 'react';
 
 const featuredServices = [
   { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
@@ -29,6 +30,26 @@ const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
 
 export default function Home() {
   const infoRef = useRef<HTMLDivElement | null>(null)
+  // Tamaño dinámico del título según ancho de pantalla
+  const [titleSize, setTitleSize] = useState('clamp(2.7rem,10vw,4.2rem)');
+
+  useEffect(() => {
+    function handleResize() {
+      const width = window.innerWidth;
+      if (width <= 370) {
+        setTitleSize('clamp(1.7rem,8vw,2.7rem)');
+      } else if (width <= 400) {
+        setTitleSize('clamp(2.1rem,9vw,3.2rem)');
+      } else if (width <= 430) {
+        setTitleSize('clamp(2.5rem,10vw,3.7rem)');
+      } else {
+        setTitleSize('clamp(2.7rem,10vw,4.2rem)');
+      }
+    }
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
@@ -47,13 +68,14 @@ export default function Home() {
             />
           </FloatingElement>
           <h1
-            className="font-hero text-[clamp(2.7rem,10vw,4.2rem)] md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)] leading-[0.95] tracking-[0.02em] uppercase text-transparent bg-clip-text inline-block mb-5"
+            className="font-hero leading-[0.95] tracking-[0.02em] uppercase text-transparent bg-clip-text inline-block mb-5 md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)]"
             style={{
               backgroundImage:
                 'linear-gradient(180deg,#f7f7f7 0%,#ededed 22%,#d5d5d5 42%,#9b9b9b 60%,#e4e4e4 78%,#8a8a8a 100%)',
               textShadow: '0 1px 0 #d6d6d6ff, 0 2px 0 #111, 0 4px 10px rgba(0,0,0,0.55), 0 0 24px rgba(151, 149, 148, 0.65)',
               transform: 'skewX(-8deg)',
-              WebkitTextStroke: '0.6px #0b0b0b'
+              WebkitTextStroke: '0.6px #0b0b0b',
+              fontSize: titleSize
             }}
           >
             <span className="md:text-[1.1em] text-[1.3em] whitespace-nowrap">
