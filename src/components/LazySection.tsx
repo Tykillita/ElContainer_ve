@@ -90,10 +90,13 @@ const LazySection = forwardRef<HTMLDivElement, LazySectionProps>(({
     setHasLoaded(true);
   }
 
+  // Optimize transition duration for mobile
+  const transitionDuration = isMobile ? 300 : 500;
+  
   return (
     <div 
       ref={combinedRef}
-      className={`transition-all duration-500 ease-out ${
+      className={`transition-all duration-${transitionDuration} ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       } ${className}`}
       style={{
@@ -105,7 +108,7 @@ const LazySection = forwardRef<HTMLDivElement, LazySectionProps>(({
       {...props}
     >
       {isVisible ? children : (placeholder || (
-        <div className="min-h-[200px] bg-white/5 rounded-lg animate-pulse" />
+        <div className="min-h-[200px] bg-white/5 rounded-lg animate-pulse" style={{ willChange: 'opacity' }} />
       ))}
     </div>
   );

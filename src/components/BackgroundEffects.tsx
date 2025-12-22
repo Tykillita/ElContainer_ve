@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Beams from './Beams';
+import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface AnimatedBackgroundProps {
   className?: string;
@@ -16,6 +17,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   blurIntensity = 60
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,13 +30,17 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
+    // Optimize for mobile performance
+    const optimizedAnimationSpeed = isMobile || isLowEndDevice ? animationSpeed * 0.7 : animationSpeed;
+    const orbCount = isMobile || isLowEndDevice ? 3 : 5;
+    
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
     const animate = () => {
-      time += 0.01;
+      time += 0.01 * (isMobile || isLowEndDevice ? 0.8 : 1); // Slow down animation on mobile
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -57,11 +63,11 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Add floating orbs
-      for (let i = 0; i < 5; i++) {
+      // Add floating orbs with optimized count for mobile
+      for (let i = 0; i < orbCount; i++) {
         const x = (Math.sin(time * 0.5 + i) * 0.5 + 0.5) * canvas.width;
         const y = (Math.cos(time * 0.3 + i) * 0.5 + 0.5) * canvas.height;
-        const radius = 50 + Math.sin(time * 2 + i) * 30;
+        const radius = isMobile || isLowEndDevice ? 30 + Math.sin(time * 2 + i) * 20 : 50 + Math.sin(time * 2 + i) * 30;
 
         const orbGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
         orbGradient.addColorStop(0, gradientColors[i % gradientColors.length] + '20');
@@ -83,13 +89,16 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
-  }, [gradientColors, animationSpeed]);
+  }, [gradientColors, animationSpeed, isMobile, isLowEndDevice]);
 
   return (
     <canvas
       ref={canvasRef}
       className={`fixed inset-0 pointer-events-none z-[-2] ${className}`}
-      style={{ filter: `blur(${blurIntensity}px)` }}
+      style={{ 
+        filter: `blur(${blurIntensity}px)`,
+        willChange: 'filter'
+      }}
     />
   );
 };
@@ -105,12 +114,16 @@ const GeometricShapes: React.FC<GeometricShapesProps> = ({
   className = ''
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
 
-  const shapes = Array.from({ length: count }, (_, i) => ({
+  // Optimize shape count and complexity for mobile
+  const optimizedCount = isMobile || isLowEndDevice ? Math.max(3, Math.floor(count * 0.6)) : count;
+  
+  const shapes = Array.from({ length: optimizedCount }, (_, i) => ({
     id: i,
-    size: Math.random() * 100 + 50,
-    speed: Math.random() * 0.5 + 0.2,
-    rotationSpeed: (Math.random() - 0.5) * 2,
+    size: isMobile || isLowEndDevice ? Math.random() * 60 + 30 : Math.random() * 100 + 50,
+    speed: isMobile || isLowEndDevice ? Math.random() * 0.3 + 0.1 : Math.random() * 0.5 + 0.2,
+    rotationSpeed: isMobile || isLowEndDevice ? (Math.random() - 0.5) * 1 : (Math.random() - 0.5) * 2,
     initialX: Math.random() * 100,
     initialY: Math.random() * 100,
     color: ['#e35c27', '#fb923c', '#ffffff', '#ff6b35'][Math.floor(Math.random() * 4)]
@@ -133,7 +146,8 @@ const GeometricShapes: React.FC<GeometricShapesProps> = ({
               float-${shape.id} ${20 / shape.speed}s ease-in-out infinite,
               rotate-${shape.id} ${10 / Math.abs(shape.rotationSpeed)}s linear infinite
             `,
-            transform: `translate(-50%, -50%)`
+            transform: `translate(-50%, -50%)`,
+            willChange: 'transform'
           }}
         />
       ))}
@@ -153,9 +167,14 @@ const EnergyWaves: React.FC<EnergyWavesProps> = ({
   className = '',
   waveCount = 3
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize wave count for mobile
+  const optimizedWaveCount = isMobile || isLowEndDevice ? Math.max(1, Math.floor(waveCount * 0.5)) : waveCount;
+  
   return (
     <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`}>
-      {Array.from({ length: waveCount }).map((_, i) => (
+      {Array.from({ length: optimizedWaveCount }).map((_, i) => (
         <div
           key={i}
           className="absolute inset-0 opacity-20"
@@ -168,8 +187,9 @@ const EnergyWaves: React.FC<EnergyWavesProps> = ({
                 transparent 70%
               )
             `,
-            animation: `energyWave-${i} ${15 + i * 5}s ease-in-out infinite`,
-            animationDelay: `${i * 2}s`
+            animation: `energyWave-${i} ${isMobile || isLowEndDevice ? (15 + i * 5) * 1.5 : 15 + i * 5}s ease-in-out infinite`,
+            animationDelay: `${i * 2}s`,
+            willChange: 'opacity'
           }}
         />
       ))}
@@ -189,6 +209,11 @@ const AuroraEffect: React.FC<AuroraEffectProps> = ({
   className = '',
   intensity = 0.3
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize intensity for mobile
+  const optimizedIntensity = isMobile || isLowEndDevice ? intensity * 0.7 : intensity;
+  
   return (
     <div className={`fixed inset-0 pointer-events-none overflow-hidden ${className}`}>
       <div
@@ -198,18 +223,19 @@ const AuroraEffect: React.FC<AuroraEffectProps> = ({
             linear-gradient(
               45deg,
               transparent 30%,
-              rgba(227, 92, 39, ${intensity * 0.3}) 50%,
+              rgba(227, 92, 39, ${optimizedIntensity * 0.3}) 50%,
               transparent 70%
             ),
             linear-gradient(
               -45deg,
               transparent 30%,
-              rgba(251, 146, 60, ${intensity * 0.2}) 50%,
+              rgba(251, 146, 60, ${optimizedIntensity * 0.2}) 50%,
               transparent 70%
             )
           `,
           backgroundSize: '200% 200%',
-          animation: 'auroraShift 20s ease-in-out infinite'
+          animation: `auroraShift ${isMobile || isLowEndDevice ? 30 : 20}s ease-in-out infinite`,
+          willChange: 'background-position'
         }}
       />
       
@@ -237,6 +263,17 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
   showBeams = true, // Beams activado por defecto
   className = ''
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize visual effects for performance while maintaining quality
+  const optimizedEffects = isMobile || isLowEndDevice;
+  
+  // Adjust effect parameters for mobile optimization
+  const animatedBackgroundOpacity = optimizedEffects ? 'opacity-50' : 'opacity-70';
+  const geometricShapesOpacity = optimizedEffects ? 'opacity-40' : 'opacity-60';
+  const energyWavesOpacity = optimizedEffects ? 'opacity-25' : 'opacity-40';
+  const auroraOpacity = optimizedEffects ? 'opacity-30' : 'opacity-50';
+  
   return (
     <div className={`fixed inset-0 ${className}`}>
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
@@ -247,30 +284,30 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       )}
 
       {showAnimatedBackground && (
-        <div className="fixed inset-0 z-10 pointer-events-none opacity-70">
+        <div className={`fixed inset-0 z-10 pointer-events-none ${animatedBackgroundOpacity}`}>
           <AnimatedBackground
             gradientColors={['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f', '#1a1a1a']}
-            animationSpeed={15}
-            blurIntensity={80}
+            animationSpeed={optimizedEffects ? 25 : 15}
+            blurIntensity={optimizedEffects ? 60 : 80}
           />
         </div>
       )}
 
       {showGeometricShapes && (
-        <div className="fixed inset-0 z-10 pointer-events-none opacity-60">
-          <GeometricShapes count={6} />
+        <div className={`fixed inset-0 z-10 pointer-events-none ${geometricShapesOpacity}`}>
+          <GeometricShapes count={optimizedEffects ? 4 : 6} />
         </div>
       )}
 
       {showEnergyWaves && (
-        <div className="fixed inset-0 z-10 pointer-events-none opacity-40">
-          <EnergyWaves waveCount={2} />
+        <div className={`fixed inset-0 z-10 pointer-events-none ${energyWavesOpacity}`}>
+          <EnergyWaves waveCount={optimizedEffects ? 1 : 2} />
         </div>
       )}
 
       {showAurora && (
-        <div className="fixed inset-0 z-10 pointer-events-none opacity-50">
-          <AuroraEffect intensity={0.4} />
+        <div className={`fixed inset-0 z-10 pointer-events-none ${auroraOpacity}`}>
+          <AuroraEffect intensity={optimizedEffects ? 0.25 : 0.4} />
         </div>
       )}
     </div>

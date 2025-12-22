@@ -6,6 +6,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import { degToRad } from 'three/src/math/MathUtils.js';
 import '../styles/Beams.css';
+import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 
 type UniformValue = THREE.IUniform<unknown> | unknown;
@@ -77,11 +78,20 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
   return mat;
 }
 
-const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => (
-  <Canvas dpr={[1, 2]} frameloop="always" className="beams-container">
-    {children}
-  </Canvas>
-);
+const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize performance while maintaining quality
+  const dpr = isMobile || isLowEndDevice ? [1, 1.5] : [1, 2];
+  // Use 'always' for consistent animation but optimize internally
+  const frameloop = "always";
+  
+  return (
+    <Canvas dpr={dpr} frameloop={frameloop} className="beams-container">
+      {children}
+    </Canvas>
+  );
+};
 
 const hexToNormalizedRGB = (hex: string): [number, number, number] => {
   const clean = hex.replace('#', '');
@@ -192,7 +202,15 @@ const Beams: FC<BeamsProps> = ({
   scale = 0.2,
   rotation = 30
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
+
+  // Maintain visual quality while optimizing performance
+  const adjustedBeamNumber = isMobile || isLowEndDevice ? Math.max(8, Math.floor(beamNumber * 0.8)) : beamNumber;
+  const adjustedHeightSegments = isMobile || isLowEndDevice ? 70 : 100;
+  // Keep animation speed consistent for visual experience
+  const adjustedSpeed = speed;
+  const adjustedNoiseIntensity = isMobile || isLowEndDevice ? noiseIntensity * 0.85 : noiseIntensity;
 
   const beamMaterial = useMemo(
     () =>
@@ -242,19 +260,19 @@ const Beams: FC<BeamsProps> = ({
           time: { shared: true, mixed: true, linked: true, value: 0 },
           roughness: 0.3,
           metalness: 0.3,
-          uSpeed: { shared: true, mixed: true, linked: true, value: speed },
+          uSpeed: { shared: true, mixed: true, linked: true, value: adjustedSpeed },
           envMapIntensity: 10,
-          uNoiseIntensity: noiseIntensity,
+          uNoiseIntensity: adjustedNoiseIntensity,
           uScale: scale
         }
       }),
-    [speed, noiseIntensity, scale]
+    [adjustedSpeed, adjustedNoiseIntensity, scale]
   );
 
   return (
     <CanvasWrapper>
       <group rotation={[0, 0, degToRad(rotation)]}>
-        <PlaneNoise ref={meshRef} material={beamMaterial} count={beamNumber} width={beamWidth} height={beamHeight} />
+        <PlaneNoise ref={meshRef} material={beamMaterial} count={adjustedBeamNumber} width={beamWidth} height={beamHeight} />
         <DirLight color={lightColor} position={[0, 3, 10]} />
       </group>
       <ambientLight intensity={1} />
@@ -327,14 +345,21 @@ const MergedPlanes = forwardRef<
     height: number;
   }
 >(({ material, width, count, height }, ref) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
   const mesh = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
   useImperativeHandle(ref, () => mesh.current);
+  
+  // Reduce geometry complexity on mobile
+  const heightSegments = isMobile || isLowEndDevice ? 50 : 100;
   const geometry = useMemo(
-    () => createStackedPlanesBufferGeometry(count, width, height, 0, 100),
-    [count, width, height]
+    () => createStackedPlanesBufferGeometry(count, width, height, 0, heightSegments),
+    [count, width, height, heightSegments]
   );
+  
   useFrame((_, delta) => {
-    mesh.current.material.uniforms.time.value += 0.1 * delta;
+    // Maintain consistent frame rate for visual quality
+    const frameRateMultiplier = isMobile || isLowEndDevice ? 0.8 : 1;
+    mesh.current.material.uniforms.time.value += 0.1 * delta * frameRateMultiplier;
   });
   return <mesh ref={mesh} geometry={geometry} material={material} />;
 });

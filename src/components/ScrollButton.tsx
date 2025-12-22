@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface ScrollButtonProps {
   targetRef: React.RefObject<HTMLElement | null>;
@@ -31,6 +32,7 @@ export default function ScrollButton({
   enableDirectionDetection = true,
   customEasing
 }: ScrollButtonProps) {
+  const { isMobile, shouldReduceAnimations } = useMobileOptimization();
   // State management
   const [isVisible, setIsVisible] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
@@ -404,12 +406,13 @@ export default function ScrollButton({
     }
   }, [targetRef, isScrolling, offset, calculateDuration, smoothScrollTo, triggerHaptic]);
 
-  // Memoized computed values
+  // Memoized computed values with optimized transitions
   const buttonClasses = useMemo(() => [
     'relative overflow-hidden rounded-full bg-white text-black',
     'px-12 py-4 text-lg font-semibold',
-    'transform transition-all duration-500 ease-out',
-    'hover:bg-white/90 hover:scale-105 hover:-translate-y-1',
+    // Use optimized transitions that maintain visual quality
+    'transform transition-all duration-300 ease-out',
+    'hover:bg-white/90 hover:scale-[1.02] hover:-translate-y-0.5',
     'active:scale-95 active:translate-y-0',
     'focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2',
     'shadow-[0_14px_38px_rgba(0,0,0,0.35)]',
@@ -418,6 +421,7 @@ export default function ScrollButton({
     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
     isClicked ? 'scale-95' : '',
     isScrolling ? 'cursor-wait' : 'cursor-pointer',
+    // Only disable transitions for users who prefer reduced motion
     reducedMotionRef.current ? 'transition-none' : '',
     className
   ].filter(Boolean).join(' '), [isVisible, isClicked, isScrolling, className]);
@@ -450,6 +454,7 @@ export default function ScrollButton({
 
       {/* Enhanced shine effect */}
       <div className="absolute inset-0 overflow-hidden rounded-full">
+        {/* Optimize shine effect for performance while maintaining visual quality */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700 ease-out hover:translate-x-full" />
         
         {/* Additional shimmer effect during scroll */}
@@ -458,7 +463,7 @@ export default function ScrollButton({
         )}
       </div>
       
-      {/* Enhanced particle effects */}
+      {/* Enhanced particle effects with performance optimization */}
       <div className="absolute inset-0 pointer-events-none">
         <div 
           className="absolute w-1 h-1 bg-white rounded-full opacity-50"
@@ -466,7 +471,8 @@ export default function ScrollButton({
             left: '20%',
             top: '30%',
             animation: reducedMotionRef.current ? 'none' : 'float 3s ease-in-out infinite',
-            animationDelay: '0s'
+            animationDelay: '0s',
+            willChange: 'transform'
           }}
         />
         <div 
@@ -475,7 +481,8 @@ export default function ScrollButton({
             left: '60%',
             top: '70%',
             animation: reducedMotionRef.current ? 'none' : 'float 4s ease-in-out infinite',
-            animationDelay: '1s'
+            animationDelay: '1s',
+            willChange: 'transform'
           }}
         />
         <div 
@@ -484,7 +491,8 @@ export default function ScrollButton({
             left: '80%',
             top: '20%',
             animation: reducedMotionRef.current ? 'none' : 'float 3.5s ease-in-out infinite',
-            animationDelay: '2s'
+            animationDelay: '2s',
+            willChange: 'transform'
           }}
         />
         
@@ -496,7 +504,8 @@ export default function ScrollButton({
               style={{
                 left: '10%',
                 top: '50%',
-                animationDuration: '1s'
+                animationDuration: '1s',
+                willChange: 'transform'
               }}
             />
             <div 
@@ -505,7 +514,8 @@ export default function ScrollButton({
                 left: '90%',
                 top: '60%',
                 animationDuration: '1.5s',
-                animationDelay: '0.5s'
+                animationDelay: '0.5s',
+                willChange: 'transform'
               }}
             />
           </>
@@ -524,17 +534,17 @@ export default function ScrollButton({
         )}
       </span>
       
-      {/* Enhanced pulse effect */}
-      <div className="absolute inset-0 rounded-full bg-white opacity-0 transition-opacity duration-300 hover:opacity-10" />
+      {/* Enhanced pulse effect with performance optimization */}
+      <div className="absolute inset-0 rounded-full bg-white opacity-0 transition-opacity duration-300 hover:opacity-10" style={{ willChange: 'opacity' }} />
       
       {/* Active state enhancement */}
       {isScrolling && !reducedMotionRef.current && (
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 animate-pulse" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 animate-pulse" style={{ willChange: 'opacity' }} />
       )}
       
       {/* Scroll direction indicator */}
       {enableDirectionDetection && (
-        <div className="absolute top-2 right-2 text-xs opacity-30">
+        <div className="absolute top-2 right-2 text-xs opacity-30" style={{ willChange: 'contents' }}>
           {scrollDirection === 'down' ? '↓' : '↑'}
         </div>
       )}

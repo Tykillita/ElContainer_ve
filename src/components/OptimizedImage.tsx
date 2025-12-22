@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -35,11 +35,30 @@ export default function OptimizedImage({
   }, [fallbackSrc, imageError]);
 
   // Determinar qué imagen cargar
-  const currentSrc = imageError && fallbackSrc 
-    ? fallbackSrc 
-    : isLowEndDevice && lowQualitySrc 
-    ? lowQualitySrc 
-    : src;
+  const currentSrc = useMemo(() => {
+    return imageError && fallbackSrc 
+      ? fallbackSrc 
+      : isLowEndDevice && lowQualitySrc 
+      ? lowQualitySrc 
+      : src;
+  }, [imageError, fallbackSrc, isLowEndDevice, lowQualitySrc, src]);
+
+  // Optimize placeholder for mobile
+  const placeholderStyle = useMemo(() => ({
+    backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%)',
+    backgroundSize: '200% 100%',
+    animation: isMobile ? 'shimmer 3s infinite' : 'shimmer 1.5s infinite'
+  }), [isMobile]);
+
+  // Optimize image style for mobile
+  const imageStyle = useMemo(() => ({
+    ...style,
+    // En móviles, usar transform para evitar repaints costosos
+    transform: isMobile ? 'translateZ(0)' : style?.transform,
+    willChange: isMobile ? 'transform' : 'auto',
+    backfaceVisibility: 'hidden',
+    imageRendering: isMobile ? 'optimizeSpeed' : 'auto',
+  }), [style, isMobile]);
 
   return (
     <div 
@@ -53,11 +72,7 @@ export default function OptimizedImage({
       {!imageLoaded && isMobile && (
         <div 
           className="absolute inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 animate-pulse"
-          style={{
-            backgroundImage: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 1.5s infinite'
-          }}
+          style={placeholderStyle}
         />
       )}
       
@@ -68,15 +83,8 @@ export default function OptimizedImage({
         onLoad={handleImageLoad}
         onError={handleImageError}
         className={`transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'} ${className || ''}`}
-        style={{
-          ...style,
-          // En móviles, usar transform para evitar repaints costosos
-          transform: isMobile ? 'translateZ(0)' : style?.transform,
-          willChange: isMobile ? 'transform' : 'auto',
-          backfaceVisibility: 'hidden',
-          imageRendering: isMobile ? 'auto' : 'auto',
-        }}
-        loading={loading}
+        style={imageStyle}
+        loading={isMobile ? "eager" : loading} // Load eagerly on mobile for better perceived performance
       />
     </div>
   );

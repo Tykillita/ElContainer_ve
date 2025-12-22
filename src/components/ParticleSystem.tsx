@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface Particle {
   x: number;
@@ -28,6 +29,10 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize particle count for mobile devices
+  const optimizedParticleCount = isMobile || isLowEndDevice ? Math.max(15, Math.floor(particleCount * 0.4)) : particleCount;
 
   useEffect(() => {
     if (!enabled) return;
@@ -59,7 +64,7 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
 
     const initParticles = () => {
       particlesRef.current = [];
-      for (let i = 0; i < particleCount; i++) {
+      for (let i = 0; i < optimizedParticleCount; i++) {
         particlesRef.current.push(createParticle());
       }
     };
@@ -99,10 +104,20 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
       });
     };
 
+    // Optimize animation frame rate for mobile
     const animate = () => {
       updateParticles();
       drawParticles();
-      animationRef.current = requestAnimationFrame(animate);
+      
+      // On mobile devices, skip frames to reduce CPU usage
+      if (isMobile || isLowEndDevice) {
+        animationRef.current = requestAnimationFrame(() => {
+          // Skip one frame out of every two on mobile
+          animationRef.current = requestAnimationFrame(animate);
+        });
+      } else {
+        animationRef.current = requestAnimationFrame(animate);
+      }
     };
 
     resizeCanvas();
@@ -121,13 +136,16 @@ const ParticleSystem: React.FC<ParticleSystemProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [particleCount, colors, enabled]);
+  }, [optimizedParticleCount, colors, enabled]);
 
   return (
     <canvas
       ref={canvasRef}
       className={`fixed inset-0 pointer-events-none z-0 ${className}`}
-      style={{ opacity: 0.6 }}
+      style={{ 
+        opacity: isMobile || isLowEndDevice ? 0.4 : 0.6,
+        willChange: 'opacity'
+      }}
     />
   );
 };
@@ -148,12 +166,18 @@ export const FloatingElement: React.FC<FloatingElementProps> = ({
   duration = 6,
   className = ''
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize animation for mobile devices
+  const optimizedDuration = isMobile || isLowEndDevice ? duration * 1.5 : duration;
+  
   return (
     <div
       className={`animate-pulse ${className}`}
       style={{
-        animation: `float ${duration}s ease-in-out infinite`,
-        animationDelay: `${delay}s`
+        animation: `float ${optimizedDuration}s ease-in-out infinite`,
+        animationDelay: `${delay}s`,
+        willChange: 'transform'
       }}
     >
       {children}
@@ -173,13 +197,19 @@ export const AmbientLight: React.FC<AmbientLightProps> = ({
   intensity = 0.1,
   className = ''
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize intensity for mobile devices
+  const optimizedIntensity = isMobile || isLowEndDevice ? intensity * 0.7 : intensity;
+  
   return (
     <div
       className={`fixed inset-0 pointer-events-none ${className}`}
       style={{
         background: `radial-gradient(circle at 50% 50%, ${color}22 0%, transparent 70%)`,
-        opacity: intensity,
-        animation: 'pulse 4s ease-in-out infinite'
+        opacity: optimizedIntensity,
+        animation: `pulse ${isMobile || isLowEndDevice ? 6 : 4}s ease-in-out infinite`,
+        willChange: 'opacity'
       }}
     />
   );
@@ -199,11 +229,17 @@ export const GlowEffect: React.FC<GlowEffectProps> = ({
   intensity = 0.5,
   className = ''
 }) => {
+  const { isMobile, isLowEndDevice } = useMobileOptimization();
+  
+  // Optimize intensity for mobile devices
+  const optimizedIntensity = isMobile || isLowEndDevice ? intensity * 0.7 : intensity;
+  
   return (
     <div
       className={`relative ${className}`}
       style={{
-        filter: `drop-shadow(0 0 ${intensity * 20}px ${color})`
+        filter: `drop-shadow(0 0 ${optimizedIntensity * 20}px ${color})`,
+        willChange: 'filter'
       }}
     >
       {children}
@@ -211,7 +247,8 @@ export const GlowEffect: React.FC<GlowEffectProps> = ({
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `radial-gradient(circle, ${color}33 0%, transparent 70%)`,
-          animation: 'pulse 2s ease-in-out infinite'
+          animation: `pulse ${isMobile || isLowEndDevice ? 3 : 2}s ease-in-out infinite`,
+          willChange: 'opacity'
         }}
       />
     </div>
