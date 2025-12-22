@@ -1,56 +1,5 @@
-
-
-
-.beams-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+.beams-container {
+  position: relative;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%);
-  animation: beamsMove 20s ease-in-out infinite;
-}
-
-@keyframes beamsMove {
-  0%, 100% {
-    transform: translateX(-10px) translateY(-5px);
-  }
-  50% {
-    transform: translateX(10px) translateY(5px);
-  }
-}
-
-
-
-.debug-beams-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  pointer-events: none;
-  z-index: -1;
-}
-
-
-
-html, body, #root {
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-.beams-container {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10;
-  background: transparent;
 }
