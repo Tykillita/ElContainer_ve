@@ -9,7 +9,7 @@ import Services from './pages/Services';
 import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
-import BeamsFixed from './components/BeamsFixed';
+// import BeamsFixed from './components/BeamsFixed';
 import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 import BackgroundCompositor from './components/BackgroundEffects';
 import { AppProvider } from './context/AppContext';
@@ -25,19 +25,7 @@ function ScrollToTop() {
 function AppLayout() {
   return (
     <div className="relative min-h-screen text-sand" style={{backgroundColor: 'rgba(0,0,0,0)'}}>
-      {/* Fondo 3D con beams */}
-      <div className="fixed inset-0 z-[-1]">
-        <BeamsFixed
-          beamWidth={3}
-          beamHeight={50}
-          beamNumber={14}
-          lightColor="#ffffff"
-          speed={2.8}
-          noiseIntensity={1.5}
-          scale={0.15}
-          rotation={25}
-        />
-      </div>
+      {/* Fondo 3D con beams gestionado por BackgroundCompositor */}
       
       {/* Sistema de partículas flotantes */}
       <ParticleSystem
@@ -56,10 +44,11 @@ function AppLayout() {
       
       {/* Compositor de efectos de fondo avanzados */}
       <BackgroundCompositor
-        showAnimatedBackground={true}
-        showGeometricShapes={true}
-        showEnergyWaves={true}
-        showAurora={true}
+        showBeams={true}
+        showAnimatedBackground={false}
+        showGeometricShapes={false}
+        showEnergyWaves={false}
+        showAurora={false}
         className="z-[-3]"
       />
       {/* Fallback CSS en caso de que Three.js no cargue */}

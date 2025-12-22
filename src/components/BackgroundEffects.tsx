@@ -1,4 +1,6 @@
+
 import React, { useEffect, useRef } from 'react';
+import Beams from './Beams';
 
 interface AnimatedBackgroundProps {
   className?: string;
@@ -217,45 +219,75 @@ const AuroraEffect: React.FC<AuroraEffectProps> = ({
 };
 
 // Main background compositor
+
 interface BackgroundCompositorProps {
   showAnimatedBackground?: boolean;
   showGeometricShapes?: boolean;
   showEnergyWaves?: boolean;
   showAurora?: boolean;
+  showBeams?: boolean;
   className?: string;
 }
 
 const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
-  showAnimatedBackground = true,
-  showGeometricShapes = true,
-  showEnergyWaves = true,
-  showAurora = true,
+  showAnimatedBackground = false,
+  showGeometricShapes = false,
+  showEnergyWaves = false,
+  showAurora = false,
+  showBeams = true, // Beams activado por defecto
   className = ''
 }) => {
   return (
     <div className={`fixed inset-0 ${className}`}>
+      {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
+      {showBeams && (
+        <div className="fixed inset-0 z-10">
+          <Beams />
+        </div>
+      )}
+
       {showAnimatedBackground && (
-        <AnimatedBackground
-          gradientColors={['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f', '#1a1a1a']}
-          animationSpeed={15}
-          blurIntensity={80}
-        />
+        <div className="fixed inset-0 z-[-1]">
+          <AnimatedBackground
+            gradientColors={['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f', '#1a1a1a']}
+            animationSpeed={15}
+            blurIntensity={80}
+          />
+        </div>
       )}
-      
+
       {showGeometricShapes && (
-        <GeometricShapes count={6} />
+        <div className="fixed inset-0 z-[-1]">
+          <GeometricShapes count={6} />
+        </div>
       )}
-      
+
       {showEnergyWaves && (
-        <EnergyWaves waveCount={2} />
+        <div className="fixed inset-0 z-[-1]">
+          <EnergyWaves waveCount={2} />
+        </div>
       )}
-      
+
       {showAurora && (
-        <AuroraEffect intensity={0.4} />
+        <div className="fixed inset-0 z-[-1]">
+          <AuroraEffect intensity={0.4} />
+        </div>
       )}
     </div>
   );
 };
 
+/**
+ * BackgroundCompositor: Componente principal para efectos de fondo.
+ * Props:
+ * - showAnimatedBackground: Muestra fondo animado canvas.
+ * - showGeometricShapes: Muestra figuras geométricas flotantes.
+ * - showEnergyWaves: Muestra ondas de energía.
+ * - showAurora: Muestra efecto aurora.
+ * - showBeams: Muestra fondo 3D tipo Beams (requiere @react-three/fiber).
+ *
+ * Ejemplo de uso:
+ * <BackgroundCompositor showBeams={true} showAnimatedBackground={false} />
+ */
 export default BackgroundCompositor;
-export { AnimatedBackground, GeometricShapes, EnergyWaves, AuroraEffect };
+export { AnimatedBackground, GeometricShapes, EnergyWaves, AuroraEffect, Beams };

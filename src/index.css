@@ -5,12 +5,12 @@
   header .flex.items-center.gap-2 img[src*="container"],
   header .flex.items-center.gap-2 img[alt*="Container"],
   header .flex.items-center.gap-2 img[alt*="logo"] {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    min-height: 36px !important;
-    max-width: 36px !important;
-    max-height: 36px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     padding: 0 !important;
     margin: 0 !important;
     object-fit: contain !important;
@@ -29,22 +29,22 @@
   
   /* Fallback con selectores aún más específicos */
   div[class*="flex items-center gap-2"] img[alt*="Container"] {
-    width: 36px !important;
-    height: 36px !important;
-    max-width: 36px !important;
-    max-height: 36px !important;
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
   }
 }
 
 /* Desktop logo sizing */
 @media (min-width: 769px) {
   header .header-logo {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    min-height: 42px !important;
-    max-width: 42px !important;
-    max-height: 42px !important;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+    max-width: 46px !important;
+    max-height: 46px !important;
     object-fit: contain !important;
     flex-shrink: 0 !important;
   }
@@ -75,12 +75,27 @@ body {
 
 /* Adjust header padding for better balance */
 @media (min-width: 769px) {
-  header.py-2.sm\:py-4 {
+  header.py-3 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  
+  header .rounded-2xl.border.border-white\/20.bg-white\/15.px-5.sm\:px-6.py-3 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+}
+
+/* Mobile header adjustments */
+@media (max-width: 768px) {
+  header.py-3 {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
   }
   
-  header .rounded-2xl.border.border-white\/15.bg-white\/10.px-4.sm\:px-8.py-2.sm\:py-4 {
+  header .rounded-2xl.border.border-white\/20.bg-white\/15.px-5.sm\:px-6.py-3 {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
     padding-left: 1rem !important;

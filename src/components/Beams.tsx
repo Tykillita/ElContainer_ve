@@ -8,7 +8,7 @@ const TestCube: React.FC = () => {
   return (
     <mesh>
       <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#ffffff" />
+      <meshStandardMaterial color="#ff2222" />
     </mesh>
   );
 };

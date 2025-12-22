@@ -51,25 +51,25 @@ export default function Header() {
   }, [menuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-30 py-2 bg-transparent">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="relative flex items-center justify-between gap-4 rounded-xl border border-white/15 bg-white/10 px-4 py-2 shadow-[0_5px_30px_rgba(0,0,0,0.3)] backdrop-blur-md" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
-          <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white min-w-0 flex-1">
+    <header className="fixed top-0 left-0 w-full z-30 py-3 bg-transparent">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="relative flex items-center justify-between gap-5 rounded-2xl border border-white/20 bg-white/15 px-5 sm:px-6 py-3 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }}>
+          <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white min-w-0">
             <img 
               src={logo}
               alt="El Container"
               className="header-logo"
             />
-            <span className="hidden md:inline text-sm whitespace-nowrap">EL CONTAINER</span>
+            <span className="hidden md:inline text-base whitespace-nowrap">EL CONTAINER</span>
             <span className="md:hidden text-xs whitespace-nowrap">EL CONTAINER</span>
           </div>
 
-          <nav className="hidden flex-1 items-center justify-center gap-5 text-xs uppercase tracking-[0.08em] md:flex">
+          <nav className="hidden items-center justify-center gap-6 text-sm uppercase tracking-[0.08em] md:flex flex-1">
             {navItems.map((item) => (
               <Link 
                 key={item.to} 
                 to={item.to} 
-                className={`${linkClass(item.to)} relative px-2 py-1 transition-all duration-200`}
+                className={`${linkClass(item.to)} relative px-3 py-2 transition-all duration-200`}
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
@@ -80,21 +80,21 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.08em] flex-shrink-0">
+          <div className="flex items-center gap-4 text-sm uppercase tracking-[0.08em]">
             <Link 
               to="/onboarding" 
-              className={`${linkClass('/onboarding')} hidden md:inline px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 text-xs border border-white/20`} 
+              className={`${linkClass('/onboarding')} hidden md:inline px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 transition-all duration-200 border border-white/25`} 
               onClick={() => setMenuOpen(false)}
             >
               Iniciar sesión
             </Link>
             <button
-              className="group flex h-8 w-8 items-center justify-center text-white transition-all duration-200 hover:bg-white/10 rounded-lg md:hidden"
+              className="group flex h-10 w-10 items-center justify-center text-white transition-all duration-200 hover:bg-white/15 rounded-xl md:hidden"
               onClick={() => setMenuOpen((v) => !v)}
               ref={toggleRef}
               aria-label="Abrir menu"
             >
-              <span className="relative block h-5 w-5">
+              <span className="relative block h-6 w-6">
                 <span
                   className="absolute left-0 block h-0.5 w-full rounded-full bg-current transition-all duration-200 ease-in-out"
                   style={{
@@ -128,13 +128,13 @@ export default function Header() {
 
           <div
             ref={menuRef}
-            className={`absolute right-2 top-[calc(100%+0.5rem)] w-48 rounded-xl border border-white/20 bg-black/80 p-3 text-xs uppercase tracking-[0.08em] text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-lg transition-all duration-200 ease-out origin-top-right ${
+            className={`absolute right-3 top-[calc(100%+0.75rem)] w-52 rounded-2xl border border-white/25 bg-black/85 p-4 text-sm uppercase tracking-[0.08em] text-white shadow-[0_15px_50px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-200 ease-out origin-top-right ${
               menuOpen ? 'pointer-events-auto opacity-100 scale-100 translate-y-0' : 'pointer-events-none opacity-0 scale-95 -translate-y-2'
             }`}
-            style={{ backgroundColor: 'rgba(10, 10, 15, 0.9)' }}
+            style={{ backgroundColor: 'rgba(15, 15, 20, 0.92)' }}
           >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/05 via-white/02 to-transparent pointer-events-none" />
-            <div className="relative flex flex-col gap-1.5">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/05 via-white/02 to-transparent pointer-events-none" />
+            <div className="relative flex flex-col gap-2">
               {navItems.map((item, idx) => {
                 const delay = menuOpen ? idx * delayStep : (navItems.length - 1 - idx) * delayStep;
                 return (
@@ -151,10 +151,10 @@ export default function Header() {
                   </Link>
                 );
               })}
-              <div className="pt-2 mt-1 border-t border-white/10">
+              <div className="pt-3 mt-2 border-t border-white/15">
                 <Link 
                   to="/onboarding" 
-                  className="w-full text-right rounded-lg px-3 py-2 text-white/80 hover:bg-white/15 transition-all duration-200 block"
+                  className="w-full text-right rounded-xl px-4 py-3 text-white/85 hover:bg-white/20 transition-all duration-200 block"
                   onClick={() => setMenuOpen(false)}
                 >
                   Iniciar sesión
