@@ -47,7 +47,7 @@ export default function Home() {
             />
           </FloatingElement>
           <h1
-            className="font-hero text-[clamp(1.7rem,6vw,3.5rem)] md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)] leading-[0.95] tracking-[0.06em] uppercase text-transparent bg-clip-text inline-block mb-5"
+            className="font-hero text-[clamp(2.1rem,8vw,3.2rem)] md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)] leading-[0.95] tracking-[0.04em] uppercase text-transparent bg-clip-text inline-block mb-5"
             style={{
               backgroundImage:
                 'linear-gradient(180deg,#f7f7f7 0%,#ededed 22%,#d5d5d5 42%,#9b9b9b 60%,#e4e4e4 78%,#8a8a8a 100%)',
