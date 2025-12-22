@@ -80,7 +80,7 @@ body {
     padding-bottom: 0.75rem !important;
   }
   
-  header .rounded-2xl.border.border-white\/20.bg-white\/15.px-5.sm\:px-6.py-3 {
+  header .rounded-2xl.border.border-white\/15.bg-white\/5.px-5.sm\:px-6.py-3 {
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
     padding-left: 1.25rem !important;
@@ -95,7 +95,7 @@ body {
     padding-bottom: 0.5rem !important;
   }
   
-  header .rounded-2xl.border.border-white\/20.bg-white\/15.px-5.sm\:px-6.py-3 {
+  header .rounded-2xl.border.border-white\/15.bg-white\/5.px-5.sm\:px-6.py-3 {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
     padding-left: 1rem !important;

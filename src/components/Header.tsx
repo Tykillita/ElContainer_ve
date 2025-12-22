@@ -53,7 +53,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 w-full z-30 py-3 bg-transparent">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative flex items-center justify-between gap-5 rounded-2xl border border-white/20 bg-white/15 px-5 sm:px-6 py-3 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.12)' }}>
+        <div className="relative flex items-center justify-between gap-5 rounded-2xl border border-white/15 bg-white/5 px-5 sm:px-6 py-3 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
           <div className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white min-w-0">
             <img 
               src={logo}
@@ -128,10 +128,10 @@ export default function Header() {
 
           <div
             ref={menuRef}
-            className={`absolute right-3 top-[calc(100%+0.75rem)] w-52 rounded-2xl border border-white/25 bg-black/85 p-4 text-sm uppercase tracking-[0.08em] text-white shadow-[0_15px_50px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-200 ease-out origin-top-right ${
+            className={`absolute right-3 top-[calc(100%+0.75rem)] w-52 rounded-2xl border border-white/20 bg-black/75 p-4 text-sm uppercase tracking-[0.08em] text-white shadow-[0_15px_50px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-200 ease-out origin-top-right ${
               menuOpen ? 'pointer-events-auto opacity-100 scale-100 translate-y-0' : 'pointer-events-none opacity-0 scale-95 -translate-y-2'
             }`}
-            style={{ backgroundColor: 'rgba(15, 15, 20, 0.92)' }}
+            style={{ backgroundColor: 'rgba(10, 10, 15, 0.85)' }}
           >
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/05 via-white/02 to-transparent pointer-events-none" />
             <div className="relative flex flex-col gap-2">
