@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import { degToRad } from 'three/src/math/MathUtils.js';
-import './Beams.css';
+import '../styles/Beams.css';
 
 
 type UniformValue = THREE.IUniform<unknown> | unknown;
