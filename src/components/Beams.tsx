@@ -29,65 +29,86 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
   BaseMaterial: new (params?: THREE.MaterialParameters) => T,
   cfg: ExtendMaterialConfig
 ): THREE.ShaderMaterial {
-  const physical = THREE.ShaderLib.physical as ShaderWithDefines;
-  const { vertexShader: baseVert, fragmentShader: baseFrag, uniforms: baseUniforms } = physical;
-  const baseDefines = physical.defines ?? {};
+  try {
+    const physical = THREE.ShaderLib.physical as ShaderWithDefines;
+    const { vertexShader: baseVert, fragmentShader: baseFrag, uniforms: baseUniforms } = physical;
+    const baseDefines = physical.defines ?? {};
 
-  const uniforms: Record<string, THREE.IUniform> = THREE.UniformsUtils.clone(baseUniforms);
+    const uniforms: Record<string, THREE.IUniform> = THREE.UniformsUtils.clone(baseUniforms);
 
-  const defaults = new BaseMaterial(cfg.material || {}) as T & {
-    color?: THREE.Color;
-    roughness?: number;
-    metalness?: number;
-    envMap?: THREE.Texture;
-    envMapIntensity?: number;
-  };
+    const defaults = new BaseMaterial(cfg.material || {}) as T & {
+      color?: THREE.Color;
+      roughness?: number;
+      metalness?: number;
+      envMap?: THREE.Texture;
+      envMapIntensity?: number;
+    };
 
-  if (defaults.color) uniforms.diffuse.value = defaults.color;
-  if ('roughness' in defaults) uniforms.roughness.value = defaults.roughness;
-  if ('metalness' in defaults) uniforms.metalness.value = defaults.metalness;
-  if ('envMap' in defaults) uniforms.envMap.value = defaults.envMap;
-  if ('envMapIntensity' in defaults) uniforms.envMapIntensity.value = defaults.envMapIntensity;
+    if (defaults.color) uniforms.diffuse.value = defaults.color;
+    if ('roughness' in defaults) uniforms.roughness.value = defaults.roughness;
+    if ('metalness' in defaults) uniforms.metalness.value = defaults.metalness;
+    if ('envMap' in defaults) uniforms.envMap.value = defaults.envMap;
+    if ('envMapIntensity' in defaults) uniforms.envMapIntensity.value = defaults.envMapIntensity;
 
-  Object.entries(cfg.uniforms ?? {}).forEach(([key, u]) => {
-    uniforms[key] =
-      u !== null && typeof u === 'object' && 'value' in u
-        ? (u as THREE.IUniform<unknown>)
-        : ({ value: u } as THREE.IUniform<unknown>);
-  });
+    Object.entries(cfg.uniforms ?? {}).forEach(([key, u]) => {
+      uniforms[key] =
+        u !== null && typeof u === 'object' && 'value' in u
+          ? (u as THREE.IUniform<unknown>)
+          : ({ value: u } as THREE.IUniform<unknown>);
+    });
 
-  let vert = `${cfg.header}\n${cfg.vertexHeader ?? ''}\n${baseVert}`;
-  let frag = `${cfg.header}\n${cfg.fragmentHeader ?? ''}\n${baseFrag}`;
+    let vert = `${cfg.header}\n${cfg.vertexHeader ?? ''}\n${baseVert}`;
+    let frag = `${cfg.header}\n${cfg.fragmentHeader ?? ''}\n${baseFrag}`;
 
-  for (const [inc, code] of Object.entries(cfg.vertex ?? {})) {
-    vert = vert.replace(inc, `${inc}\n${code}`);
+    for (const [inc, code] of Object.entries(cfg.vertex ?? {})) {
+      vert = vert.replace(inc, `${inc}\n${code}`);
+    }
+    for (const [inc, code] of Object.entries(cfg.fragment ?? {})) {
+      frag = frag.replace(inc, `${inc}\n${code}`);
+    }
+
+    const mat = new THREE.ShaderMaterial({
+      defines: { ...baseDefines },
+      uniforms,
+      vertexShader: vert,
+      fragmentShader: frag,
+      lights: true,
+      fog: !!cfg.material?.fog
+    });
+
+    return mat;
+  } catch (error) {
+    console.error('Error extending material:', error);
+    // Return a basic material as fallback
+    return new THREE.MeshBasicMaterial({ color: 0xff0000 });
   }
-  for (const [inc, code] of Object.entries(cfg.fragment ?? {})) {
-    frag = frag.replace(inc, `${inc}\n${code}`);
-  }
-
-  const mat = new THREE.ShaderMaterial({
-    defines: { ...baseDefines },
-    uniforms,
-    vertexShader: vert,
-    fragmentShader: frag,
-    lights: true,
-    fog: !!cfg.material?.fog
-  });
-
-  return mat;
 }
 
 const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { isMobile, isLowEndDevice } = useMobileOptimization();
   
   // Optimize performance while maintaining quality
-  const dpr = isMobile || isLowEndDevice ? [1, 1.5] : [1, 2];
+  const dpr = useMemo(() => isMobile || isLowEndDevice ? [1, 1.5] : [1, 2], [isMobile, isLowEndDevice]);
   // Use 'always' for consistent animation but optimize internally
   const frameloop = "always";
   
+  // Fallback for browsers that don't support WebGL
+  const fallback = (
+    <div className="beams-container" style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100%',
+      backgroundColor: '#000',
+      color: '#fff',
+      fontSize: '14px'
+    }}>
+      WebGL is not supported in your browser
+    </div>
+  );
+  
   return (
-    <Canvas dpr={dpr} frameloop={frameloop} className="beams-container">
+    <Canvas dpr={dpr} frameloop={frameloop} className="beams-container" fallback={fallback}>
       {children}
     </Canvas>
   );
@@ -95,9 +116,17 @@ const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
 
 const hexToNormalizedRGB = (hex: string): [number, number, number] => {
   const clean = hex.replace('#', '');
+  // Ensure we have a valid hex color
+  if (clean.length !== 6) {
+    return [0, 0, 0];
+  }
   const r = parseInt(clean.substring(0, 2), 16);
   const g = parseInt(clean.substring(2, 4), 16);
   const b = parseInt(clean.substring(4, 6), 16);
+  // Validate parsed values
+  if (isNaN(r) || isNaN(g) || isNaN(b)) {
+    return [0, 0, 0];
+  }
   return [r / 255, g / 255, b / 255];
 };
 
@@ -206,16 +235,17 @@ const Beams: FC<BeamsProps> = ({
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
 
   // Maintain visual quality while optimizing performance
-  const adjustedBeamNumber = isMobile || isLowEndDevice ? Math.max(8, Math.floor(beamNumber * 0.8)) : beamNumber;
-  const adjustedHeightSegments = isMobile || isLowEndDevice ? 70 : 100;
+  const adjustedBeamNumber = useMemo(() => isMobile || isLowEndDevice ? Math.max(8, Math.floor(beamNumber * 0.8)) : beamNumber, [isMobile, isLowEndDevice, beamNumber]);
+  const adjustedHeightSegments = useMemo(() => isMobile || isLowEndDevice ? 70 : 100, [isMobile, isLowEndDevice]);
   // Keep animation speed consistent for visual experience
   const adjustedSpeed = speed;
-  const adjustedNoiseIntensity = isMobile || isLowEndDevice ? noiseIntensity * 0.85 : noiseIntensity;
+  const adjustedNoiseIntensity = useMemo(() => isMobile || isLowEndDevice ? noiseIntensity * 0.85 : noiseIntensity, [isMobile, isLowEndDevice, noiseIntensity]);
 
   const beamMaterial = useMemo(
-    () =>
-      extendMaterial(THREE.MeshStandardMaterial, {
-        header: `
+    () => {
+      try {
+        return extendMaterial(THREE.MeshStandardMaterial, {
+          header: `
   varying vec3 vEye;
   varying float vNoise;
   varying vec2 vUv;
@@ -225,7 +255,7 @@ const Beams: FC<BeamsProps> = ({
   uniform float uNoiseIntensity;
   uniform float uScale;
   ${noise}`,
-        vertexHeader: `
+          vertexHeader: `
   float getPos(vec3 pos) {
     vec3 noisePos =
       vec3(pos.x * 0., pos.y - uv.y, pos.z + time * uSpeed * 3.) * uScale;
@@ -244,42 +274,66 @@ const Beams: FC<BeamsProps> = ({
     vec3 tangentZ = normalize(nextposZ - curpos);
     return normalize(cross(tangentZ, tangentX));
   }`,
-        fragmentHeader: '',
-        vertex: {
-          '#include <begin_vertex>': `transformed.z += getPos(transformed.xyz);`,
-          '#include <beginnormal_vertex>': `objectNormal = getNormal(position.xyz);`
-        },
-        fragment: {
-          '#include <dithering_fragment>': `
+          fragmentHeader: '',
+          vertex: {
+            '#include <begin_vertex>': `transformed.z += getPos(transformed.xyz);`,
+            '#include <beginnormal_vertex>': `objectNormal = getNormal(position.xyz);`
+          },
+          fragment: {
+            '#include <dithering_fragment>': `
     float randomNoise = noise(gl_FragCoord.xy);
     gl_FragColor.rgb -= randomNoise / 15. * uNoiseIntensity;`
-        },
-        material: { fog: true },
-        uniforms: {
-          diffuse: new THREE.Color(...hexToNormalizedRGB('#000000')),
-          time: { shared: true, mixed: true, linked: true, value: 0 },
-          roughness: 0.3,
-          metalness: 0.3,
-          uSpeed: { shared: true, mixed: true, linked: true, value: adjustedSpeed },
-          envMapIntensity: 10,
-          uNoiseIntensity: adjustedNoiseIntensity,
-          uScale: scale
-        }
-      }),
-    [adjustedSpeed, adjustedNoiseIntensity, scale]
+          },
+          material: { fog: true },
+          uniforms: {
+            diffuse: new THREE.Color(...hexToNormalizedRGB('#000000')),
+            time: { shared: true, mixed: true, linked: true, value: 0 },
+            roughness: 0.3,
+            metalness: 0.3,
+            uSpeed: { shared: true, mixed: true, linked: true, value: adjustedSpeed },
+            envMapIntensity: 10,
+            uNoiseIntensity: adjustedNoiseIntensity,
+            uScale: scale
+          }
+        });
+      } catch (error) {
+        console.error('Error creating beam material:', error);
+        // Return a basic material as fallback
+        return new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      }
+    },
+    [adjustedSpeed, adjustedNoiseIntensity, scale, noise]
   );
 
-  return (
-    <CanvasWrapper>
-      <group rotation={[0, 0, degToRad(rotation)]}>
-        <PlaneNoise ref={meshRef} material={beamMaterial} count={adjustedBeamNumber} width={beamWidth} height={beamHeight} />
-        <DirLight color={lightColor} position={[0, 3, 10]} />
-      </group>
-      <ambientLight intensity={1} />
-      <color attach="background" args={['#000000']} />
-      <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={30} />
-    </CanvasWrapper>
-  );
+  try {
+    return (
+      <CanvasWrapper>
+        <group rotation={[0, 0, degToRad(rotation)]}>
+          <PlaneNoise ref={meshRef} material={beamMaterial} count={adjustedBeamNumber} width={beamWidth} height={beamHeight} />
+          <DirLight color={lightColor} position={[0, 3, 10]} />
+        </group>
+        <ambientLight intensity={1} />
+        <color attach="background" args={['#000000']} />
+        <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={30} />
+      </CanvasWrapper>
+    );
+  } catch (error) {
+    console.error('Error rendering Beams component:', error);
+    // Return a simple fallback
+    return (
+      <div style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: '#fff'
+      }}>
+        <p>Error loading 3D beams effect</p>
+      </div>
+    );
+  }
 };
 
 function createStackedPlanesBufferGeometry(
@@ -289,51 +343,58 @@ function createStackedPlanesBufferGeometry(
   spacing: number,
   heightSegments: number
 ): THREE.BufferGeometry {
-  const geometry = new THREE.BufferGeometry();
-  const numVertices = n * (heightSegments + 1) * 2;
-  const numFaces = n * heightSegments * 2;
-  const positions = new Float32Array(numVertices * 3);
-  const indices = new Uint32Array(numFaces * 3);
-  const uvs = new Float32Array(numVertices * 2);
+  try {
+    const geometry = new THREE.BufferGeometry();
+    const numVertices = n * (heightSegments + 1) * 2;
+    const numFaces = n * heightSegments * 2;
+    const positions = new Float32Array(numVertices * 3);
+    const indices = new Uint32Array(numFaces * 3);
+    const uvs = new Float32Array(numVertices * 2);
 
-  let vertexOffset = 0;
-  let indexOffset = 0;
-  let uvOffset = 0;
-  const totalWidth = n * width + (n - 1) * spacing;
-  const xOffsetBase = -totalWidth / 2;
+    let vertexOffset = 0;
+    let indexOffset = 0;
+    let uvOffset = 0;
+    const totalWidth = n * width + (n - 1) * spacing;
+    const xOffsetBase = -totalWidth / 2;
 
-  for (let i = 0; i < n; i++) {
-    const xOffset = xOffsetBase + i * (width + spacing);
-    const uvXOffset = Math.random() * 300;
-    const uvYOffset = Math.random() * 300;
+    for (let i = 0; i < n; i++) {
+      const xOffset = xOffsetBase + i * (width + spacing);
+      // Use fixed offsets for better performance and consistency
+      const uvXOffset = (i * 37) % 300;
+      const uvYOffset = (i * 53) % 300;
 
-    for (let j = 0; j <= heightSegments; j++) {
-      const y = height * (j / heightSegments - 0.5);
-      const v0 = [xOffset, y, 0];
-      const v1 = [xOffset + width, y, 0];
-      positions.set([...v0, ...v1], vertexOffset * 3);
+      for (let j = 0; j <= heightSegments; j++) {
+        const y = height * (j / heightSegments - 0.5);
+        const v0 = [xOffset, y, 0];
+        const v1 = [xOffset + width, y, 0];
+        positions.set([...v0, ...v1], vertexOffset * 3);
 
-      const uvY = j / heightSegments;
-      uvs.set([uvXOffset, uvY + uvYOffset, uvXOffset + 1, uvY + uvYOffset], uvOffset);
+        const uvY = j / heightSegments;
+        uvs.set([uvXOffset, uvY + uvYOffset, uvXOffset + 1, uvY + uvYOffset], uvOffset);
 
-      if (j < heightSegments) {
-        const a = vertexOffset,
-          b = vertexOffset + 1,
-          c = vertexOffset + 2,
-          d = vertexOffset + 3;
-        indices.set([a, b, c, c, b, d], indexOffset);
-        indexOffset += 6;
+        if (j < heightSegments) {
+          const a = vertexOffset,
+            b = vertexOffset + 1,
+            c = vertexOffset + 2,
+            d = vertexOffset + 3;
+          indices.set([a, b, c, c, b, d], indexOffset);
+          indexOffset += 6;
+        }
+        vertexOffset += 2;
+        uvOffset += 4;
       }
-      vertexOffset += 2;
-      uvOffset += 4;
     }
-  }
 
-  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-  geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-  geometry.computeVertexNormals();
-  return geometry;
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    geometry.computeVertexNormals();
+    return geometry;
+  } catch (error) {
+    console.error('Error creating stacked planes buffer geometry:', error);
+    // Return a simple plane geometry as fallback
+    return new THREE.PlaneGeometry(1, 1);
+  }
 }
 
 const MergedPlanes = forwardRef<
@@ -350,18 +411,34 @@ const MergedPlanes = forwardRef<
   useImperativeHandle(ref, () => mesh.current);
   
   // Reduce geometry complexity on mobile
-  const heightSegments = isMobile || isLowEndDevice ? 50 : 100;
+  const heightSegments = useMemo(() => isMobile || isLowEndDevice ? 50 : 100, [isMobile, isLowEndDevice]);
   const geometry = useMemo(
-    () => createStackedPlanesBufferGeometry(count, width, height, 0, heightSegments),
+    () => {
+      try {
+        return createStackedPlanesBufferGeometry(count, width, height, 0, heightSegments);
+      } catch (error) {
+        console.error('Error creating geometry:', error);
+        // Return a simple plane geometry as fallback
+        return new THREE.PlaneGeometry(width, height);
+      }
+    },
     [count, width, height, heightSegments]
   );
   
   useFrame((_, delta) => {
     // Maintain consistent frame rate for visual quality
     const frameRateMultiplier = isMobile || isLowEndDevice ? 0.8 : 1;
-    mesh.current.material.uniforms.time.value += 0.1 * delta * frameRateMultiplier;
-  });
-  return <mesh ref={mesh} geometry={geometry} material={material} />;
+    if (mesh.current && mesh.current.material && mesh.current.material.uniforms && mesh.current.material.uniforms.time) {
+      mesh.current.material.uniforms.time.value += 0.1 * delta * frameRateMultiplier;
+    }
+  }, [isMobile, isLowEndDevice]);
+  
+  try {
+    return <mesh ref={mesh} geometry={geometry} material={material} />;
+  } catch (error) {
+    console.error('Error rendering mesh:', error);
+    return null;
+  }
 });
 MergedPlanes.displayName = 'MergedPlanes';
 
@@ -373,28 +450,37 @@ const PlaneNoise = forwardRef<
     count: number;
     height: number;
   }
->((props, ref) => (
-  <MergedPlanes ref={ref} material={props.material} width={props.width} count={props.count} height={props.height} />
-));
+>((props, ref) => {
+  try {
+    return <MergedPlanes ref={ref} material={props.material} width={props.width} count={props.count} height={props.height} />;
+  } catch (error) {
+    console.error('Error rendering PlaneNoise:', error);
+    return null;
+  }
+});
 PlaneNoise.displayName = 'PlaneNoise';
 
 const DirLight: FC<{ position: [number, number, number]; color: string }> = ({ position, color }) => {
   const dir = useRef<THREE.DirectionalLight>(null!);
   useEffect(() => {
     if (!dir.current) return;
-    const cam = dir.current.shadow.camera as THREE.Camera & {
-      top: number;
-      bottom: number;
-      left: number;
-      right: number;
-      far: number;
-    };
-    cam.top = 24;
-    cam.bottom = -24;
-    cam.left = -24;
-    cam.right = 24;
-    cam.far = 64;
-    dir.current.shadow.bias = -0.004;
+    try {
+      const cam = dir.current.shadow.camera as THREE.Camera & {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+        far: number;
+      };
+      cam.top = 24;
+      cam.bottom = -24;
+      cam.left = -24;
+      cam.right = 24;
+      cam.far = 64;
+      dir.current.shadow.bias = -0.004;
+    } catch (error) {
+      console.error('Error setting up directional light:', error);
+    }
   }, []);
   return <directionalLight ref={dir} color={color} intensity={1} position={position} />;
 };
