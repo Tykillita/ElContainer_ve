@@ -57,7 +57,7 @@ export default function OptimizedImage({
     transform: isMobile ? 'translateZ(0)' : style?.transform,
     willChange: isMobile ? 'transform' as const : 'auto' as const,
     backfaceVisibility: 'hidden' as const,
-    imageRendering: isMobile ? 'optimizeSpeed' as const : 'auto' as const,
+    // Remove imageRendering as it's not a valid CSS property in React
   }), [style, isMobile]);
 
   return (
