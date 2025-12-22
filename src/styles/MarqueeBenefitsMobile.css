@@ -7,10 +7,20 @@
 }
 
 
+
+
+.marquee-wrapper {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  height: 2.5rem;
+}
+
 .marquee-track {
   display: flex;
-  width: max-content;
-  animation: marquee-benefits-move 18s linear infinite;
+  width: fit-content;
+  min-width: 100%;
+  animation: marquee-benefits-move 14s linear infinite;
   align-items: center;
 }
 
