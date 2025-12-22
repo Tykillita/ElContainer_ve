@@ -45,11 +45,11 @@ function AppLayout() {
       {/* Compositor de efectos de fondo avanzados */}
       <BackgroundCompositor
         showBeams={true}
-        showAnimatedBackground={false}
-        showGeometricShapes={false}
-        showEnergyWaves={false}
-        showAurora={false}
-        className="z-[-3]"
+        showAnimatedBackground={true}
+        showGeometricShapes={true}
+        showEnergyWaves={true}
+        showAurora={true}
+        className="z-0"
       />
       {/* Fallback CSS en caso de que Three.js no cargue */}
       <div className="pointer-events-none absolute inset-0 z-[-2] opacity-40">

@@ -241,13 +241,13 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
     <div className={`fixed inset-0 ${className}`}>
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
       {showBeams && (
-        <div className="fixed inset-0 z-10">
+        <div className="fixed inset-0 z-0">
           <Beams />
         </div>
       )}
 
       {showAnimatedBackground && (
-        <div className="fixed inset-0 z-[-1]">
+        <div className="fixed inset-0 z-10 pointer-events-none opacity-70">
           <AnimatedBackground
             gradientColors={['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f', '#1a1a1a']}
             animationSpeed={15}
@@ -257,19 +257,19 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       )}
 
       {showGeometricShapes && (
-        <div className="fixed inset-0 z-[-1]">
+        <div className="fixed inset-0 z-10 pointer-events-none opacity-60">
           <GeometricShapes count={6} />
         </div>
       )}
 
       {showEnergyWaves && (
-        <div className="fixed inset-0 z-[-1]">
+        <div className="fixed inset-0 z-10 pointer-events-none opacity-40">
           <EnergyWaves waveCount={2} />
         </div>
       )}
 
       {showAurora && (
-        <div className="fixed inset-0 z-[-1]">
+        <div className="fixed inset-0 z-10 pointer-events-none opacity-50">
           <AuroraEffect intensity={0.4} />
         </div>
       )}
