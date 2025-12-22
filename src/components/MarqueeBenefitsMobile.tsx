@@ -8,10 +8,12 @@ const benefits = [
 ];
 
 export default function MarqueeBenefitsMobile() {
+  // Repetimos más veces para asegurar un loop visible
+  const repeatCount = 8;
   return (
     <div className="marquee-benefits-mobile">
       <div className="marquee-track">
-        {Array(2).fill(null).map((_, idx) => (
+        {Array(repeatCount).fill(null).map((_, idx) => (
           <React.Fragment key={idx}>
             {benefits.map((b, i) => (
               <span

@@ -6,10 +6,11 @@
   display: block;
 }
 
+
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-benefits-move 10s linear infinite;
+  animation: marquee-benefits-move 18s linear infinite;
   align-items: center;
 }
 
