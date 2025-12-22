@@ -3,15 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import '../styles/Beams.css';
 
-// Simple test component to verify Three.js works
-const TestCube: React.FC = () => {
-  return (
-    <mesh>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#ff2222" />
-    </mesh>
-  );
-};
+
 
 interface BeamsProps {
   beamWidth?: number;
@@ -44,7 +36,7 @@ const Beams: React.FC<BeamsProps> = ({
         <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={60} />
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
-        <TestCube />
+        {/* Aquí irán los efectos de Beams reales, sin cubo de prueba */}
         <color attach="background" args={['#000000']} />
       </Canvas>
     </div>

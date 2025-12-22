@@ -10,7 +10,7 @@ import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 // import BeamsFixed from './components/BeamsFixed';
-import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
+//import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 import BackgroundCompositor from './components/BackgroundEffects';
 import { AppProvider } from './context/AppContext';
 
@@ -28,19 +28,14 @@ function AppLayout() {
       {/* Fondo 3D con beams gestionado por BackgroundCompositor */}
       
       {/* Sistema de partículas flotantes */}
-      <ParticleSystem
+      {/* <ParticleSystem
         particleCount={30}
         colors={['#ffffff', '#e35c27', '#fb923c', '#ffffffaa']}
         className="z-0"
         enabled={true}
-      />
+      /> */}
       
-      {/* Luz ambiental animada */}
-      <AmbientLight
-        color="#e35c27"
-        intensity={0.08}
-        className="z-0"
-      />
+      {/* Luz ambiental animada gestionada solo desde BackgroundCompositor si se requiere en el futuro */}
       
       {/* Compositor de efectos de fondo avanzados */}
       <BackgroundCompositor
@@ -51,21 +46,7 @@ function AppLayout() {
         showAurora={true}
         className="z-0"
       />
-      {/* Fallback CSS en caso de que Three.js no cargue */}
-      <div className="pointer-events-none absolute inset-0 z-[-2] opacity-40">
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: '#050505',
-            backgroundImage: `
-              radial-gradient(circle at 25% 25%, rgba(235, 82, 40, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-              linear-gradient(180deg, #050505 0%, #0a0a0a 50%, #050505 100%)
-            `,
-            height: '100vh'
-          }}
-        />
-      </div>
+      {/* Fallback CSS eliminado para evitar superposiciones. Si se requiere, integrarlo como opción en BackgroundCompositor. */}
       <div className="relative z-50 flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 px-6 pt-28 pb-10">
