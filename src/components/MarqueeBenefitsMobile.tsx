@@ -23,6 +23,7 @@ export default function MarqueeBenefitsMobile() {
     const speed = 0.1; // px por frame (aún más lento)
 
     function animate() {
+      if (!track) return;
       pos -= speed;
       // Cuando el primer set de items sale completamente, resetea
       const firstHalfWidth = track.scrollWidth / 2;
