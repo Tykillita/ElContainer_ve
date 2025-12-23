@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import './MarqueeBenefitsMobile.css';
 
 const benefits = [
@@ -8,22 +8,41 @@ const benefits = [
 ];
 
 export default function MarqueeBenefitsMobile() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  // Duplicar solo una vez para loop perfecto
+  const items = [...benefits, ...benefits];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const wrapper = wrapperRef.current;
+    if (!track || !wrapper) return;
+
+    let pos = 0;
+    let frameId: number;
+    const speed = 0.1; // px por frame (aún más lento)
+
+    function animate() {
+      pos -= speed;
+      // Cuando el primer set de items sale completamente, resetea
+      const firstHalfWidth = track.scrollWidth / 2;
+      if (Math.abs(pos) >= firstHalfWidth) {
+        pos = 0;
+      }
+      track.style.transform = `translateX(${pos}px)`;
+      frameId = requestAnimationFrame(animate);
+    }
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
+
   return (
     <div className="marquee-benefits-mobile">
-      <div className="marquee-wrapper">
-        <div className="marquee-track">
-          {benefits.map((b, i) => (
+      <div className="marquee-wrapper" ref={wrapperRef}>
+        <div className="marquee-track" ref={trackRef}>
+          {items.map((b, i) => (
             <span
               key={b + i}
-              className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap text-sm text-white/80 mx-1"
-            >
-              {b}
-            </span>
-          ))}
-          {/* Duplicado para loop infinito */}
-          {benefits.map((b, i) => (
-            <span
-              key={b + i + 'dup'}
               className="rounded-full border border-white/25 px-3 py-1 whitespace-nowrap text-sm text-white/80 mx-1"
             >
               {b}

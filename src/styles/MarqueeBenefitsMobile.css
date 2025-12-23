@@ -18,20 +18,15 @@
 
 .marquee-track {
   display: flex;
-  width: fit-content;
-  min-width: 100%;
-  animation: marquee-benefits-move 14s linear infinite;
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
   align-items: center;
+  will-change: transform;
 }
 
-@keyframes marquee-benefits-move {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
+
 
 @media (min-width: 640px) {
   .marquee-benefits-mobile {
