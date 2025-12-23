@@ -33,7 +33,7 @@ const steps = [
 const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
 
 export default function Home() {
-  const infoRef = useRef<HTMLDivElement | null>(null)
+  const infoRef = useRef<HTMLDivElement>(null)
   // Tamaño dinámico del título según ancho de pantalla
   const [titleSize, setTitleSize] = useState('clamp(2.7rem,10vw,4.2rem)');
 
@@ -123,7 +123,7 @@ export default function Home() {
 
       <LazySection threshold={0.1} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
-          <div className="flex justify-center lg:hidden mt-8 mb-20">
+          <div className="flex justify-center lg:hidden mt-8 mb-8">
             <ScrollButton
               targetRef={infoRef}
               delay={300}

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface ScrollButtonProps {
-  targetRef: React.RefObject<HTMLElement | null>;
+  targetRef: React.RefObject<HTMLElement>;
   children: React.ReactNode;
   className?: string;
   delay?: number;
@@ -32,6 +32,7 @@ export default function ScrollButton({
   enableDirectionDetection = true,
   customEasing
 }: ScrollButtonProps) {
+  // isMobile se reserva para futuras funcionalidades (no eliminar)
   const { isMobile, shouldReduceAnimations } = useMobileOptimization();
   // State management
   const [isVisible, setIsVisible] = useState(false);
@@ -333,7 +334,7 @@ export default function ScrollButton({
       console.error('ScrollButton: No target element found');
       return;
     }
-    
+
     if (isScrolling) {
       console.log('ScrollButton: Already scrolling, ignoring click');
       return;
@@ -351,27 +352,28 @@ export default function ScrollButton({
       }, 200);
 
       // Standard scroll approach
-      const rect = target.getBoundingClientRect();
-      const targetY = rect.top + window.pageYOffset - offset;
-      const currentY = window.pageYOffset;
-      const distance = Math.abs(targetY - currentY);
-      
-      console.log('ScrollButton: Scroll details:', {
-        targetY,
-        currentY,
-        distance,
-        targetElement: target.tagName,
-        offset
-      });
-      
-      // Calculate optimal duration
-      const optimalDuration = calculateDuration(distance);
-      console.log('ScrollButton: Calculated duration:', optimalDuration);
-      
-      // Start smooth scroll animation
-      console.log('ScrollButton: Starting smooth scroll to:', targetY);
-      smoothScrollTo(targetY, optimalDuration);
-      
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        const targetY = rect.top + window.pageYOffset - offset;
+        const currentY = window.pageYOffset;
+        const distance = Math.abs(targetY - currentY);
+        
+        console.log('ScrollButton: Scroll details:', {
+          targetY,
+          currentY,
+          distance,
+          targetElement: target.tagName,
+          offset
+        });
+        
+        // Calculate optimal duration
+        const optimalDuration = calculateDuration(distance);
+        console.log('ScrollButton: Calculated duration:', optimalDuration);
+        
+        // Start smooth scroll animation
+        console.log('ScrollButton: Starting smooth scroll to:', targetY);
+        smoothScrollTo(targetY, optimalDuration);
+      }
     } catch (error) {
       console.error('ScrollButton: Scroll handler error:', error);
       setIsScrolling(false);
