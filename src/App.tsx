@@ -61,7 +61,7 @@ function AppLayout() {
         {/* Luz ambiental animada gestionada solo desde BackgroundCompositor si se requiere en el futuro */}
         
         {/* Compositor de efectos de fondo avanzados */}
-        <Suspense fallback={<div className="background-compositor-fallback" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)', zIndex: 0 }} />}>  
+        <Suspense fallback={<div className="background-compositor-fallback" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'black', zIndex: 0 }} />}>  
           <BackgroundCompositor
             showBeams={true}
             showAnimatedBackground={true}

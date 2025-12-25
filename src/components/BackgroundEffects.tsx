@@ -13,7 +13,7 @@ interface AnimatedBackgroundProps {
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
   className = '',
-  gradientColors = ['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f'],
+  gradientColors = ['#0a0a0a', '#0f0f0f', '#111111', '#0f0f0f'],
   animationSpeed = 20,
   blurIntensity = 60
 }) => {
@@ -280,7 +280,7 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
       {showBeams && (
         <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)' }} />}>  
+          <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'black' }} />}>  
             <Beams />
           </Suspense>
         </div>
@@ -289,7 +289,7 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       {showAnimatedBackground && (
         <div className={`fixed inset-0 z-10 pointer-events-none ${animatedBackgroundOpacity}`}>
           <AnimatedBackground
-            gradientColors={['#0a0a0a', '#1a1a2e', '#16213e', '#0f0f0f', '#1a1a1a']}
+            gradientColors={['#0a0a0a', '#0f0f0f', '#111111', '#0f0f0f', '#111111']}
             animationSpeed={optimizedEffects ? 25 : 15}
             blurIntensity={optimizedEffects ? 60 : 80}
           />

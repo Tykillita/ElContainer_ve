@@ -5,7 +5,7 @@ export default {
   theme: {
   	extend: {
   		colors: {
-  			ink: '#0c0c1d',
+  			ink: '#000000',
   			sand: '#f5f0e6',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
