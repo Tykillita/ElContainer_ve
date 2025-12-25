@@ -75,7 +75,7 @@ function AppLayout() {
         <div className="relative z-50 flex min-h-screen flex-col">
           <Header />
           <main className="flex-1 px-6 pt-28 pb-10">
-            <Suspense fallback={<div className="page-fallback" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', color: 'white', fontSize: '16px' }}>Cargando página...</div>}>
+            <Suspense>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/servicios" element={<Services />} />
