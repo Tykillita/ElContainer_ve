@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface LoadingAnimationProps {
   text?: string;
@@ -15,6 +15,7 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
 }) => {
   const [dots, setDots] = useState('');
   const [typeText, setTypeText] = useState('');
+  const isDeletingRef = useRef(false);
 
   useEffect(() => {
     if (variant === 'dots') {
@@ -25,16 +26,34 @@ const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
     }
 
     if (variant === 'typewriter') {
+      // Reset the state when text changes
+      isDeletingRef.current = false;
+      setTypeText(''); // Clear the current text
+      
       const fullText = text;
       let index = 0;
+      
       const interval = setInterval(() => {
-        if (index <= fullText.length) {
+        if (!isDeletingRef.current && index <= fullText.length) {
+          // Typing forward
           setTypeText(fullText.slice(0, index));
           index++;
+        } else if (isDeletingRef.current && index >= 0) {
+          // Deleting backward
+          setTypeText(fullText.slice(0, index));
+          index--;
+        } else if (index > fullText.length) {
+          // Finished typing, pause then start deleting
+          setTimeout(() => {
+            isDeletingRef.current = true;
+          }, 1000); // Pause for 1 second before deleting
         } else {
-          index = 0; // Restart typing
+          // Finished deleting, reset and start typing again
+          isDeletingRef.current = false;
+          index = 0;
         }
       }, 100);
+      
       return () => clearInterval(interval);
     }
   }, [variant, text]);
@@ -181,9 +200,18 @@ interface LoadingScreenProps {
   onComplete?: () => void;
 }
 
+interface LoadingScreenProps {
+  isVisible: boolean;
+  onComplete?: () => void;
+  waitForReady?: boolean;
+  isReady?: boolean;
+}
+
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   isVisible,
-  onComplete
+  onComplete,
+  waitForReady = false,
+  isReady = false
 }) => {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState(0);
@@ -195,7 +223,16 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => onComplete?.(), 500);
+          
+          // If we're not waiting for ready state, call onComplete immediately
+          if (!waitForReady) {
+            setTimeout(() => onComplete?.(), 500);
+          }
+          // If we are waiting and already ready, call onComplete
+          else if (isReady) {
+            setTimeout(() => onComplete?.(), 500);
+          }
+          
           return 100;
         }
         return prev + 2;
@@ -210,7 +247,15 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       clearInterval(timer);
       clearInterval(phaseTimer);
     };
-  }, [isVisible, onComplete]);
+  }, [isVisible, onComplete, waitForReady, isReady]);
+
+  // When progress is 100% and we're waiting for ready state, continue showing the loader
+  // until isReady becomes true, then call onComplete
+  useEffect(() => {
+    if (progress >= 100 && waitForReady && isReady && onComplete) {
+      setTimeout(() => onComplete(), 500);
+    }
+  }, [progress, waitForReady, isReady, onComplete]);
 
   if (!isVisible) return null;
 
@@ -241,9 +286,9 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           <LoadingAnimation
             variant="typewriter"
             text={
-              phase === 0 ? 'Inicializando sistemas...' :
-              phase === 1 ? 'Cargando componentes...' :
-              'Preparando interfaz...'
+              phase === 0 ? 'Cargando' :
+              phase === 1 ? 'Optimizando' :
+              'Listo!'
             }
             size="sm"
           />
@@ -284,6 +329,79 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
           )}
         </div>
       ))}
+    </div>
+  );
+};
+
+// Page loading skeleton with more comprehensive layout
+interface PageSkeletonLoaderProps {
+  className?: string;
+  header?: boolean;
+  content?: boolean;
+  footer?: boolean;
+  sidebar?: boolean;
+  items?: number;
+}
+
+export const PageSkeletonLoader: React.FC<PageSkeletonLoaderProps> = ({
+  className = '',
+  header = true,
+  content = true,
+  footer = true,
+  sidebar = false,
+  items = 5
+}) => {
+  return (
+    <div className={`animate-pulse ${className}`}>
+      {header && (
+        <div className="h-16 bg-white/10 mb-4 flex items-center px-4">
+          <div className="h-8 w-32 bg-white/20 rounded"></div>
+          <div className="ml-auto flex space-x-4">
+            <div className="h-6 w-16 bg-white/20 rounded"></div>
+            <div className="h-6 w-16 bg-white/20 rounded"></div>
+          </div>
+        </div>
+      )}
+      
+      <div className="flex gap-4">
+        {sidebar && (
+          <div className="w-1/4 space-y-3">
+            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+            <div className="h-10 bg-white/10 rounded"></div>
+          </div>
+        )}
+        
+        <div className="flex-1">
+          {content && (
+            <div className="space-y-6">
+              <div className="h-8 w-1/3 bg-white/10 rounded"></div>
+              <div className="h-4 w-full bg-white/10 rounded"></div>
+              <div className="h-4 w-5/6 bg-white/10 rounded"></div>
+              <div className="h-4 w-2/3 bg-white/10 rounded"></div>
+              
+              <div className="space-y-4 mt-8">
+                {Array.from({ length: items }).map((_, i) => (
+                  <div key={i} className="p-4 bg-white/5 rounded-lg">
+                    <div className="h-6 w-1/4 bg-white/10 rounded mb-3"></div>
+                    <div className="h-4 w-full bg-white/10 rounded mb-2"></div>
+                    <div className="h-4 w-3/4 bg-white/10 rounded mb-2"></div>
+                    <div className="h-4 w-1/2 bg-white/10 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {footer && (
+        <div className="h-24 bg-white/10 mt-8 flex items-center justify-between px-4">
+          <div className="h-6 w-32 bg-white/20 rounded"></div>
+          <div className="h-6 w-48 bg-white/20 rounded"></div>
+          <div className="h-6 w-24 bg-white/20 rounded"></div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { useMobileOptimization } from '../hooks/useMobileOptimization';
 
 interface ScrollButtonProps {
-  targetRef: React.RefObject<HTMLElement>;
+  targetRef: React.RefObject<HTMLElement | null>;
   children: React.ReactNode;
   className?: string;
   delay?: number;
@@ -21,7 +20,7 @@ export default function ScrollButton({
   targetRef,
   children,
   className = '',
-  delay = 0,
+  delay = 200,
   duration = 1200,
   easing = 'spring',
   showProgress = true,
@@ -32,8 +31,6 @@ export default function ScrollButton({
   enableDirectionDetection = true,
   customEasing
 }: ScrollButtonProps) {
-  // isMobile se reserva para futuras funcionalidades (no eliminar)
-  const { isMobile, shouldReduceAnimations } = useMobileOptimization();
   // State management
   const [isVisible, setIsVisible] = useState(false);
   const [isClicked, setIsClicked] = useState(false);

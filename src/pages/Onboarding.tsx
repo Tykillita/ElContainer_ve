@@ -6,11 +6,11 @@ export default function Onboarding() {
     <section className="container-shell py-12">
       <Stepper
         header={
-          <div className="grid items-start gap-4 md:grid-cols-[1fr_auto]">
-            <div className="space-y-4 md:pr-6">
+          <div className="grid items-start gap-4">
+            <div className="space-y-4">
               <p className="text-sm uppercase tracking-[0.22em] text-white/60">Onboarding</p>
-              <h1 className="text-4xl font-semibold leading-tight">Crea tu cuenta y empieza</h1>
-              <p className="max-w-2xl text-base text-white/70">
+              <h1 className="text-3xl font-semibold leading-tight">Crea tu cuenta y empieza</h1>
+              <p className="text-base text-white/70">
                 Completa los pasos para configurar tu espacio. El fondo react-three cubre toda la pagina y esta tarjeta
                 se apoya sobre el efecto.
               </p>
@@ -23,7 +23,7 @@ export default function Onboarding() {
             <img
               src={logo}
               alt="Logo Autolavado"
-              className="justify-self-end h-40 w-auto opacity-95 drop-shadow-xl md:h-60"
+              className="h-32 w-auto opacity-95 drop-shadow-xl mx-auto md:mx-0 md:justify-self-end md:h-60"
             />
           </div>
         }
@@ -41,7 +41,7 @@ export default function Onboarding() {
               <p>Completa tu nombre y correo para empezar el registro.</p>
             </div>
             <div className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4">
                 <label className="space-y-1 text-lg text-white/80">
                   <span>Nombre</span>
                   <input

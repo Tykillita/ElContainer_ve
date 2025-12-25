@@ -1,7 +1,8 @@
 
-import React, { useEffect, useRef } from 'react';
-import Beams from './Beams';
+import React, { useEffect, useRef, lazy, Suspense } from 'react';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
+
+const Beams = lazy(() => import('./Beams'));
 
 interface AnimatedBackgroundProps {
   className?: string;
@@ -279,7 +280,9 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
       {showBeams && (
         <div className="fixed inset-0 z-0">
-          <Beams />
+          <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)' }} />}>  
+            <Beams />
+          </Suspense>
         </div>
       )}
 
@@ -314,17 +317,5 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
   );
 };
 
-/**
- * BackgroundCompositor: Componente principal para efectos de fondo.
- * Props:
- * - showAnimatedBackground: Muestra fondo animado canvas.
- * - showGeometricShapes: Muestra figuras geométricas flotantes.
- * - showEnergyWaves: Muestra ondas de energía.
- * - showAurora: Muestra efecto aurora.
- * - showBeams: Muestra fondo 3D tipo Beams (requiere @react-three/fiber).
- *
- * Ejemplo de uso:
- * <BackgroundCompositor showBeams={true} showAnimatedBackground={false} />
- */
 export default BackgroundCompositor;
 export { AnimatedBackground, GeometricShapes, EnergyWaves, AuroraEffect, Beams };

@@ -62,7 +62,7 @@ export default function Services() {
                 <li key={line}>• {line}</li>
               ))}
             </ul>
-            <button className="mt-2 w-full rounded-lg bg-white/90 px-4 py-2 text-sm font-semibold text-black transition hover:bg-white">
+            <button className="mt-2 w-full rounded-lg bg-white/90 px-4 py-2 text-sm font-semibold text-black transition">
               Reservar este servicio
             </button>
           </article>

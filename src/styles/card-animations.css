@@ -7,7 +7,8 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.card::before {
+/* Card hover effects have been removed */
+/* .card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -25,7 +26,8 @@
   pointer-events: none;
 }
 
-.card:hover::before {
+/* Card hover effects have been removed */
+/* .card:hover::before {
   left: 100%;
 }
 
@@ -121,10 +123,11 @@
   transition: all 0.2s ease;
 }
 
-.card .interactive-element:hover {
+/* Card hover effects have been removed */
+/* .card .interactive-element:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
-}
+} */
 
 
 
@@ -394,7 +397,8 @@
   z-index: 1;
 }
 
-.enhanced-button:hover::before {
+/* Enhanced button hover effects have been removed */
+/* .enhanced-button:hover::before {
   left: 100%;
 }
 
@@ -404,7 +408,7 @@
     0 15px 35px rgba(0, 0, 0, 0.3),
     0 5px 15px rgba(0, 0, 0, 0.2),
     0 0 20px rgba(255, 107, 53, 0.3);
-}
+} */
 
 .enhanced-button:active {
   transform: translateY(0) scale(0.98);
@@ -460,9 +464,10 @@
   animation: buttonGlowRotate 2s linear infinite;
 }
 
-.button-glow:hover::before {
+/* Button glow hover effect has been removed */
+/* .button-glow:hover::before {
   opacity: 1;
-}
+} */
 
 @keyframes buttonGlowRotate {
   0% {

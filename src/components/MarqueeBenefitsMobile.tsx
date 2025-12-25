@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import './MarqueeBenefitsMobile.css';
+import '../styles/MarqueeBenefitsMobile.css';
 
 const benefits = [
   'Reservas flexibles',

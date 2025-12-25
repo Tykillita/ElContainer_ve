@@ -9,11 +9,11 @@ export default function Contact() {
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-0">
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4">
             {/* Horario */}
-            <div className="card bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col gap-2 items-start shadow-[0_22px_80px_rgba(0,0,0,0.18)] w-1/2 min-w-[260px]">
+            <div className="card bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col gap-2 items-start shadow-[0_22px_80px_rgba(0,0,0,0.18)] w-full md:w-1/2 min-w-[200px]">
               <div className="flex items-center gap-2 mb-1">
                 <svg className="w-6 h-6 text-white/80" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 <span className="font-semibold text-white">Horario</span>
@@ -23,7 +23,7 @@ export default function Contact() {
               <span className="text-white/80 text-sm">Domingos 10:00 AM a 6:00 PM</span>
             </div>
             {/* Dirección */}
-            <div className="card bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col gap-2 items-start shadow-[0_22px_80px_rgba(0,0,0,0.18)] w-1/2 min-w-[260px]">
+            <div className="card bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col gap-2 items-start shadow-[0_22px_80px_rgba(0,0,0,0.18)] w-full md:w-1/2 min-w-[200px]">
               <div className="flex items-center gap-2 mb-1">
                 <svg className="w-6 h-6 text-white/80" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                 <span className="font-semibold text-white">Dirección</span>
@@ -37,7 +37,7 @@ export default function Contact() {
           <div className="flex flex-col items-start text-left mt-6">
             <span className="text-xs sm:text-sm text-white/40 mb-1">¿Quieres ponerte en contacto con nosotros?</span>
             <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight mb-4">Estamos a un click de distancia<br />de ayudarte</span>
-            <div className="flex flex-row gap-4 w-full mt-4 mb-6 md:mb-0">
+            <div className="flex flex-col sm:flex-row gap-4 w-full mt-4 mb-6 md:mb-0">
               <a href="mailto:elcontainervzla@gmail.com" className="flex-1 card bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex items-center justify-center gap-2 text-white/90 font-semibold text-sm hover:bg-white/10 transition">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png" alt="Gmail" className="w-5 h-5" />
                 Gmail
@@ -55,7 +55,7 @@ export default function Contact() {
           {/* Tarjetas de contacto eliminadas temporalmente */}
         </div>
 
-        <div className="card space-y-3 flex flex-col items-center w-full max-w-lg mx-auto">
+        <div className="card space-y-3 flex flex-col items-center w-full max-w-lg mx-auto mt-6 md:mt-0">
           <h2 className="text-lg font-semibold">Mapa y acceso</h2>
           <div className="w-full aspect-[3/3.7] overflow-hidden rounded-xl bg-black/40 flex items-center justify-center">
             <iframe

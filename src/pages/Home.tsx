@@ -121,7 +121,7 @@ export default function Home() {
         </div>
       </section>
 
-      <LazySection threshold={0.1} className="w-full mt-0 md:mt-24 lg:mt-28 overflow-hidden pb-28">
+      <LazySection threshold={0.1} className="w-full mt-8 md:mt-32 lg:mt-36 pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
           <div className="flex justify-center lg:hidden mt-8 mb-8">
             <ScrollButton
@@ -132,8 +132,8 @@ export default function Home() {
             </ScrollButton>
           </div>
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
-            <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-10 sm:mt-0">
-              <div className="relative w-full max-w-[340px] ml-16 sm:ml-0 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl card bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)] transition-all duration-300">
+            <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-16 sm:mt-6">
+              <div className="relative w-full max-w-[340px] ml-16 sm:ml-0 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/0 to-black/30" />
                 <div className="overflow-visible">
                   <JeepShowcase variant="clean" />
@@ -235,7 +235,7 @@ export default function Home() {
           {benefits.map((b, i) => (
             <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
               <article
-                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 transition-all duration-300 hover:scale-[1.05] hover:shadow-2xl hover:border-white/30 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
+                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 transition-all duration-300 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
               >
                 <div className="flex flex-col items-center mb-2">
                   <span className="mb-2 interactive-element">
@@ -251,11 +251,12 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2 items-stretch">
+        {/* Clear visual separation */}
+        <div className="h-24"></div>
+        
+        <div className="grid gap-8 lg:grid-cols-2 items-start">
           <LazySection threshold={0.2}>
-            <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
-              <AutoStepper steps={steps} />
-            </div>
+            <AutoStepper steps={steps} />
           </LazySection>
           <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col card-ripple">
             <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
@@ -265,7 +266,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-2">
               {payments.map((p, index) => (
                 <FloatingElement key={p} delay={index * 0.2}>
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80 hover:border-white/40 hover:bg-white/10 transition-all duration-200 interactive-element">
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80 transition-all duration-200 interactive-element">
                     {p}
                   </span>
                 </FloatingElement>
@@ -274,8 +275,8 @@ export default function Home() {
             <div className="text-xs text-white/60">Confirma tu cita y lleva el vehiculo a la hora acordada.</div>
           </div>
         </div>
-        </div>
       </div>
+    </div>
     </>
   )
 }

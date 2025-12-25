@@ -117,7 +117,7 @@ export default function Booking() {
               onChange={e => setNotes(e.target.value)}
             />
           </label>
-          <button className="w-full rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold transition hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 focus:outline-none">
+          <button className="w-full rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold transition focus:ring-2 focus:ring-orange-400 focus:outline-none">
             Confirmar reserva
           </button>
         </form>

@@ -31,15 +31,33 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
             : 'relative mx-auto flex h-[22rem] max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[36rem]'
         }
       >
-        <OptimizedImage
-          src={jeepImage}
-          alt="Jeep Gladiador"
-          className={
-            isClean
-              ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] sm:scale-[1.02] md:scale-[1.08] lg:scale-[1.16]'
-              : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)]'
-          }
-        />
+        <div className="relative">
+          <OptimizedImage
+            src={jeepImage}
+            alt="Jeep Gladiador"
+            className={
+              isClean
+                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] sm:scale-[0.90] md:scale-[0.95] lg:scale-[1.0] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] xl:translate-y-[-10px] z-10'
+                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] sm:scale-[0.90] md:scale-[0.95] lg:scale-[1.0] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] xl:translate-y-[-10px] z-10'
+            }
+            style={{
+              transform: 'perspective(1000px) rotateX(2deg)',
+              transformOrigin: 'bottom center',
+              marginTop: '5px'
+            }}
+          />
+          {/* Sombra para realzar el efecto 3D */}
+          <div 
+            className={
+              isClean
+                ? 'absolute top-full left-1/2 transform -translate-x-1/2 w-[90%] h-16 bg-black/20 rounded-full blur-xl -z-10'
+                : 'absolute top-full left-1/2 transform -translate-x-1/2 w-[90%] h-16 bg-black/30 rounded-full blur-xl -z-10'
+            }
+            style={{
+              transform: 'translateX(-50%) translateY(-10px) scale(1.1)',
+            }}
+          />
+        </div>
       </div>
     </div>
   )
