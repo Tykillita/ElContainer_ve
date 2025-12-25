@@ -281,15 +281,11 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           <div className="mt-2 text-white/70 text-sm">{progress}%</div>
         </div>
 
-        {/* Loading text with phase animation */}
+        {/* Loading text with simple text */}
         <div className="text-white">
           <LoadingAnimation
             variant="typewriter"
-            text={
-              phase === 0 ? 'Cargando' :
-              phase === 1 ? 'Optimizando' :
-              'Listo!'
-            }
+            text="Cargando..."
             size="sm"
           />
         </div>
