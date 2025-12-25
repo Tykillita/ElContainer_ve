@@ -31,14 +31,14 @@
   left: 100%;
 }
 
-.card:hover {
+/* .card:hover {
   transform: translateY(-4px);
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
-}
+} */
 
 /* Animated border glow effect */
 .card::after {
@@ -61,9 +61,9 @@
   animation: borderRotate 3s linear infinite;
 }
 
-.card:hover::after {
+/* .card:hover::after {
   opacity: 1;
-}
+} */
 
 @keyframes borderRotate {
   0% {

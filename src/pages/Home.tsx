@@ -231,7 +231,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid gap-6 grid-cols-3 my-8">
+        <div className="grid gap-6 grid-cols-3 my-8 mb-32">
           {benefits.map((b, i) => (
             <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
               <article
@@ -251,13 +251,13 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Clear visual separation */}
-        <div className="h-24"></div>
-        
+        {/* Separación visual ahora con mb-16 en la grid de beneficios */}
         <div className="grid gap-8 lg:grid-cols-2 items-start">
-          <LazySection threshold={0.2}>
-            <AutoStepper steps={steps} />
-          </LazySection>
+          <div>
+            <LazySection threshold={0.2}>
+              <AutoStepper steps={steps} />
+            </LazySection>
+          </div>
           <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col">
             <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
             <p className="text-sm text-white/70">
