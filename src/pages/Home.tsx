@@ -235,10 +235,10 @@ export default function Home() {
           {benefits.map((b, i) => (
             <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
               <article
-                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 transition-all duration-300 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
+                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 border-b border-white/10 md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
               >
                 <div className="flex flex-col items-center mb-2">
-                  <span className="mb-2 interactive-element">
+                  <span className="mb-2">
                     {i === 0 && <SpeedIcon width={32} height={32} className="text-orange-500" />}
                     {i === 1 && <PaintIcon width={32} height={32} className="text-orange-500" />}
                     {i === 2 && <SecurityIcon width={32} height={32} className="text-orange-500" />}
@@ -258,7 +258,7 @@ export default function Home() {
           <LazySection threshold={0.2}>
             <AutoStepper steps={steps} />
           </LazySection>
-          <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col card-ripple">
+          <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col">
             <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
             <p className="text-sm text-white/70">
               Pagas al finalizar el servicio en el local. Elige el metodo que prefieras.
@@ -266,7 +266,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-2">
               {payments.map((p, index) => (
                 <FloatingElement key={p} delay={index * 0.2}>
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80 transition-all duration-200 interactive-element">
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80">
                     {p}
                   </span>
                 </FloatingElement>
