@@ -215,6 +215,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
 }) => {
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -226,11 +227,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           
           // If we're not waiting for ready state, call onComplete immediately
           if (!waitForReady) {
-            setTimeout(() => onComplete?.(), 500);
+            setTimeout(() => {
+              setIsExiting(true);
+              setTimeout(() => onComplete?.(), 300); // Match CSS transition time
+            }, 500);
           }
           // If we are waiting and already ready, call onComplete
           else if (isReady) {
-            setTimeout(() => onComplete?.(), 500);
+            setTimeout(() => {
+              setIsExiting(true);
+              setTimeout(() => onComplete?.(), 300); // Match CSS transition time
+            }, 500);
           }
           
           return 100;
@@ -253,14 +260,17 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   // until isReady becomes true, then call onComplete
   useEffect(() => {
     if (progress >= 100 && waitForReady && isReady && onComplete) {
-      setTimeout(() => onComplete(), 500);
+      setTimeout(() => {
+        setIsExiting(true);
+        setTimeout(() => onComplete(), 300); // Match CSS transition time
+      }, 500);
     }
   }, [progress, waitForReady, isReady, onComplete]);
 
-  if (!isVisible) return null;
+  if (!isVisible && !isExiting) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black transition-opacity duration-300 ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <div className="text-center space-y-8">
         {/* Animated logo */}
         <div className="relative">

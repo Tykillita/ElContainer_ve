@@ -67,7 +67,11 @@ const PageLoader: React.FC<PageLoaderProps> = ({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className={`transition-opacity duration-300 ${showLoader ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      {children}
+    </div>
+  );
 };
 
 export default PageLoader;
