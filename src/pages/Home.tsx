@@ -3,7 +3,6 @@ import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
-import { FloatingElement } from '../components/ParticleSystem'
 import ScrollButton from '../components/ScrollButton'
 import logo from '../resources/img/elcontainer_logo.png'
 import { useState, useEffect } from 'react';
@@ -11,6 +10,7 @@ import { useState, useEffect } from 'react';
 import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
 // Import the CSS for styles (optional, if needed)
 import '../styles/MarqueeBenefitsMobile.css';
+import { FloatingElement } from '../components/FloatingElement'
 
 const featuredServices = [
   { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
