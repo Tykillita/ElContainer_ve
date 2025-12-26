@@ -4,7 +4,8 @@ import '../styles/MarqueeBenefitsMobile.css';
 const benefits = [
   'Reservas flexibles',
   'Confirmacion por WhatsApp',
-  'Pago en sitio'
+  'Pago en sitio',
+  'Sin esperas largas'
 ];
 
 export default function MarqueeBenefitsMobile() {
@@ -40,7 +41,7 @@ export default function MarqueeBenefitsMobile() {
   return (
     <div className="marquee-benefits-mobile">
       <div className="marquee-wrapper" ref={wrapperRef}>
-        <div className="marquee-track" ref={trackRef}>
+        <div className="marquee-track" ref={trackRef} style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}>
           {items.map((b, i) => (
             <span
               key={b + i}

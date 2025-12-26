@@ -35,19 +35,19 @@ const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
 export default function Home() {
   const infoRef = useRef<HTMLDivElement>(null)
   // Tamaño dinámico del título según ancho de pantalla
-  const [titleSize, setTitleSize] = useState('clamp(2.7rem,10vw,4.2rem)');
+  const [titleSize, setTitleSize] = useState('clamp(3.2rem,12vw,4.7rem)');
 
   useEffect(() => {
     function handleResize() {
       const width = window.innerWidth;
       if (width <= 370) {
-        setTitleSize('clamp(1.7rem,8vw,2.7rem)');
+        setTitleSize('clamp(2.2rem,10vw,3.2rem)');
       } else if (width <= 400) {
-        setTitleSize('clamp(2.1rem,9vw,3.2rem)');
+        setTitleSize('clamp(2.6rem,11vw,3.7rem)');
       } else if (width <= 430) {
-        setTitleSize('clamp(2.5rem,10vw,3.7rem)');
+        setTitleSize('clamp(3.0rem,12vw,4.2rem)');
       } else {
-        setTitleSize('clamp(2.7rem,10vw,4.2rem)');
+        setTitleSize('clamp(3.2rem,12vw,4.7rem)');
       }
     }
     handleResize();
@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <>
       <section className="container-shell space-y-14">
-        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4">
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-2 sm:mt-0">
           <FloatingElement delay={0} duration={8}>
             <img
               src={logo}
@@ -82,7 +82,7 @@ export default function Home() {
               fontSize: titleSize
             }}
           >
-            <span className="md:text-[1.1em] text-[1.3em] whitespace-nowrap">
+            <span className="md:text-[1.1em] text-[1.5em] whitespace-nowrap">
               EL CONTAINER
             </span>
             <span
