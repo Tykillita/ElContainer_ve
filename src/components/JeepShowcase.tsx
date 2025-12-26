@@ -12,7 +12,7 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
     <div
       className={
         isClean
-          ? 'relative h-full w-full bg-white'
+          ? 'relative h-full w-full bg-white rounded-2xl border border-white/10 overflow-visible'
           : 'relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#050505] via-[#0b0d10] to-[#050505] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.55)]'
       }
     >
@@ -27,21 +27,21 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
       <div
         className={
           isClean
-            ? 'relative mx-auto flex h-[22rem] w-full max-w-none items-center justify-center sm:h-[28rem] md:h-[38rem] lg:h-[46rem] xl:h-[52rem]'
-            : 'relative mx-auto flex h-[22rem] max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[36rem]'
+            ? 'relative mx-auto flex h-[22rem] w-full max-w-none items-center justify-center sm:h-[28rem] md:h-[38rem] lg:h-[40rem] xl:h-[40rem] 2xl:h-[40rem] overflow-visible'
+            : 'relative mx-auto flex h-[22rem] max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[30rem] xl:h-[30rem] 2xl:h-[30rem] overflow-visible'
         }
       >
-        <div className="relative">
+        <div className="relative overflow-visible" style={{ overflow: 'visible !important' }}>
           <OptimizedImage
             src={jeepImage}
             alt="Jeep Gladiador"
             className={
               isClean
-                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] sm:scale-[0.90] md:scale-[0.95] lg:scale-[1.0] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] xl:translate-y-[-10px] z-10'
-                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] sm:scale-[0.90] md:scale-[0.95] lg:scale-[1.0] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] xl:translate-y-[-10px] z-10'
+                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65]'
+                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65]'
             }
             style={{
-              transform: 'perspective(1000px) rotateX(2deg)',
+              transform: 'perspective(1000px) rotateX(2deg) scale(1.0)',
               transformOrigin: 'bottom center',
               marginTop: '5px'
             }}

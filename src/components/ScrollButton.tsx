@@ -411,11 +411,9 @@ export default function ScrollButton({
     'px-12 py-4 text-lg font-semibold',
     // Use optimized transitions that maintain visual quality
     'transform transition-all duration-300 ease-out',
-    'hover:bg-white/90 hover:scale-[1.02] hover:-translate-y-0.5',
     'active:scale-95 active:translate-y-0',
     'focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2',
     'shadow-[0_14px_38px_rgba(0,0,0,0.35)]',
-    'hover:shadow-[0_20px_50px_rgba(0,0,0,0.4)]',
     'scroll-button-animations',
     isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
     isClicked ? 'scale-95' : '',
@@ -454,7 +452,7 @@ export default function ScrollButton({
       {/* Enhanced shine effect */}
       <div className="absolute inset-0 overflow-hidden rounded-full">
         {/* Optimize shine effect for performance while maintaining visual quality */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700 ease-out hover:translate-x-full" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700 ease-out" />
         
         {/* Additional shimmer effect during scroll */}
         {isScrolling && !reducedMotionRef.current && (
@@ -522,7 +520,7 @@ export default function ScrollButton({
       </div>
 
       {/* Content with loading state */}
-      <span className="relative z-10 flex items-center justify-center gap-2">
+      <span className="relative z-10 flex items-center justify-center">
         {isScrolling ? (
           <>
             <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -541,12 +539,7 @@ export default function ScrollButton({
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 animate-pulse" style={{ willChange: 'opacity' }} />
       )}
       
-      {/* Scroll direction indicator */}
-      {enableDirectionDetection && (
-        <div className="absolute top-2 right-2 text-xs opacity-30" style={{ willChange: 'contents' }}>
-          {scrollDirection === 'down' ? '↓' : '↑'}
-        </div>
-      )}
+
     </button>
   );
 }
