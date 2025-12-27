@@ -114,7 +114,7 @@ export default function Home() {
           <ScrollButton
             targetRef={infoRef}
             delay={300}
-            className="lg:block hidden mt-4 mb-10"
+            className="lg:block hidden mt-2 mb-6"
           >
             Ver mas
           </ScrollButton>
