@@ -21,7 +21,7 @@ export default function MarqueeBenefitsMobile() {
 
     let pos = 0;
     let frameId: number;
-    const speed = 0.1; // px por frame (aún más lento)
+    const speed = 0.13; // px por frame (ligeramente más rápido)
 
     function animate() {
       if (!track) return;

@@ -1,3 +1,10 @@
+/* Safari full viewport including safe area bottom */
+html, body {
+  min-height: 100svh;
+  height: 100svh;
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom);
+}
 /* Asegura que la página use el área segura en móviles */
 html, body {
   height: 100%;

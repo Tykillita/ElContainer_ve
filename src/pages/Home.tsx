@@ -86,9 +86,9 @@ export default function Home() {
               EL CONTAINER
             </span>
             <span
-              className="block text-white"
+              className="block text-white autolavado-title"
               style={{
-                fontSize: '0.45em',
+                fontSize: '0.55em',
                 letterSpacing: '0.58em',
                 WebkitTextStroke: '0.6px #0b0b0b',
                 textShadow: '0 1px 0 #0c0c0c, 0 2px 6px rgba(0,0,0,0.5), 0 0 18px rgba(32, 10, 4, 0.9)',

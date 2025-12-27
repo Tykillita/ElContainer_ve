@@ -1,3 +1,9 @@
+  /* Aumenta el tamaño de AUTOLAVADO solo en móviles */
+  @media (max-width: 768px) {
+    .autolavado-title {
+      font-size: 0.6em !important;
+    }
+  }
   /* Baja un poco el header en móviles */
   header.py-3 {
     margin-top: 0.7rem !important;
