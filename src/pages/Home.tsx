@@ -35,19 +35,19 @@ const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
 export default function Home() {
   const infoRef = useRef<HTMLDivElement>(null)
   // Tamaño dinámico del título según ancho de pantalla
-  const [titleSize, setTitleSize] = useState('clamp(3.2rem,12vw,4.7rem)');
+  const [titleSize, setTitleSize] = useState('clamp(2.2rem,8vw,3.2rem)');
 
   useEffect(() => {
     function handleResize() {
       const width = window.innerWidth;
       if (width <= 370) {
-        setTitleSize('clamp(2.2rem,10vw,3.2rem)');
+        setTitleSize('clamp(1.7rem,7vw,2.2rem)');
       } else if (width <= 400) {
-        setTitleSize('clamp(2.6rem,11vw,3.7rem)');
+        setTitleSize('clamp(2.0rem,8vw,2.7rem)');
       } else if (width <= 430) {
-        setTitleSize('clamp(3.0rem,12vw,4.2rem)');
+        setTitleSize('clamp(2.2rem,8vw,3.2rem)');
       } else {
-        setTitleSize('clamp(3.2rem,12vw,4.7rem)');
+        setTitleSize('clamp(2.5rem,9vw,3.5rem)');
       }
     }
     handleResize();
@@ -114,7 +114,7 @@ export default function Home() {
           <ScrollButton
             targetRef={infoRef}
             delay={300}
-            className="lg:block hidden mt-4 mb-32"
+            className="lg:block hidden mt-4 mb-10"
           >
             Ver mas
           </ScrollButton>
