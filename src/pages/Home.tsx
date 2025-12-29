@@ -105,14 +105,9 @@ export default function Home() {
             </span>
           </h1>
           <p
-            className="-mt-2 text-base text-white/75 sm:text-lg mx-auto"
+            className="hidden sm:block -mt-2 text-base text-white/75 sm:text-lg mx-auto"
             style={{
               maxWidth: 'clamp(260px, 80vw, 420px)',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
               minHeight: '2.6em',
               lineHeight: '1.3',
             }}
