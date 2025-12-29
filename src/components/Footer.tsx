@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
-import whatsappIcon from '../resources/img/whatsapp.png';
-import gmailIcon from '../resources/img/gmail.png';
-import instagramIcon from '../resources/img/logotipo-de-instagram.png';
+import whatsappIcon from '../resources/svg/whatsapp-128-svgrepo-com.svg';
+import gmailIcon from '../resources/svg/gmail-svgrepo-com.svg';
+import instagramIcon from '../resources/svg/instagram-svgrepo-com.svg';
 
 export default function Footer() {
   return (
     <footer
-      className="border-t border-white/10 text-white text-sm pt-10 pb-4 bg-orange-500/60 backdrop-blur-md rounded-xl ml-2 md:ml-4 md:mr-1"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="border-t text-white text-sm pt-10 pb-4 backdrop-blur-md rounded-xl ml-2 md:ml-4 md:mr-1"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)', borderColor: '#b0b0b0', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="px-0 flex flex-col gap-10">
 

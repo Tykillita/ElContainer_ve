@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import PricingPlans from '../components/PricingPlans'
 import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
@@ -162,7 +163,7 @@ export default function Home() {
             </div>
             <div className="text-white flex justify-center min-w-0 lg:justify-start">
               <div className="flex flex-col gap-6 w-full max-w-xl lg:ml-72 xl:ml-90 mt-6 mb-10 sm:mt-0 sm:mb-0">
-                <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
+                <div className="card space-y-5 bg-white/5 backdrop-blur-sm sm:backdrop-blur-lg border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)]">
                   <div className="space-y-2">
                     <p className="text-sm uppercase tracking-[0.16em] text-white/60">Para cualquier modelo</p>
                     <h2 className="text-3xl font-semibold leading-tight lg:text-4xl">Cualquier auto merece el mejor lavado</h2>
@@ -186,7 +187,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="card space-y-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_18px_60px_rgba(0,0,0,0.18)] mt-8 sm:mt-0">
+                <div className="card space-y-4 bg-white/5 backdrop-blur-sm sm:backdrop-blur-lg border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_18px_60px_rgba(0,0,0,0.18)] mt-8 sm:mt-0">
                   <p className="text-sm uppercase tracking-[0.16em] text-white/60">Promoción especial</p>
                   <h2 className="text-2xl font-semibold leading-tight">¡Diciembre de brillo total!</h2>
                   <p className="text-white/75 text-base lg:text-lg">
@@ -198,6 +199,10 @@ export default function Home() {
             </div>
           </div>
         </div>
+          {/* Sección de Pricing debajo del Jeep */}
+          <div className="mt-16">
+            <PricingPlans />
+          </div>
         {/* Línea de separación solo en móvil, después de la tarjeta de promoción y antes de 'Autolavado' */}
         <div className="block sm:hidden w-full" style={{ marginTop: 64, marginBottom: 0 }}>
           <hr className="border-t border-white/15" />
