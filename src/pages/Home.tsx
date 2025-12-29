@@ -63,7 +63,7 @@ export default function Home() {
     <>
       <section className="container-shell space-y-14">
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-[-1.5rem] sm:mt-0">
-          <div style={{ marginTop: '1.2rem' }} className="sm:mt-3 mt-1">
+          <div>
             <FloatingElement delay={0} duration={8}>
             <img
               src={logo}
@@ -104,7 +104,19 @@ export default function Home() {
               AUTOLAVADO
             </span>
           </h1>
-          <p className="-mt-2 max-w-3xl text-base text-white/75 sm:text-lg">
+          <p
+            className="-mt-2 text-base text-white/75 sm:text-lg mx-auto"
+            style={{
+              maxWidth: 'clamp(260px, 80vw, 420px)',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minHeight: '2.6em',
+              lineHeight: '1.3',
+            }}
+          >
             Lavado rapido, seguro y sin sorpresas. Reserva en linea, llega a tu hora y paga en el local.
           </p>
           {/* Marquee solo en móvil */}
@@ -120,7 +132,7 @@ export default function Home() {
           <ScrollButton
             targetRef={infoRef}
             delay={300}
-            className="lg:block hidden mt-2 mb-6"
+            className="lg:block hidden mt-2 mb-2"
           >
             Ver mas
           </ScrollButton>
