@@ -34,14 +34,14 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({
     // Optimize for mobile performance
     const optimizedAnimationSpeed = isMobile || isLowEndDevice ? animationSpeed * 0.7 : animationSpeed;
     const orbCount = isMobile || isLowEndDevice ? 3 : 5;
-    
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
     const animate = () => {
-      time += 0.01 * (isMobile || isLowEndDevice ? 0.8 : 1); // Slow down animation on mobile
+      time += 0.01 * (60 / optimizedAnimationSpeed); // Use optimizedAnimationSpeed for animation pacing
 
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);

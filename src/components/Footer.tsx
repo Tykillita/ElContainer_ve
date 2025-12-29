@@ -7,6 +7,7 @@ export default function Footer() {
   return (
     <footer
       className="border-t border-white/10 text-white text-sm pt-10 pb-4 bg-orange-500/60 backdrop-blur-md rounded-xl ml-2 md:ml-4 md:mr-1"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="px-0 flex flex-col gap-10">
 
