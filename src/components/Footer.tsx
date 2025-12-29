@@ -6,10 +6,10 @@ import instagramIcon from '../resources/svg/instagram-svgrepo-com.svg';
 export default function Footer() {
   return (
     <footer
-      className="border-t text-white text-sm pt-10 pb-4 backdrop-blur-md rounded-xl ml-2 md:ml-4 md:mr-1"
+      className="border-t text-white text-sm pt-10 pb-4 backdrop-blur-md rounded-xl ml-2 md:ml-4 mr-2"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)', borderColor: '#b0b0b0', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="px-0 flex flex-col gap-10">
+      <div className="px-0 pr-6 flex flex-col gap-10">
 
 
         {/* Contacto */}
