@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <>
       <section className="container-shell space-y-14">
-        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-2 sm:mt-0">
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-0.5 sm:mt-0">
           <FloatingElement delay={0} duration={8}>
             <img
               src={logo}
