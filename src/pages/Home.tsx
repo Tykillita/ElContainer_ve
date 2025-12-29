@@ -63,7 +63,7 @@ export default function Home() {
     <>
       <section className="container-shell space-y-14">
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-[-1.5rem] sm:mt-0">
-          <div style={{ marginTop: '-2.2rem' }}>
+          <div style={{ marginTop: '1.2rem' }} className="sm:mt-3 mt-1">
             <FloatingElement delay={0} duration={8}>
             <img
               src={logo}
