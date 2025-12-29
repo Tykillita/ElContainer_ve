@@ -7,38 +7,33 @@ import LazySection from '../components/LazySection'
 import ScrollButton from '../components/ScrollButton'
 import logo from '../resources/img/elcontainer_logo.png'
 import { useState, useEffect } from 'react';
-// Import the MarqueeBenefitsMobile component (adjust the path if needed)
 import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
-
-// Import the CSS para estilos (opcional)
 import '../styles/MarqueeBenefitsMobile.css';
-
 import FloatingElement from '../components/FloatingElement';
 
-
-
-const featuredServices = [
-  { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
-  { title: 'Detallado', desc: 'Exterior e interior con aspirado profundo.' },
-  { title: 'Tapiceria', desc: 'Limpieza profunda y neutralizado de olores.' }
-];
-
-const benefits = [
-  { title: 'Rapidez y orden', desc: 'Reservas flexibles para evitar esperas largas.' },
-  { title: 'Cuidado de pintura', desc: 'Productos y tecnicas suaves para brillo duradero.' },
-  { title: 'Seguridad', desc: 'Zona iluminada y aviso al terminar tu vehiculo.' }
-];
-
-const steps = [
-  { title: 'Elige tu servicio', desc: 'Lavado basico, detallado, tapiceria o motor.' },
-  { title: 'Reserva horario', desc: 'Define dia y hora; te confirmamos por WhatsApp o email.' },
-  { title: 'Paga en el local', desc: 'Pago movil, transferencia, efectivo o tarjeta.' }
-];
-
-const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta'];
-
 export default function Home() {
+  const featuredServices = [
+    { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
+    { title: 'Detallado', desc: 'Exterior e interior con aspirado profundo.' },
+    { title: 'Tapiceria', desc: 'Limpieza profunda y neutralizado de olores.' }
+  ];
+
+  const benefits = [
+    { title: 'Rapidez y orden', desc: 'Reservas flexibles para evitar esperas largas.' },
+    { title: 'Cuidado de pintura', desc: 'Productos y tecnicas suaves para brillo duradero.' },
+    { title: 'Seguridad', desc: 'Zona iluminada y aviso al terminar tu vehiculo.' }
+  ];
+
+  const steps = [
+    { title: 'Elige tu servicio', desc: 'Lavado basico, detallado, tapiceria o motor.' },
+    { title: 'Reserva horario', desc: 'Define dia y hora; te confirmamos por WhatsApp o email.' },
+    { title: 'Paga en el local', desc: 'Pago movil, transferencia, efectivo o tarjeta.' }
+  ];
+
+  const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta'];
+
   const infoRef = useRef<HTMLDivElement>(null)
+  const pricingRef = useRef<HTMLDivElement>(null)
   // Tamaño dinámico del título según ancho de pantalla
   const [titleSize, setTitleSize] = useState('clamp(2.2rem,8vw,3.2rem)');
 
@@ -64,19 +59,19 @@ export default function Home() {
     <>
       <section className="container-shell space-y-14">
         <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-[-1.5rem] sm:mt-0">
-          <div>
+          <div className="mt-14 sm:mt-0">
             <FloatingElement delay={0} duration={8}>
-            <img
-              src={logo}
-              alt="El Container Autolavado"
-              className="h-[18rem] max-w-full object-contain drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem] card-ripple"
-              style={{
-                imageRendering: 'auto',
-                maxHeight: '70vh',
-                maxWidth: '90vw'
-              }}
-            />
-          </FloatingElement>
+              <img
+                src={logo}
+                alt="El Container Autolavado"
+                className="h-[18rem] max-w-full object-contain drop-shadow-[0_45px_140px_rgba(0,0,0,0.6)] md:h-[14rem] lg:h-[17rem] xl:h-[20rem] card-ripple"
+                style={{
+                  imageRendering: 'auto',
+                  maxHeight: '70vh',
+                  maxWidth: '90vw'
+                }}
+              />
+            </FloatingElement>
           </div>
           <h1
             className="font-hero leading-[0.95] tracking-[0.02em] uppercase text-transparent bg-clip-text inline-block mb-5 md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)]"
@@ -121,7 +116,7 @@ export default function Home() {
             {/* Botón Ver más solo en móvil, justo debajo del Marquee */}
             <div className="flex justify-center w-full mt-10 mb-4">
                 <ScrollButton
-                  targetRef={infoRef}
+                  targetRef={pricingRef}
                   delay={300}
                   className="px-8 py-3"
               >
@@ -200,7 +195,7 @@ export default function Home() {
           </div>
         </div>
           {/* Sección de Pricing debajo del Jeep */}
-          <div className="mt-16">
+          <div className="mt-16" ref={pricingRef}>
             <PricingPlans />
           </div>
         {/* Línea de separación solo en móvil, después de la tarjeta de promoción y antes de 'Autolavado' */}

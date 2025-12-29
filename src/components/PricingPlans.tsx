@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const plans = [
   {
-    name: 'Básico',
+    name: 'Silver',
     price: 9,
     period: 'mes',
     description: 'Ideal para clientes ocasionales que quieren mantener su auto limpio.',
@@ -14,11 +14,11 @@ const plans = [
       'Soporte estándar',
     ],
     unavailable: ['Lavado interior', 'Prioridad en reservas'],
-    cta: 'Comenzar prueba gratis',
+    cta: 'Afiliarme al plan',
     highlight: false,
   },
   {
-    name: 'Premium',
+    name: 'Black',
     price: 19,
     period: 'mes',
     description: 'Para quienes buscan un auto impecable todo el mes.',
@@ -30,7 +30,7 @@ const plans = [
       'Soporte premium',
     ],
     unavailable: [],
-    cta: 'Comenzar prueba gratis',
+    cta: 'Afiliarme al plan',
     highlight: true,
   },
 ];
