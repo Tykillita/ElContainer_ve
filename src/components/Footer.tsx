@@ -6,7 +6,7 @@ import instagramIcon from '../resources/img/logotipo-de-instagram.png';
 export default function Footer() {
   return (
     <footer
-      className="w-full border-t border-white/10 text-white text-sm pt-10 bg-orange-500/60 backdrop-blur-md"
+      className="border-t border-white/10 text-white text-sm pt-10 pb-4 bg-orange-500/60 backdrop-blur-md rounded-xl ml-2 md:ml-4 md:mr-1"
     >
       <div className="px-0 flex flex-col gap-10">
 
@@ -27,15 +27,13 @@ export default function Footer() {
 
 
         {/* Copyright */}
-        <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 pt-2 pb-6 text-xs text-white/40 mb-6 w-full">
-          <div className="flex flex-col items-center w-full md:w-auto md:absolute left-1/2 md:-translate-x-1/2">
-            <span className="text-sm md:text-base mb-2 text-center">© 2025 El Container. Diseñado y desarrollado por el Equipo de <span className="text-gray-300 drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]">El Container</span>.</span>
-            <div className="flex gap-4 items-center justify-center">
-              <Link to="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link>
-              <Link to="/terminos" className="hover:text-white transition-colors">Términos & Condiciones</Link>
-            </div>
+        <div className="flex flex-col items-center justify-center gap-3 pt-2 pb-6 text-xs text-white/40 mb-6 w-full">
+          <span className="text-sm md:text-base text-center -mb-1">© 2025 El Container. Diseñado y desarrollado por el Equipo de <span className="text-gray-300 drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]">El Container</span>.</span>
+          <div className="flex gap-4 items-center justify-center mt-1">
+            <Link to="/privacidad" className="hover:text-white transition-colors">Política de Privacidad</Link>
+            <Link to="/terminos" className="hover:text-white transition-colors">Términos & Condiciones</Link>
           </div>
-          <div className="flex gap-4 items-center justify-center md:ml-4 mt-4 md:mt-0 md:static md:relative md:right-0 md:justify-end w-full md:w-auto">
+          <div className="flex gap-4 items-center justify-center mt-1 mb-1">
             <a href="https://wa.me/584127181873" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 hover:scale-110 transition-transform" />
             </a>

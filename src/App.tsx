@@ -85,11 +85,9 @@ function AppLayout() {
             </Suspense>
           </main>
         </div>
-        {/* Footer fuera de cualquier container o max-w */}
-        <div style={{width: '100vw', position: 'relative', left: '50%', transform: 'translateX(-50%)', overflowX: 'hidden'}}>
-          <Footer />
-        </div>
       </div>
+      {/* Footer fuera del div principal, sin ningún container ni max-w */}
+      <Footer />
     </PageLoader>
   );
 }
