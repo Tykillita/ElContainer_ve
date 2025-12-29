@@ -100,8 +100,8 @@ function extendMaterial<T extends THREE.Material = THREE.Material>(
 const CanvasWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { isMobile, isLowEndDevice } = useMobileOptimization();
   
-  // Use same DPR as mobile for consistency
-  const dpr: [number, number] | number = useMemo(() => [1, 1.5], []);
+  // Optimize performance while maintaining quality
+  const dpr: [number, number] | number = useMemo(() => isMobile || isLowEndDevice ? [1, 1.5] : [1, 2], [isMobile, isLowEndDevice]);
   // Use 'always' for consistent animation but optimize internally
   const frameloop = "always";
   
@@ -247,11 +247,11 @@ const Beams: FC<BeamsProps> = ({
   const { isMobile, isLowEndDevice } = useMobileOptimization();
   const meshRef = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.Material>>(null!);
 
-  // Use same beam number as mobile for consistency
-  const adjustedBeamNumber = useMemo(() => Math.max(8, Math.floor(beamNumber * 0.8)), [beamNumber]);
+  // Maintain visual quality while optimizing performance
+  const adjustedBeamNumber = useMemo(() => isMobile || isLowEndDevice ? Math.max(8, Math.floor(beamNumber * 0.8)) : beamNumber, [isMobile, isLowEndDevice, beamNumber]);
   // Keep animation speed consistent for visual experience
   const adjustedSpeed = speed;
-  const adjustedNoiseIntensity = useMemo(() => noiseIntensity * 0.85, [noiseIntensity]);
+  const adjustedNoiseIntensity = useMemo(() => isMobile || isLowEndDevice ? noiseIntensity * 0.85 : noiseIntensity, [isMobile, isLowEndDevice, noiseIntensity]);
 
   const beamMaterial = useMemo(
     (): THREE.Material => {
@@ -435,8 +435,8 @@ const MergedPlanes = forwardRef<
   const mesh = useRef<THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>>(null!);
   useImperativeHandle(ref, () => mesh.current);
   
-  // Use same geometry complexity as mobile for consistency
-  const heightSegments = useMemo(() => 50, []);
+  // Reduce geometry complexity on mobile
+  const heightSegments = useMemo(() => isMobile || isLowEndDevice ? 50 : 100, [isMobile, isLowEndDevice]);
   const geometry = useMemo(
     () => {
       try {
@@ -451,8 +451,8 @@ const MergedPlanes = forwardRef<
   );
   
   useFrame((_, delta) => {
-    // Use same frame rate as mobile for consistency
-    const frameRateMultiplier = 0.8;
+    // Maintain consistent frame rate for visual quality
+    const frameRateMultiplier = isMobile || isLowEndDevice ? 0.8 : 1;
     if (mesh.current && mesh.current.material && mesh.current.material.uniforms && mesh.current.material.uniforms.time) {
       mesh.current.material.uniforms.time.value += 0.1 * delta * frameRateMultiplier;
     }

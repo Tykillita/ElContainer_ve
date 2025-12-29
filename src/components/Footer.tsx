@@ -1,12 +1,14 @@
-
-
 import { Link } from 'react-router-dom';
-import logo from '../resources/svg/elcontainer_vector.svg';
+import whatsappIcon from '../resources/img/whatsapp.png';
+import gmailIcon from '../resources/img/gmail.png';
+import instagramIcon from '../resources/img/logotipo-de-instagram.png';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-neutral-950 text-white text-sm pt-10">
-      <div className="container-shell mx-auto px-4 flex flex-col gap-10">
+    <footer
+      className="w-full border-t border-white/10 text-white text-sm pt-10 bg-orange-500/60 backdrop-blur-md"
+    >
+      <div className="px-0 flex flex-col gap-10">
 
 
         {/* Contacto */}
@@ -35,13 +37,13 @@ export default function Footer() {
           </div>
           <div className="flex gap-4 items-center justify-center md:ml-4 mt-4 md:mt-0 md:static md:relative md:right-0 md:justify-end w-full md:w-auto">
             <a href="https://wa.me/584127181873" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" className="w-5 h-5 hover:scale-110 transition-transform" />
+              <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5 hover:scale-110 transition-transform" />
             </a>
             <a href="mailto:elcontainervzla@gmail.com" aria-label="Gmail">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png" alt="Gmail" className="w-5 h-5 hover:scale-110 transition-transform" />
+              <img src={gmailIcon} alt="Gmail" className="w-5 h-5 hover:scale-110 transition-transform" />
             </a>
             <a href="https://instagram.com/elcontainer_ve" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" className="w-5 h-5 hover:scale-110 transition-transform" />
+              <img src={instagramIcon} alt="Instagram" className="w-5 h-5 hover:scale-110 transition-transform" />
             </a>
           </div>
         </div>

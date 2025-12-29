@@ -73,6 +73,7 @@
 /* Optimizaciones de rendimiento móvil */
 html {
   overflow-y: auto;
+  overflow-x: hidden;
   /* Prevenir zoom en iOS */
   -webkit-text-size-adjust: 100%;
   /* Optimizar renderizado */

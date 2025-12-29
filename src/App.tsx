@@ -38,7 +38,6 @@ function AppLayout() {
   useEffect(() => {
     initializePage();
   }, [initializePage]);
-
   return (
     <PageLoader 
       loading={showInitialLoader} 
@@ -49,7 +48,6 @@ function AppLayout() {
     >
       <div className="relative min-h-screen text-sand" style={{backgroundColor: 'rgba(0,0,0,0)'}}>
         {/* Fondo 3D con beams gestionado por BackgroundCompositor */}
-        
         {/* Sistema de partículas flotantes */}
         {/* <ParticleSystem
           particleCount={30}
@@ -57,9 +55,7 @@ function AppLayout() {
           className="z-0"
           enabled={true}
         /> */}
-        
         {/* Luz ambiental animada gestionada solo desde BackgroundCompositor si se requiere en el futuro */}
-        
         {/* Compositor de efectos de fondo avanzados */}
         <Suspense fallback={<div className="background-compositor-fallback" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'black', zIndex: 0 }} />}>  
           <BackgroundCompositor
@@ -88,6 +84,9 @@ function AppLayout() {
               </Routes>
             </Suspense>
           </main>
+        </div>
+        {/* Footer fuera de cualquier container o max-w */}
+        <div style={{width: '100vw', position: 'relative', left: '50%', transform: 'translateX(-50%)', overflowX: 'hidden'}}>
           <Footer />
         </div>
       </div>
