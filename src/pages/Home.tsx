@@ -117,6 +117,16 @@ export default function Home() {
           {/* Marquee solo en móvil */}
           <div className="block sm:hidden w-full">
             <MarqueeBenefitsMobile />
+            {/* Botón Ver más solo en móvil, justo debajo del Marquee */}
+            <div className="flex justify-center w-full mt-10 mb-4">
+              <ScrollButton
+                targetRef={infoRef}
+                delay={300}
+                className="px-16 py-4"
+              >
+                <span className="text-2xl font-semibold tracking-wide leading-tight w-full flex items-center justify-center">Ver más</span>
+              </ScrollButton>
+            </div>
           </div>
           {/* Layout estático en desktop */}
           <div className="hidden sm:flex flex-nowrap justify-center gap-3 text-sm text-white/80 w-full">
@@ -127,7 +137,7 @@ export default function Home() {
           <ScrollButton
             targetRef={infoRef}
             delay={300}
-            className="lg:block hidden mt-2 mb-2"
+            className="lg:block hidden mt-0 mb-2"
           >
             Ver mas
           </ScrollButton>
@@ -136,15 +146,7 @@ export default function Home() {
 
       <LazySection threshold={0.1} className="w-full mt-8 md:mt-48 lg:mt-52 pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
-          <div className="flex justify-center lg:hidden mt-8 mb-8">
-            <ScrollButton
-              targetRef={infoRef}
-              delay={300}
-              className="mb-16"
-            >
-              Ver mas
-            </ScrollButton>
-          </div>
+          {/* Eliminado botón duplicado en móvil dentro de LazySection */}
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
             <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-24 sm:mt-14">
               <div className="relative w-full max-w-[340px] ml-20 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
