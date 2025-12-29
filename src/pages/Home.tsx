@@ -251,7 +251,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid gap-6 grid-cols-3 my-8">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 my-8">
           {benefits.map((b, i) => (
             <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
               <article
