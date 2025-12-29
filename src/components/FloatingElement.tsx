@@ -7,7 +7,7 @@ interface FloatingElementProps {
   className?: string;
 }
 
-export const FloatingElement: React.FC<FloatingElementProps> = ({
+const FloatingElement: React.FC<FloatingElementProps> = ({
   children,
   delay = 0,
   duration = 6,
@@ -26,3 +26,5 @@ export const FloatingElement: React.FC<FloatingElementProps> = ({
     </div>
   );
 };
+
+export default FloatingElement;

@@ -8,29 +8,33 @@ import logo from '../resources/img/elcontainer_logo.png'
 import { useState, useEffect } from 'react';
 // Import the MarqueeBenefitsMobile component (adjust the path if needed)
 import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
-// Import the CSS for styles (optional, if needed)
+
+// Import the CSS para estilos (opcional)
 import '../styles/MarqueeBenefitsMobile.css';
-import { FloatingElement } from '../components/FloatingElement'
+
+import FloatingElement from '../components/FloatingElement';
+
+
 
 const featuredServices = [
   { title: 'Lavado rapido', desc: 'Exterior + secado en 30 min.' },
   { title: 'Detallado', desc: 'Exterior e interior con aspirado profundo.' },
   { title: 'Tapiceria', desc: 'Limpieza profunda y neutralizado de olores.' }
-]
+];
 
 const benefits = [
   { title: 'Rapidez y orden', desc: 'Reservas flexibles para evitar esperas largas.' },
   { title: 'Cuidado de pintura', desc: 'Productos y tecnicas suaves para brillo duradero.' },
   { title: 'Seguridad', desc: 'Zona iluminada y aviso al terminar tu vehiculo.' }
-]
+];
 
 const steps = [
   { title: 'Elige tu servicio', desc: 'Lavado basico, detallado, tapiceria o motor.' },
   { title: 'Reserva horario', desc: 'Define dia y hora; te confirmamos por WhatsApp o email.' },
   { title: 'Paga en el local', desc: 'Pago movil, transferencia, efectivo o tarjeta.' }
-]
+];
 
-const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta']
+const payments = ['Pago movil', 'Transferencia', 'Efectivo', 'Tarjeta'];
 
 export default function Home() {
   const infoRef = useRef<HTMLDivElement>(null)
@@ -58,8 +62,9 @@ export default function Home() {
   return (
     <>
       <section className="container-shell space-y-14">
-        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-0.5 sm:mt-0">
-          <FloatingElement delay={0} duration={8}>
+        <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 px-2 text-center sm:px-4 mt-[-1.5rem] sm:mt-0">
+          <div style={{ marginTop: '-2.2rem' }}>
+            <FloatingElement delay={0} duration={8}>
             <img
               src={logo}
               alt="El Container Autolavado"
@@ -71,6 +76,7 @@ export default function Home() {
               }}
             />
           </FloatingElement>
+          </div>
           <h1
             className="font-hero leading-[0.95] tracking-[0.02em] uppercase text-transparent bg-clip-text inline-block mb-5 md:text-[clamp(2.4rem,7vw,5.2rem)] lg:text-[clamp(3.1rem,6vw,6rem)]"
             style={{
@@ -92,7 +98,7 @@ export default function Home() {
                 letterSpacing: '0.58em',
                 WebkitTextStroke: '0.6px #0b0b0b',
                 textShadow: '0 1px 0 #0c0c0c, 0 2px 6px rgba(0,0,0,0.5), 0 0 18px rgba(32, 10, 4, 0.9)',
-                transform: 'translateY(-10px)'
+                transform: 'translateY(-3px)'
               }}
             >
               AUTOLAVADO

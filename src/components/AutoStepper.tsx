@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import Stepper from './Stepper';
 import TypewriterForAutoStepper from './TypewriterForAutoStepper';
 import { useMobileOptimization } from '../hooks/useMobileOptimization';
-import { FloatingElement } from './FloatingElement';
+import FloatingElement from './FloatingElement';
 import '../styles/autosteper.css';
 
 interface StepData {
