@@ -119,13 +119,17 @@ export default function Home() {
             <MarqueeBenefitsMobile />
             {/* Botón Ver más solo en móvil, justo debajo del Marquee */}
             <div className="flex justify-center w-full mt-10 mb-4">
-              <ScrollButton
-                targetRef={infoRef}
-                delay={300}
-                className="px-16 py-4"
+                <ScrollButton
+                  targetRef={infoRef}
+                  delay={300}
+                  className="px-8 py-3"
               >
-                <span className="text-2xl font-semibold tracking-wide leading-tight w-full flex items-center justify-center">Ver más</span>
+                  <span className="text-lg font-semibold tracking-wide leading-tight w-full flex items-center justify-center">Ver más</span>
               </ScrollButton>
+            </div>
+            {/* Línea divisoria solo en móvil, más abajo del botón */}
+            <div className="sm:hidden w-full mt-40 mb-0">
+              <hr className="border-t border-white/15 w-full" />
             </div>
           </div>
           {/* Layout estático en desktop */}
@@ -144,7 +148,7 @@ export default function Home() {
         </div>
       </section>
 
-      <LazySection threshold={0.1} className="w-full mt-8 md:mt-48 lg:mt-52 pb-28">
+      <LazySection threshold={0.1} className="w-full mt-[-2rem] md:mt-48 lg:mt-52 pb-28">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-20">
           {/* Eliminado botón duplicado en móvil dentro de LazySection */}
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
