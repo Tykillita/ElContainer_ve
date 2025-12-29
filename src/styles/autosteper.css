@@ -32,10 +32,12 @@ html, body {
 /* Mobile responsive height adjustment */
 @media (max-width: 640px) {
   .auto-stepper {
-    min-height: 120px;
+    min-height: 260px;
     padding: 0.75rem;
   }
 }
+
+/* Ensure card styling is applied when auto-stepper has card class */
 
 .auto-stepper .step-content {
   /* Flex container for step content */
@@ -46,27 +48,27 @@ html, body {
 
 .auto-stepper .step-circle-container {
   /* Override stepper container styles */
-  background: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  backdrop-filter: none !important;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
 }
 
 .auto-stepper .step-indicator-row {
   /* Override step indicator row styles */
-  background: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .auto-stepper .step-content-default {
   /* Override step content styles */
-  background: transparent !important;
-  box-shadow: none !important;
-  border: 0 !important;
-  border-radius: 0 !important;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .auto-stepper .footer-container {

@@ -60,7 +60,7 @@ export default function AutoStepper({
 
   return (
     <FloatingElement delay={current * 0.1} duration={6}>
-      <div className="auto-stepper card space-y-3 h-full min-h-[260px] flex flex-col p-4 md:p-5 card-floating-particles">
+      <div className="auto-stepper card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col card-floating-particles">
       <Stepper
           initialStep={current}
           disableStepIndicators={false}

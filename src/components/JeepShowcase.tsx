@@ -1,5 +1,6 @@
 import jeepImage from '../resources/img/jeep_gladiador.png'
 import OptimizedImage from './OptimizedImage'
+import { useMobileOptimization } from '../hooks/useMobileOptimization'
 
 type JeepShowcaseProps = {
   variant?: 'dark' | 'clean'
@@ -7,6 +8,10 @@ type JeepShowcaseProps = {
 
 export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
   const isClean = variant === 'clean'
+  const { isMobile } = useMobileOptimization()
+
+  // Don't render on mobile devices
+  if (isMobile) return null;
 
   return (
     <div
@@ -37,8 +42,8 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
             alt="Jeep Gladiador"
             className={
               isClean
-                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65]'
-                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.65] xl:scale-[0.65] 2xl:scale-[0.65]'
+                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
+                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
             }
             style={{
               transform: 'perspective(1000px) rotateX(2deg) scale(1.0)',
