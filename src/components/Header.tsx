@@ -131,7 +131,7 @@ export default function Header() {
             className={`absolute right-3 top-[calc(100%+0.75rem)] w-52 rounded-2xl border border-white/15 bg-white/5 p-4 text-sm uppercase tracking-[0.08em] text-white shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg transition-all duration-200 ease-out origin-top-right ${
               menuOpen ? 'pointer-events-auto opacity-100 scale-100 translate-y-0' : 'pointer-events-none opacity-0 scale-95 -translate-y-2'
             }`}
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
           >
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/05 via-white/02 to-transparent pointer-events-none" />
             <div className="relative flex flex-col gap-2">
