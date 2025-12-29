@@ -12,18 +12,7 @@ export default function Footer() {
       <div className="px-0 pr-6 flex flex-col gap-10">
 
 
-        {/* Contacto */}
-        <div className="text-center mb-2">
-          <h4 className="text-lg font-semibold mb-2">Contacto</h4>
-          <div className="flex flex-col gap-1 text-white/80">
-            <span>Teléfono: +58 412-7181873</span>
-            <span>Email: <a href="mailto:elcontainervzla@gmail.com" className="underline hover:text-white">elcontainervzla@gmail.com</a></span>
-            <span>Instagram: <a href="https://instagram.com/elcontainer_ve" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">@elcontainer_ve</a></span>
-            <span>Ubicación: Maturín, Edo. Monagas, Venezuela</span>
-          </div>
-        </div>
 
-        <hr className="border-white/10" />
 
 
 
