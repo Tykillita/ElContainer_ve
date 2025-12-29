@@ -9,10 +9,26 @@
     margin-top: 0.7rem !important;
   }
 
+
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import './styles/theme.css';
 @import './styles/stepper.css';
 @import './styles/card-animations.css';
+
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  background: #111827; /* o el color de fondo principal de tu app */
+}
+
+body {
+  /* Safe area para iOS notch y barras */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  box-sizing: border-box;
+}
 
 /* Logo header responsive fix - tamaño final en móvil */
 @media (max-width: 768px) {
