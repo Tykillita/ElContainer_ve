@@ -36,7 +36,7 @@ export default function ScrollButton({
   const [isClicked, setIsClicked] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<'down' | 'up'>('down');
+  // const [scrollDirection, setScrollDirection] = useState<'down' | 'up'>('down');
   
   // Refs
   const buttonRef = useRef<HTMLButtonElement>(null);
