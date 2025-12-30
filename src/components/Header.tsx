@@ -70,7 +70,10 @@ export default function Header() {
                 key={item.to} 
                 to={item.to} 
                 className={`${linkClass(item.to)} relative px-3 py-2 transition-all duration-200`}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setTimeout(() => { window.scrollTo(0, 0); }, 0);
+                }}
               >
                 {item.label}
                 {location.pathname === item.to && (
@@ -82,9 +85,12 @@ export default function Header() {
 
           <div className="flex items-center gap-4 text-sm uppercase tracking-[0.08em]">
             <Link 
-              to="/onboarding" 
-              className={`${linkClass('/onboarding')} hidden md:inline px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 transition-all duration-200 border border-white/25`} 
-              onClick={() => setMenuOpen(false)}
+              to="/login" 
+              className={`${linkClass('/login')} hidden md:inline px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 transition-all duration-200 border border-white/25`} 
+              onClick={() => {
+                setMenuOpen(false);
+                setTimeout(() => { window.scrollTo(0, 0); }, 0);
+              }}
             >
               Iniciar sesión
             </Link>
@@ -145,7 +151,10 @@ export default function Header() {
                       menuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
                     }`}
                     style={{ transitionDelay: `${delay}ms` }}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setTimeout(() => { window.scrollTo(0, 0); }, 0);
+                    }}
                   >
                     {item.label}
                   </Link>
@@ -153,9 +162,12 @@ export default function Header() {
               })}
               <div className="pt-3 mt-2 border-t border-white/15">
                 <Link 
-                  to="/onboarding" 
+                  to="/login" 
                   className="w-full text-right rounded-xl px-4 py-3 text-white/85 hover:bg-white/20 transition-all duration-200 block"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setTimeout(() => { window.scrollTo(0, 0); }, 0);
+                  }}
                 >
                   Iniciar sesión
                 </Link>

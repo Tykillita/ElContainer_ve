@@ -39,7 +39,7 @@ export default function Booking() {
   };
 
   return (
-    <section className="container-shell space-y-6 booking-form">
+    <section className="container-shell space-y-6 booking-form pt-6 sm:pt-0">
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.12em] text-white/50">Reservas</p>
         <h1 className="text-3xl font-semibold leading-tight">Agenda tu cita</h1>

@@ -39,7 +39,7 @@ const packages = [
 
 export default function Services() {
   return (
-    <section className="container-shell space-y-6">
+    <section className="container-shell space-y-6 pt-6 sm:pt-0">
       <div className="space-y-2">
         <p className="text-sm uppercase tracking-[0.12em] text-white/50">Servicios y precios</p>
         <h1 className="text-3xl font-semibold leading-tight">Elige el paquete ideal</h1>

@@ -66,7 +66,7 @@ export default function PricingPlans() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`flex-1 bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border ${plan.highlight ? 'border-orange-500' : 'border-white/10'} p-8 flex flex-col items-center transition-transform hover:scale-105 h-full min-h-[520px]`}
+              className={`flex-1 bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border ${plan.highlight ? 'border-orange-500' : 'border-white/10'} p-8 flex flex-col items-center transition-transform h-full min-h-[520px]${typeof window !== 'undefined' && window.innerWidth <= 640 ? '' : ' hover:scale-105'}`}
             >
               <h3 className="text-2xl font-bold mb-2 text-white">{plan.name}</h3>
               <p className="text-white/70 mb-4 text-center">{plan.description}</p>

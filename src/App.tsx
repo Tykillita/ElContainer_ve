@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import PageLoader from './components/PageLoader';
 const Onboarding = lazy(() => import('./pages/Onboarding'));
+const Login = lazy(() => import('./pages/Login'));
 const Home = lazy(() => import('./pages/Home'));
 const Services = lazy(() => import('./pages/Services'));
 const Booking = lazy(() => import('./pages/Booking'));
@@ -15,15 +16,10 @@ const Contact = lazy(() => import('./pages/Contact'));
 
 const BackgroundCompositor = lazy(() => import('./components/BackgroundEffects'));
 import { AppProvider } from './context/AppContext';
+import { AuthProvider } from './context/AuthContext';
 import { LoadingProvider, useLoading } from './context/LoadingContext';
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-  return null;
-}
+
 
 function AppLayout() {
   const [showInitialLoader, setShowInitialLoader] = useState(true);
@@ -32,12 +28,23 @@ function AppLayout() {
   // Function to be called when the page has completely rendered
   const handlePageLoadComplete = () => {
     setShowInitialLoader(false);
+    window.scrollTo(0, 0);
   };
 
   // Initialize the page loading system
   useEffect(() => {
     initializePage();
   }, [initializePage]);
+  const location = useLocation();
+  const mainRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, [location.pathname]);
   return (
     <PageLoader 
       loading={showInitialLoader} 
@@ -70,7 +77,7 @@ function AppLayout() {
         {/* Fallback CSS eliminado para evitar superposiciones. Si se requiere, integrarlo como opción en BackgroundCompositor. */}
         <div className="relative z-50 flex min-h-screen flex-col">
           <Header />
-          <main className="flex-1 px-6 pt-28 pb-10">
+          <main className="flex-1 px-6 pt-28 pb-10" ref={mainRef}>
             <Suspense>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -78,6 +85,7 @@ function AppLayout() {
                 <Route path="/reservas" element={<Booking />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/contacto" element={<Contact />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 {/* Demo eliminado: AutoStepperDemo ya no está disponible */}
                 {/* Puedes agregar más rutas aquí */}
@@ -94,19 +102,20 @@ function AppLayout() {
 
 function App() {
   return (
-    <AppProvider>
-      <LoadingProvider>
-        <BrowserRouter 
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true,
-          }}
-        >
-          <ScrollToTop />
-          <AppLayout />
-        </BrowserRouter>
-      </LoadingProvider>
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <LoadingProvider>
+          <BrowserRouter 
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <AppLayout />
+          </BrowserRouter>
+        </LoadingProvider>
+      </AppProvider>
+    </AuthProvider>
   );
 }
 

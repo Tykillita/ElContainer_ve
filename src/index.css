@@ -1,20 +1,18 @@
-  /* Aumenta el tamaño de AUTOLAVADO solo en móviles */
-  @media (max-width: 768px) {
-    .autolavado-title {
-      font-size: 0.6em !important;
-    }
-  }
-  /* Baja un poco el header en móviles */
-  header.py-3 {
-    margin-top: 0.7rem !important;
-  }
-
-
 @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
 @import './styles/theme.css';
 @import './styles/stepper.css';
 @import './styles/card-animations.css';
 
+/* Aumenta el tamaño de AUTOLAVADO solo en móviles */
+@media (max-width: 768px) {
+  .autolavado-title {
+    font-size: 0.6em !important;
+  }
+}
+/* Baja un poco el header en móviles */
+header.py-3 {
+  margin-top: 0.7rem !important;
+}
 
 html, body {
   height: 100%;
@@ -432,7 +430,11 @@ body {
 }
 
 .container-shell {
-  @apply mx-auto max-w-6xl px-4;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 72rem; /* 6xl = 1152px = 72rem */
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .font-hero {

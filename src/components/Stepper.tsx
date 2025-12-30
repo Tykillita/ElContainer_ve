@@ -1,31 +1,5 @@
-import React, { useState, Children, useRef, useLayoutEffect, type HTMLAttributes, type ReactNode } from 'react'
-import { motion, AnimatePresence, type Variants } from 'motion/react'
-
-import '../styles/stepper.css'
-
-interface StepperProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode
-  initialStep?: number
-  onStepChange?: (step: number) => void
-  onFinalStepCompleted?: () => void
-  header?: ReactNode
-  stepCircleContainerClassName?: string
-  stepContainerClassName?: string
-  contentClassName?: string
-  footerClassName?: string
-  backButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>
-  nextButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>
-  backButtonText?: string
-  nextButtonText?: string
-  disableStepIndicators?: boolean
-  renderStepIndicator?: (props: RenderStepIndicatorProps) => ReactNode
-}
-
-interface RenderStepIndicatorProps {
-  step: number
-  currentStep: number
-  onStepClick: (clicked: number) => void
-}
+import React, { useState, Children, useRef, useLayoutEffect, ReactNode } from 'react';
+import { motion, AnimatePresence, Variants } from 'motion/react';
 
 export default function Stepper({
   children,
@@ -36,15 +10,34 @@ export default function Stepper({
   stepCircleContainerClassName = '',
   stepContainerClassName = '',
   contentClassName = '',
-  footerClassName = '',
-  backButtonProps = {},
-  nextButtonProps = {},
-  backButtonText = 'Anterior',
-  nextButtonText = 'Continuar',
+  // footerClassName,
+  // backButtonProps,
+  // nextButtonProps,
+  // backButtonText,
+  // nextButtonText,
   disableStepIndicators = false,
   renderStepIndicator,
+  validateStep,
   ...rest
-}: StepperProps) {
+}: {
+  children: ReactNode;
+  initialStep?: number;
+  onStepChange?: (step: number) => void;
+  onFinalStepCompleted?: () => void;
+  header?: ReactNode;
+  stepCircleContainerClassName?: string;
+  stepContainerClassName?: string;
+  contentClassName?: string;
+  footerClassName?: string;
+  backButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  nextButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  backButtonText?: string;
+  nextButtonText?: string;
+  disableStepIndicators?: boolean;
+  renderStepIndicator?: (props: StepIndicatorProps) => ReactNode;
+  validateStep?: (step: number) => boolean;
+  [key: string]: unknown;
+}) {
   const { className, ...divProps } = rest
   const [currentStep, setCurrentStep] = useState<number>(initialStep)
   // Sincroniza el paso actual con initialStep si cambia (para animación automática)
@@ -55,7 +48,7 @@ export default function Stepper({
   const stepsArray = Children.toArray(children)
   const totalSteps = stepsArray.length
   const isCompleted = currentStep > totalSteps
-  const isLastStep = currentStep === totalSteps
+  // const isLastStep = currentStep === totalSteps
 
   const updateStep = (newStep: number) => {
     setCurrentStep(newStep)
@@ -66,61 +59,46 @@ export default function Stepper({
     }
   }
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setDirection(-1)
-      updateStep(currentStep - 1)
-    }
-  }
-
-  const handleNext = () => {
-    if (!isLastStep) {
-      setDirection(1)
-      updateStep(currentStep + 1)
-    }
-  }
-
-  const handleComplete = () => {
-    setDirection(1)
-    updateStep(totalSteps + 1)
-  }
+  // handleBack, handleNext, handleComplete eliminados porque ya no se usan
 
   return (
     <div className={`outer-container ${className ?? ''}`} {...divProps}>
       {header && <div className="stepper-header">{header}</div>}
       <div className={`step-circle-container ${stepCircleContainerClassName}`}>
-        <div className={`step-indicator-row ${stepContainerClassName}`}>
-          {stepsArray.map((_, index) => {
-            const stepNumber = index + 1
-            const isNotLastStep = index < totalSteps - 1
+        <div className={`step-indicator-row ${stepContainerClassName}`} style={{ flexDirection: 'row', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {stepsArray.map((_: ReactNode, index: number) => {
+            const stepNumber = index + 1;
+            const isNotLastStep = index < totalSteps - 1;
+            // Validación extra: solo permite avanzar si el paso actual está completo
+            const canAdvance = validateStep ? validateStep(currentStep) : true;
+            const handleStepClick = (clicked: number) => {
+              if (clicked > currentStep && !canAdvance) return;
+              setDirection(clicked > currentStep ? 1 : -1);
+              updateStep(clicked);
+            };
             return (
               <React.Fragment key={stepNumber}>
                 {renderStepIndicator ? (
                   renderStepIndicator({
                     step: stepNumber,
                     currentStep,
-                    onStepClick: (clicked) => {
-                      setDirection(clicked > currentStep ? 1 : -1)
-                      updateStep(clicked)
-                    }
+                    onClickStep: handleStepClick
                   })
                 ) : (
                   <StepIndicator
                     step={stepNumber}
                     disableStepIndicators={disableStepIndicators}
                     currentStep={currentStep}
-                    onClickStep={(clicked) => {
-                      setDirection(clicked > currentStep ? 1 : -1)
-                      updateStep(clicked)
-                    }}
+                    onClickStep={handleStepClick}
                   />
                 )}
                 {isNotLastStep && <StepConnector isComplete={currentStep > stepNumber} />}
               </React.Fragment>
-            )
+            );
           })}
         </div>
 
+        <div style={{ marginBottom: '1.25rem' }} />
         <StepContentWrapper
           isCompleted={isCompleted}
           currentStep={currentStep}
@@ -130,24 +108,7 @@ export default function Stepper({
           {stepsArray[currentStep - 1]}
         </StepContentWrapper>
 
-        {!isCompleted && (
-          <div className={`footer-container ${footerClassName}`}>
-            <div className={`footer-nav ${currentStep !== 1 ? 'spread' : 'end'}`}>
-              {currentStep !== 1 && (
-                <button
-                  onClick={handleBack}
-                  className={`back-button ${currentStep === 1 ? 'inactive' : ''}`}
-                  {...backButtonProps}
-                >
-                  {backButtonText}
-                </button>
-              )}
-              <button onClick={isLastStep ? handleComplete : handleNext} className="next-button" {...nextButtonProps}>
-                {isLastStep ? 'Finalizar' : nextButtonText}
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Botón de continuar eliminado, solo se muestra el botón personalizado dentro del contenido del paso */}
       </div>
     </div>
   )
@@ -246,40 +207,54 @@ interface StepIndicatorProps {
 }
 
 function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators }: StepIndicatorProps) {
-  const status = currentStep === step ? 'active' : currentStep < step ? 'inactive' : 'complete'
+  const status = currentStep === step ? 'active' : currentStep < step ? 'inactive' : 'complete';
 
   const handleClick = () => {
     if (step !== currentStep && !disableStepIndicators) {
-      onClickStep(step)
+      onClickStep(step);
     }
+  };
+
+  let bg = '#23253a', color = '#a3adc2', border = 'none';
+  if (status === 'active') {
+    bg = '#e35c27';
+    color = '#fff';
+    border = '2px solid #fff';
+  } else if (status === 'complete') {
+    // Pasos anteriores al actual: círculo naranja
+    bg = '#e35c27';
+    color = '#fff';
+    border = '2px solid #e35c27';
   }
 
   return (
-    <motion.div onClick={handleClick} className="step-indicator" animate={status} initial={false}>
-      <motion.div
-        variants={{
-          inactive: { scale: 1, backgroundColor: '#161826', color: '#a3adc2' },
-          active: { scale: 1, backgroundColor: '#e35c27', color: '#0c0c1d' },
-          complete: { scale: 1, backgroundColor: '#e35c27', color: '#0c0c1d' }
-        }}
-        transition={{ duration: 0.25 }}
+    <div
+      onClick={handleClick}
+      className="step-indicator"
+      style={{ cursor: disableStepIndicators ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 0.5rem' }}
+    >
+      <div
         className="step-indicator-inner"
+        style={{
+          background: bg,
+          color,
+          border,
+          height: '2.25rem',
+          width: '2.25rem',
+          borderRadius: '9999px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 700,
+          fontSize: '1rem',
+          boxShadow: status === 'active' ? '0 0 0 2px #fff' : 'none',
+          transition: 'all 0.2s',
+        }}
       >
-        {status === 'complete' ? (
-          <>
-            <CheckIcon className="check-icon" />
-            <span className="step-number step-number-overlay">{step}</span>
-          </>
-        ) : status === 'active' ? (
-          <div className="active-dot">
-            <span className="step-number step-number-overlay">{step}</span>
-          </div>
-        ) : (
-          <span className="step-number">{step}</span>
-        )}
-      </motion.div>
-    </motion.div>
-  )
+        <span className="step-number">{step}</span>
+      </div>
+    </div>
+  );
 }
 
 interface StepConnectorProps {
@@ -287,37 +262,9 @@ interface StepConnectorProps {
 }
 
 function StepConnector({ isComplete }: StepConnectorProps) {
-  const lineVariants: Variants = {
-    incomplete: { width: 0, backgroundColor: 'rgba(0,0,0,0)' },
-    complete: { width: '100%', backgroundColor: '#e35c27' }
-  }
-
   return (
-    <div className="step-connector">
-      <motion.div
-        className="step-connector-inner"
-        variants={lineVariants}
-        initial={false}
-        animate={isComplete ? 'complete' : 'incomplete'}
-        transition={{ duration: 0.35 }}
-      />
-    </div>
-  )
+    <div style={{ flex: 1, height: '0.25rem', background: isComplete ? '#e35c27' : '#23253a', borderRadius: '2px', margin: '0 0.25rem', minWidth: '2rem', maxWidth: '100%' }} />
+  );
 }
 
-type CheckIconProps = React.SVGProps<SVGSVGElement>
 
-function CheckIcon(props: CheckIconProps) {
-  return (
-    <svg {...props} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-      <motion.path
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ delay: 0.05, type: 'tween', ease: 'easeOut', duration: 0.3 }}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M5 13l4 4L19 7"
-      />
-    </svg>
-  )
-}

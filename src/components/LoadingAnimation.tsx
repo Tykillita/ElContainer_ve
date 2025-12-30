@@ -214,7 +214,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
   isReady = false
 }) => {
   const [progress, setProgress] = useState(0);
-  const [phase, setPhase] = useState(0);
+  // const [phase, setPhase] = useState(0); // Eliminado porque no se usa
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
@@ -246,13 +246,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       });
     }, 50);
 
-    const phaseTimer = setInterval(() => {
-      setPhase(prev => (prev + 1) % 3);
-    }, 800);
-
     return () => {
       clearInterval(timer);
-      clearInterval(phaseTimer);
     };
   }, [isVisible, onComplete, waitForReady, isReady]);
 

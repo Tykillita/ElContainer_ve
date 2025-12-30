@@ -1,3 +1,0 @@
-Project: elcontainer-ve-web
-Stack: Vite + React + TypeScript + Tailwind
-Status: Scaffold inicial listo.

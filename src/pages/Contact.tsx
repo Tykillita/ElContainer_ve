@@ -1,6 +1,6 @@
 export default function Contact() {
   return (
-    <section className="container-shell space-y-6">
+    <section className="container-shell space-y-6 pt-6 sm:pt-0">
       <div className="space-y-2 text-center">
         <p className="text-sm uppercase tracking-[0.12em] text-white/50">Contacto</p>
         <h1 className="text-3xl font-semibold leading-tight">Encuéntranos y agenda</h1>

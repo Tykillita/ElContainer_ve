@@ -1,3 +1,18 @@
+/* Desactivar hover en tarjetas solo en móvil */
+@media (max-width: 640px) {
+  .card:hover,
+  .card:hover::before,
+  .card:hover::after,
+  .card .interactive-element:hover {
+    /* Desactiva cualquier efecto hover en móvil */
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: inherit !important;
+    opacity: 1 !important;
+    filter: none !important;
+    left: initial !important;
+  }
+}
 /* Enhanced Card Animations and Effects */
 
 /* Card hover effects with border animations */

@@ -72,13 +72,13 @@ export default function AutoStepper({
           stepCircleContainerClassName="step-circle-container"
           stepContainerClassName="step-indicator-row"
           contentClassName="step-content-default"
-          renderStepIndicator={({ step, currentStep, onStepClick }) => {
+          renderStepIndicator={({ step, currentStep, onClickStep }) => {
             const status = currentStep === step ? 'active' : currentStep < step ? 'inactive' : 'complete';
             
             return (
               <div
                 className="step-indicator"
-                onClick={() => onStepClick(step)}
+                onClick={() => onClickStep(step)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

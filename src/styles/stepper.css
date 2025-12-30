@@ -11,6 +11,17 @@
   box-shadow: none;
 }
 
+.step-circle-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 28rem;
+  border-radius: 2rem;
+  border: none;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
 .step-inline-root {
   align-items: stretch;
   justify-content: flex-start;
@@ -34,21 +45,19 @@
   width: 100%;
   max-width: 28rem;
   border-radius: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(12, 12, 29, 0.25);
-  backdrop-filter: blur(8px);
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.25);
+  border: none;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .step-card-container {
   max-width: none;
-  padding: 1rem 1.25rem 1.25rem;
-  border-radius: 1.5rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .step-inline-container {
