@@ -5,6 +5,43 @@ import { supabase } from '../lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 import { AuthContext } from './AuthContextContext';
 
+import { useContext } from 'react';
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    if (typeof window !== 'undefined') {
+      // Render fallback UI if context is missing
+      const fallback = document.getElementById('auth-context-fallback');
+      if (!fallback) {
+        const div = document.createElement('div');
+        div.id = 'auth-context-fallback';
+        div.style.position = 'fixed';
+        div.style.top = '0';
+        div.style.left = '0';
+        div.style.width = '100vw';
+        div.style.height = '100vh';
+        div.style.background = '#1a1a1a';
+        div.style.color = '#fff';
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.zIndex = '9999';
+        div.innerHTML = '<h1 style="font-size:2rem;margin-bottom:1rem;">Error de autenticación</h1><p>No se pudo inicializar el contexto de autenticación.<br>Por favor, recarga la página o contacta soporte.</p>';
+        document.body.appendChild(div);
+      }
+    }
+    throw new Error('useAuth debe usarse dentro de AuthProvider');
+  }
+  // Elimina el fallback si el contexto se recupera
+  const fallback = typeof window !== 'undefined' ? document.getElementById('auth-context-fallback') : null;
+  if (fallback) fallback.remove();
+  return ctx;
+}
+
+export { AuthContext };
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
