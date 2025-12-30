@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 import { AuthContext } from './AuthContextContext';
 
+export { AuthContext };
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
