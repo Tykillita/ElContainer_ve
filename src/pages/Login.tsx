@@ -24,7 +24,7 @@ export default function Login() {
     if (!email || !password) return;
     const success = await login(email, password, remember);
     if (success) {
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
@@ -49,7 +49,7 @@ export default function Login() {
   };
   return (
   <div className="relative min-h-screen w-full flex items-start justify-center overflow-hidden pt-16 md:pt-28">
-      <div className="w-full max-w-md mx-auto rounded-3xl bg-black/80 border border-white/15 shadow-2xl backdrop-blur-lg p-8 md:p-10 flex flex-col items-center">
+      <div className="w-full max-w-md mx-auto rounded-3xl bg-white/5 border border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg p-8 md:p-10 flex flex-col items-center" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
         <h1 className="text-4xl font-bold text-white mb-2 text-center mt-0">¡Bienvenido de nuevo!</h1>
         <p className="text-base text-white/70 mb-6 text-center">Inicia sesión para continuar y gestionar tu cuenta.</p>
         <form className="w-full space-y-6" onSubmit={handleSubmit} autoComplete="on" onKeyDown={handleKeyDown}>
@@ -85,11 +85,11 @@ export default function Login() {
                 ref={passwordInputRef}
                 className="w-full rounded-xl border bg-white/5 px-4 py-3 text-base outline-none ring-0 pr-12 transition-all duration-200 border-white/15 focus:border-orange-400 focus:ring-orange-400"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Contraseña (mín. 8 caracteres)"
+                placeholder="Contraseña"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                minLength={8}
+                // minLength eliminado, no requerido en login
                 autoComplete="current-password"
               />
               <button

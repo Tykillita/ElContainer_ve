@@ -43,6 +43,7 @@ export function useAuth() {
 export { AuthContext };
 
 
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
@@ -76,6 +77,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const register = async (email: string, password: string, extra?: Record<string, any>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Registro sin confirmación automática de email
+      const { data, error: supabaseError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: undefined, // No enviar email de confirmación
+          data: extra || undefined,
+          // @ts-ignore
+          sendConfirmationEmail: false
+        }
+      });
+      if (supabaseError) {
+        setError(supabaseError.message);
+        setLoading(false);
+        return { success: false, error: supabaseError.message };
+      }
+      setUser(data.user ?? null);
+      setLoading(false);
+      return { success: true };
+    } catch (e: any) {
+      setError('Error de registro');
+      setLoading(false);
+      return { success: false, error: e?.message || 'Error de registro' };
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -83,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, error }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, error }}>
       {children}
     </AuthContext.Provider>
   );

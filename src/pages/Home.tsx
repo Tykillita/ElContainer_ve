@@ -204,22 +204,22 @@ export default function Home() {
         </div>
       </LazySection>
 
-      <div className="relative" style={{ marginTop: 0, paddingTop: 0 }} ref={infoRef}>
-        <div className="container-shell">
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
-          <div className="space-y-4">
+      {/* --- NUEVO DISEÑO DESDE AQUÍ --- */}
+      <section className="container-shell mt-0 pt-0">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
+          {/* Columna izquierda: título, descripción, chips y botones */}
+          <div className="flex flex-col gap-4 mt-8">
             <p className="text-sm uppercase tracking-[0.12em] text-white/60">Autolavado</p>
-            <h2 className="text-3xl font-semibold leading-tight">Lavado rapido, seguro y sin sorpresas</h2>
+            <h2 className="text-3xl font-semibold leading-tight text-white">Lavado rapido, seguro y sin sorpresas</h2>
             <p className="max-w-2xl text-base text-white/70">
-              Reserva en linea, llega a tu hora y paga en el local. Cuidamos pintura, tapiceria y detalles para que tu
-              vehiculo salga brillante y protegido.
+              Reserva en linea, llega a tu hora y paga en el local. Cuidamos pintura, tapiceria y detalles para que tu vehiculo salga brillante y protegido.
             </p>
             <div className="flex flex-wrap gap-3 text-sm text-white/80">
               <span className="rounded-full border border-white/20 px-3 py-1">Reservas flexibles</span>
               <span className="rounded-full border border-white/20 px-3 py-1">Confirmacion por WhatsApp</span>
               <span className="rounded-full border border-white/20 px-3 py-1">Pago en sitio</span>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 mt-2">
               <a
                 href="/booking"
                 className="rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold shadow-md transition hover:bg-orange-600 focus:ring-2 focus:ring-orange-400 focus:outline-none flex items-center"
@@ -236,67 +236,67 @@ export default function Home() {
               </a>
             </div>
           </div>
-
-          <div className="card space-y-3">
-            <h2 className="text-lg font-semibold">Servicios destacados</h2>
+          {/* Columna derecha: servicios destacados */}
+          <div className="card space-y-3 mt-8 lg:mt-0 border border-white/15 bg-white/5 backdrop-blur-sm rounded-2xl p-6">
+            <h2 className="text-lg font-semibold text-white mb-2">Servicios destacados</h2>
             <div className="space-y-3">
               {featuredServices.map((s) => (
-                <div key={s.title} className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
-                  <div className="text-sm font-semibold text-white">{s.title}</div>
+                <div key={s.title} className="rounded-lg border border-white/15 bg-white/5 px-4 py-3">
+                  <div className="text-sm font-bold text-white">{s.title}</div>
                   <p className="text-sm text-white/70">{s.desc}</p>
                 </div>
               ))}
             </div>
-            <div className="text-xs text-white/60">Ver lista completa en la seccion Servicios.</div>
+            <div className="text-xs text-white/60 mt-2">Ver lista completa en la seccion Servicios.</div>
           </div>
         </div>
-
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 my-8">
+      </section>
+      {/* Benefits Section - justo debajo de servicios destacados */}
+      <section className="container-shell mt-0 pt-0">
+        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 text-center mt-8 mb-8">
           {benefits.map((b, i) => (
-            <FloatingElement key={b.title} delay={i * 0.5} duration={6 + i}>
-              <article
-                className="card flex flex-col items-center justify-center text-center h-full min-h-[180px] p-5 md:border-r last:border-b-0 md:last:border-r-0 card-floating-particles"
-              >
-                <div className="flex flex-col items-center">
-                  <span className="mb-2">
-                    {i === 0 && <SpeedIcon width={32} height={32} className="text-orange-500" />}
-                    {i === 1 && <PaintIcon width={32} height={32} className="text-orange-500" />}
-                    {i === 2 && <SecurityIcon width={32} height={32} className="text-orange-500" />}
-                  </span>
-                  <h3 className="text-lg font-bold text-white mb-1 leading-tight">{b.title}</h3>
-                </div>
-                <p className="text-base text-white/80 leading-snug">{b.desc}</p>
-              </article>
-            </FloatingElement>
+            <div key={b.title} className="flex flex-col items-center justify-start">
+              <span className="mb-2">
+                {i === 0 && <SpeedIcon width={38} height={38} className="text-orange-500" />}
+                {i === 1 && <PaintIcon width={38} height={38} className="text-orange-500" />}
+                {i === 2 && <SecurityIcon width={38} height={38} className="text-orange-500" />}
+              </span>
+              <div>
+                <div className="font-bold text-white text-lg mb-1 leading-tight">{b.title}</div>
+                <div className="text-white/90 text-base whitespace-pre-line" style={{maxWidth: 260, margin: '0 auto'}}>{b.desc}</div>
+              </div>
+            </div>
           ))}
         </div>
-
-        {/* Separación visual ahora con mb-16 en la grid de beneficios */}
-        <div className="grid gap-8 lg:grid-cols-2 items-start">
-          <div>
-            <LazySection threshold={0.2}>
+      </section>
+      {/* Sección AutoStepper y Métodos de pago, ambas del mismo tamaño */}
+      <section className="container-shell mt-0 pt-0">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          {/* AutoStepper en una sola tarjeta principal */}
+          <div className="card w-full h-full flex items-center justify-center max-w-xl min-h-[340px] bg-white/5 border border-white/10 rounded-2xl p-0 md:p-8 mx-auto">
+            <div className="flex flex-col justify-center items-center w-full h-full">
               <AutoStepper steps={steps} />
-            </LazySection>
+            </div>
           </div>
-          <div className="card space-y-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 sm:p-6 md:p-8 lg:p-9 pr-1 sm:pr-0 text-base shadow-[0_22px_80px_rgba(0,0,0,0.28)] h-full min-h-[260px] flex flex-col">
-            <h2 className="text-lg font-semibold">Metodos de pago (en sitio)</h2>
-            <p className="text-sm text-white/70">
-              Pagas al finalizar el servicio en el local. Elige el metodo que prefieras.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {payments.map((p, index) => (
-                <FloatingElement key={p} delay={index * 0.2}>
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/80">
+          {/* Métodos de pago */}
+          <div className="card w-full h-full flex items-center justify-center max-w-xl min-h-[340px] bg-white/5 border border-white/10 rounded-2xl p-0 md:p-8 mx-auto">
+            <div className="flex flex-col justify-center items-center w-full h-full px-2 py-4 md:px-8 md:py-10">
+              <h2 className="text-lg font-semibold text-white mb-2 text-center tracking-wide">Métodos de pago (en sitio)</h2>
+              <p className="text-sm text-white/70 mb-4 text-center max-w-sm">
+                Pagas al finalizar el servicio en el local. Elige el método que prefieras.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3 mb-4 w-full">
+                {payments.map((p) => (
+                  <span key={p} className="rounded-full border border-white/20 px-5 py-1.5 text-sm text-white/90 bg-white/10 backdrop-blur-sm shadow-sm transition-colors hover:bg-orange-400/20 hover:text-orange-200">
                     {p}
                   </span>
-                </FloatingElement>
-              ))}
+                ))}
+              </div>
+              <div className="text-xs text-white/60 text-center max-w-sm mt-1">Confirma tu cita y lleva el vehículo a la hora acordada.</div>
             </div>
-            <div className="text-xs text-white/60">Confirma tu cita y lleva el vehiculo a la hora acordada.</div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
     </>
   )
 }

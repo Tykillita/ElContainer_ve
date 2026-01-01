@@ -1,3 +1,6 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const packages = [
   {
     name: 'Lavado básico',
@@ -38,6 +41,10 @@ const packages = [
 ]
 
 export default function Services() {
+  const navigate = useNavigate();
+  const handleReservar = (serviceName: string) => {
+    navigate('/reservas', { state: { preselectedService: serviceName } });
+  };
   return (
     <section className="container-shell space-y-6 pt-6 sm:pt-0">
       <div className="space-y-2">
@@ -62,7 +69,10 @@ export default function Services() {
                 <li key={line}>• {line}</li>
               ))}
             </ul>
-            <button className="mt-2 w-full rounded-lg bg-white/90 px-4 py-2 text-sm font-semibold text-black transition">
+            <button
+              className="mt-2 w-full rounded-lg bg-white/90 px-4 py-2 text-sm font-semibold text-black transition"
+              onClick={() => handleReservar(item.name)}
+            >
               Reservar este servicio
             </button>
           </article>

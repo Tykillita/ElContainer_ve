@@ -215,13 +215,12 @@ function StepIndicator({ step, currentStep, onClickStep, disableStepIndicators }
     }
   };
 
-  let bg = '#23253a', color = '#a3adc2', border = 'none';
+  let bg = 'rgba(255,255,255,0.12)', color = '#fff', border = 'none';
   if (status === 'active') {
     bg = '#e35c27';
     color = '#fff';
     border = '2px solid #fff';
   } else if (status === 'complete') {
-    // Pasos anteriores al actual: círculo naranja
     bg = '#e35c27';
     color = '#fff';
     border = '2px solid #e35c27';
@@ -263,7 +262,7 @@ interface StepConnectorProps {
 
 function StepConnector({ isComplete }: StepConnectorProps) {
   return (
-    <div style={{ flex: 1, height: '0.25rem', background: isComplete ? '#e35c27' : '#23253a', borderRadius: '2px', margin: '0 0.25rem', minWidth: '2rem', maxWidth: '100%' }} />
+    <div style={{ flex: 1, height: '0.25rem', background: isComplete ? '#e35c27' : 'rgba(255,255,255,0.25)', borderRadius: '2px', margin: '0 0.25rem', minWidth: '2rem', maxWidth: '100%' }} />
   );
 }
 

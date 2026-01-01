@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
 
 const slots = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00'];
@@ -7,7 +8,10 @@ const services = ['Lavado básico', 'Lavado detallado', 'Motor', 'Tapicería', '
 
 
 export default function Booking() {
-  const [selectedService, setSelectedService] = useState(services[0]);
+  const location = useLocation();
+  const preselectedService = location.state?.preselectedService;
+  const initialService = services.includes(preselectedService) ? preselectedService : services[0];
+  const [selectedService, setSelectedService] = useState(initialService);
   const [selectedSlot, setSelectedSlot] = useState(slots[0]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
