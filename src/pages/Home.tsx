@@ -84,7 +84,7 @@ export default function Home() {
               fontSize: titleSize
             }}
           >
-            <span className="md:text-[1.1em] text-[1.5em] whitespace-nowrap">
+            <span className="md:text-[1.2em] lg:text-[1.28em] text-[1.5em] whitespace-nowrap">
               EL CONTAINER
             </span>
             <span
