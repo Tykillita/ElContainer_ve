@@ -28,7 +28,7 @@ export default function Onboarding() {
   // const [registerSuccess, setRegisterSuccess] = useState(false);
 
   const { register, loading } = useAuth();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<{nombre?: string; apellido?: string; email?: string; password?: string}>({});
