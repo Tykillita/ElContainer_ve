@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './components/DashboardLayout';
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Login = lazy(() => import('./pages/Login'));
 const Home = lazy(() => import('./pages/Home'));
@@ -13,6 +14,13 @@ const Booking = lazy(() => import('./pages/Booking'));
 const Blog = lazy(() => import('./pages/Blog'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Lavados = lazy(() => import('./pages/Lavados'));
+const Progreso = lazy(() => import('./pages/Progreso'));
+const Planes = lazy(() => import('./pages/Planes'));
+const Clientes = lazy(() => import('./pages/Clientes'));
+const Calendario = lazy(() => import('./pages/Calendario'));
+const Cuenta = lazy(() => import('./pages/Cuenta'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 // import BeamsFixed from './components/BeamsFixed';
 //import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 
@@ -38,6 +46,8 @@ function AppLayout() {
     initializePage();
   }, [initializePage]);
   const location = useLocation();
+  const isDashboardArea = ['/dashboard','/lavados','/progreso','/planes','/clientes','/calendario','/cuenta','/admin-panel']
+    .some(path => location.pathname.startsWith(path));
   const mainRef = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
     window.scrollTo(0, 0);
@@ -78,9 +88,9 @@ function AppLayout() {
         </Suspense>
         {/* Fallback CSS eliminado para evitar superposiciones. Si se requiere, integrarlo como opción en BackgroundCompositor. */}
         <div className="relative z-50 flex min-h-screen flex-col">
-          {/* Mostrar Header y Footer solo si no es dashboard */}
-          {location.pathname !== '/dashboard' && <Header />}
-          <main className={`flex-1 px-6 pb-10 ${location.pathname !== '/dashboard' ? 'pt-28' : ''}`} ref={mainRef}>
+          {/* Mostrar Header y Footer solo fuera del área dashboard */}
+          {!isDashboardArea && <Header />}
+          <main className={`flex-1 px-6 pb-10 ${!isDashboardArea ? 'pt-28' : ''}`} ref={mainRef}>
             <Suspense>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -91,13 +101,25 @@ function AppLayout() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route element={<ProtectedRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/progreso" element={<Progreso />} />
+                    <Route path="/planes" element={<Planes />} />
+                    <Route path="/calendario" element={<Calendario />} />
+                    <Route path="/cuenta" element={<Cuenta />} />
+
+                    <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
+                      <Route path="/lavados" element={<Lavados />} />
+                      <Route path="/clientes" element={<Clientes />} />
+                      <Route path="/admin-panel" element={<AdminPanel />} />
+                    </Route>
+                  </Route>
                 </Route>
                 {/* Puedes agregar más rutas aquí */}
               </Routes>
             </Suspense>
           </main>
-          {location.pathname !== '/dashboard' && <Footer />}
+          {!isDashboardArea && <Footer />}
         </div>
       </div>
 

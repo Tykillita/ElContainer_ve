@@ -91,7 +91,8 @@ export default function Onboarding() {
   // Confirmar datos y registrar en Supabase
   const handleConfirmDatos = async () => {
     setRegisterError(null);
-    const result = await register(email, password, { nombre, apellido });
+    const full_name = `${nombre} ${apellido}`.trim();
+    const result = await register(email, password, { nombre, apellido, full_name });
     if (result.success) {
       setStep(3);
     } else {

@@ -6,6 +6,17 @@ import type { User } from '@supabase/supabase-js';
 import { AuthContext } from './AuthContextContext';
 
 import { useContext } from 'react';
+const DEFAULT_AVATAR_URL = 'https://api.iconify.design/lucide:user-round.svg?color=%23f97316&width=28&height=28';
+
+export function resolveAvatarUrl(meta?: { avatar_url?: string | null; picture?: string | null }) {
+  if (meta?.avatar_url) return meta.avatar_url;
+  if (meta?.picture) return meta.picture;
+  return DEFAULT_AVATAR_URL;
+}
+
+export { DEFAULT_AVATAR_URL };
+
+type UserRole = 'admin' | 'it' | 'cliente';
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
@@ -49,10 +60,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const resolveSignedAvatar = async (meta: User['user_metadata']) => {
+    if (meta?.avatar_path) {
+      const { data } = await supabase.storage.from('avatars').createSignedUrl(meta.avatar_path, 60 * 60 * 24 * 7); // 7 días
+      if (data?.signedUrl) return data.signedUrl;
+    }
+    return resolveAvatarUrl(meta);
+  };
+
+  const hydrateUser = async (u: User | null) => {
+    if (!u) return null;
+    const avatarUrl = await resolveSignedAvatar(u.user_metadata);
+    const avatarIcon = u.user_metadata?.avatar_icon ?? 'default';
+    const role = (u.user_metadata?.rol as UserRole) ?? 'cliente';
+    return {
+      ...u,
+      user_metadata: {
+        ...u.user_metadata,
+        avatar_url: avatarUrl,
+        avatar_icon: avatarIcon,
+        rol: role
+      }
+    } as User;
+  };
+
+  const refreshUser = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: supabaseError } = await supabase.auth.getUser();
+      if (supabaseError) throw supabaseError;
+      const hydrated = await hydrateUser(data.user ?? null);
+      setUser(hydrated);
+      if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
+    } catch (e: any) {
+      setError(e?.message || 'Error de autenticación');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Revisar si hay sesión guardada
     const saved = localStorage.getItem('auth_user');
     if (saved) setUser(JSON.parse(saved));
+    // Rehidratar y re-firmar al montar
+    refreshUser();
   }, []);
 
   const login = async (email: string, password: string, remember: boolean) => {
@@ -65,8 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return false;
       }
-      setUser(data.user);
-      if (remember) localStorage.setItem('auth_user', JSON.stringify(data.user));
+      const hydrated = await hydrateUser(data.user ?? null);
+      setUser(hydrated);
+      if (remember && hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
       else localStorage.removeItem('auth_user');
       setLoading(false);
       return true;
@@ -87,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         options: {
           emailRedirectTo: undefined, // No enviar email de confirmación
-          data: extra || undefined,
+          data: { avatar_icon: 'default', rol: 'cliente', ...(extra || {}) },
           // @ts-ignore
           sendConfirmationEmail: false
         }
@@ -97,7 +151,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return { success: false, error: supabaseError.message };
       }
-      setUser(data.user ?? null);
+      const hydrated = await hydrateUser(data.user ?? null);
+      setUser(hydrated);
+      if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
       setLoading(false);
       return { success: true };
     } catch (e: any) {
@@ -114,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, error }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refreshUser, loading, error }}>
       {children}
     </AuthContext.Provider>
   );
