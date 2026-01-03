@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   ShieldCheck,
   Mail,
@@ -63,10 +63,9 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [stampInputs, setStampInputs] = useState<Record<string, string>>({});
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [stampUser, setStampUser] = useState<AdminUser | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -169,23 +168,7 @@ export default function AdminPanel() {
     fetchUsers();
   }, [fetchUsers]);
 
-  useEffect(() => {
-    const onClickOutside = (evt: MouseEvent) => {
-      if (openMenu && menuRef.current && !menuRef.current.contains(evt.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [openMenu]);
-
   const rows = useMemo(() => users, [users]);
-
-  const changeRole = async (id: string, role: UserRole) => {
-    setUsers(prev => prev.map(u => (u.id === id ? { ...u, role } : u)));
-    const { error } = await supabase.from('profiles').update({ role, rol: role }).eq('id', id);
-    if (error) setError(error.message);
-  };
 
   const adjustStamps = async (id: string, delta: number) => {
     setUsers(prev => prev.map(u => (u.id === id ? { ...u, stamps: Math.max(0, u.stamps + delta) } : u)));
@@ -215,7 +198,7 @@ export default function AdminPanel() {
     const value = parseInt(stampInputs[id] ?? '', 10);
     if (Number.isNaN(value)) return;
     setStamps(id, value);
-    setOpenMenu(null);
+    setStampUser(null);
   };
 
   const formatDate = (iso: string) => {
@@ -255,7 +238,7 @@ export default function AdminPanel() {
             <div className="py-10 text-center text-white/70">Cargando usuarios...</div>
           ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm text-white/90">
+            <table className="min-w-full text-left text-sm text-white/90 relative overflow-visible">
               <thead>
                 <tr className="text-white/60 uppercase text-xs">
                   <th className="pb-3 font-semibold">Nombre</th>
@@ -267,12 +250,12 @@ export default function AdminPanel() {
                   <th className="pb-3 font-semibold text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-white/5 overflow-visible">
                 {rows.map(user => {
                   const avatar = resolveAvatarUrl({ avatar_url: user.avatar ?? undefined }) || DEFAULT_AVATAR_URL;
                   const roleInfo = roleStyles[user.role];
                   return (
-                    <tr key={user.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={user.id} className="hover:bg-white/5 transition-colors overflow-visible">
                       <td className="py-4 pr-4">
                         <div className="flex items-center gap-3">
                           <button
@@ -291,15 +274,9 @@ export default function AdminPanel() {
                       </td>
                       <td className="py-4 pr-4 text-white/80">{user.email}</td>
                       <td className="py-4 pr-4">
-                        <select
-                          value={user.role}
-                          onChange={(e) => changeRole(user.id, e.target.value as UserRole)}
-                          className={`text-xs font-semibold rounded-full px-3 py-1 border ${roleInfo.className} shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-transparent`}
-                        >
-                          <option value="admin">Admin</option>
-                          <option value="it">IT</option>
-                          <option value="cliente">Cliente</option>
-                        </select>
+                        <span className={`inline-flex items-center rounded-full px-3 py-1 border text-xs font-semibold ${roleInfo.className}`}>
+                          {roleStyles[user.role].label}
+                        </span>
                       </td>
                       <td className="py-4 pr-4">
                         <span className="inline-flex items-center rounded-full bg-emerald-900/30 border border-emerald-500/40 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -310,54 +287,13 @@ export default function AdminPanel() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-base">{user.stamps}</span>
                           <button
-                            onClick={() => setOpenMenu(openMenu === user.id ? null : user.id)}
+                            onClick={() => setStampUser(user)}
                             className="p-2 rounded-full hover:bg-white/10 transition-colors"
                             aria-label="Editar sellos"
                           >
                             <MoreVertical className="w-4 h-4 text-white/70" />
                           </button>
                         </div>
-                        {openMenu === user.id && (
-                          <div
-                            ref={menuRef}
-                            className="mt-2 w-56 rounded-xl bg-black/80 border border-white/10 shadow-2xl backdrop-blur p-3 space-y-2"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs uppercase tracking-wide text-white/60">Sellos</span>
-                              <span className="text-sm font-semibold">{user.stamps}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => adjustStamps(user.id, 1)}
-                                className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 transition-colors"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Otorgar
-                              </button>
-                              <button
-                                onClick={() => adjustStamps(user.id, -1)}
-                                className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg bg-rose-600/80 hover:bg-rose-500 text-white text-xs font-semibold px-3 py-2 transition-colors"
-                              >
-                                <Minus className="w-4 h-4" />
-                                Quitar
-                              </button>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                value={stampInputs[user.id] ?? ''}
-                                onChange={(e) => setStampInputs(prev => ({ ...prev, [user.id]: e.target.value }))}
-                                placeholder="Asignar manual"
-                                className="flex-1 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                              />
-                              <button
-                                onClick={() => handleManualStamp(user.id)}
-                                className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500/80 transition-colors"
-                              >
-                                Aplicar
-                              </button>
-                            </div>
-                          </div>
-                        )}
                       </td>
                       <td className="py-4 pr-4 text-white/70">{formatDate(user.joined)}</td>
                       <td className="py-4 text-right">
@@ -422,6 +358,60 @@ export default function AdminPanel() {
                 <InfoCard icon={<Award className="w-4 h-4" />} label="Sellos" value={`${selectedUser.stamps} totales`} />
                 <InfoCard icon={<MapPin className="w-4 h-4" />} label="Ubicación" value={selectedUser.location ?? 'N/D'} />
                 <InfoCard icon={<Sparkles className="w-4 h-4" />} label="Plan" value={selectedUser.plan} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {stampUser && (
+        <div className="fixed inset-0 z-[92] flex items-center justify-center bg-black/70 backdrop-blur">
+          <div className="relative w-full max-w-md rounded-3xl bg-white/5 border border-white/10 p-6 shadow-2xl">
+            <button
+              onClick={() => setStampUser(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/70"
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="space-y-5">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/60">Sellos</p>
+                <p className="text-lg font-semibold">{stampUser.name || 'Usuario'}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white/70">Sellos actuales</span>
+                <span className="text-2xl font-extrabold">{stampUser.stamps}</span>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => adjustStamps(stampUser.id, 1)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-3 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Otorgar
+                </button>
+                <button
+                  onClick={() => adjustStamps(stampUser.id, -1)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600/80 hover:bg-rose-500 text-white text-sm font-semibold px-4 py-3 transition-colors"
+                >
+                  <Minus className="w-4 h-4" />
+                  Quitar
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  value={stampInputs[stampUser.id] ?? ''}
+                  onChange={(e) => setStampInputs(prev => ({ ...prev, [stampUser.id]: e.target.value }))}
+                  placeholder="Asignar manual"
+                  className="flex-1 rounded-xl bg-white/10 border border-white/15 px-3 py-3 text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                />
+                <button
+                  onClick={() => handleManualStamp(stampUser.id)}
+                  className="rounded-xl bg-white/15 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-500/80 transition-colors"
+                >
+                  Aplicar
+                </button>
               </div>
             </div>
           </div>
