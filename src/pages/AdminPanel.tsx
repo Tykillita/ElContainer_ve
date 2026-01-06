@@ -260,10 +260,10 @@ export default function AdminPanel() {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="relative inline-flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border border-white/20 shadow-lg hover:shadow-emerald-400/30 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                            className="relative inline-flex items-center justify-center w-10 h-10 min-w-10 min-h-10 aspect-square rounded-full overflow-hidden border border-white/20 shadow-lg hover:shadow-emerald-400/30 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-black/30"
                             title="Ver detalles"
                           >
-                            <img src={avatar} alt={user.name} className="w-full h-full object-cover" />
+                            <img src={avatar} alt={user.name} className="w-full h-full object-cover object-center avatar-img" />
                             <span className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity" />
                           </button>
                           <div>
@@ -329,14 +329,14 @@ export default function AdminPanel() {
             </button>
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex flex-col items-center md:items-start gap-3">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-emerald-400 shadow-lg">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-emerald-400 shadow-lg bg-black/30">
                   {(() => {
                     const detailAvatar = resolveAvatarUrl({ avatar_url: selectedUser.avatar ?? undefined }) || DEFAULT_AVATAR_URL;
                     return (
                       <img
                         src={detailAvatar}
                         alt={selectedUser.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-center avatar-img"
                       />
                     );
                   })()}

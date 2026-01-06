@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
+import { PlanProvider } from './context/PlanContext';
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Login = lazy(() => import('./pages/Login'));
 const Home = lazy(() => import('./pages/Home'));
@@ -132,6 +133,7 @@ function App() {
     <AuthProvider>
       <AppProvider>
         <LoadingProvider>
+          <PlanProvider>
           <BrowserRouter 
             future={{
               v7_startTransition: true,
@@ -140,6 +142,7 @@ function App() {
           >
             <AppLayout />
           </BrowserRouter>
+          </PlanProvider>
         </LoadingProvider>
       </AppProvider>
     </AuthProvider>

@@ -1,42 +1,10 @@
 import React, { useState } from 'react';
-
-const plans = [
-  {
-    name: 'Silver',
-    price: 9,
-    period: 'mes',
-    description: 'Ideal para clientes ocasionales que quieren mantener su auto limpio.',
-    features: [
-      '1 lavado exterior mensual',
-      'Descuento en servicios adicionales',
-      'Acceso a promociones exclusivas',
-      'Sin permanencia',
-      'Soporte estándar',
-    ],
-    unavailable: ['Lavado interior', 'Prioridad en reservas'],
-    cta: 'Afiliarme al plan',
-    highlight: false,
-  },
-  {
-    name: 'Black',
-    price: 19,
-    period: 'mes',
-    description: 'Para quienes buscan un auto impecable todo el mes.',
-    features: [
-      '4 lavados completos al mes',
-      'Lavado interior y exterior',
-      'Prioridad en reservas',
-      'Acceso a promociones exclusivas',
-      'Soporte premium',
-    ],
-    unavailable: [],
-    cta: 'Afiliarme al plan',
-    highlight: true,
-  },
-];
+import { usePlans } from '../context/PlanContext';
 
 export default function PricingPlans() {
-  const [isYearly, setIsYearly] = useState(false);
+  const { plans } = usePlans();
+  const planList = plans ?? [];
+  const [isQuarterly, setIsQuarterly] = useState(false);
 
   return (
     <>
@@ -50,20 +18,26 @@ export default function PricingPlans() {
           Elige el plan que mejor se adapte a tus necesidades y disfruta de los beneficios exclusivos de nuestro autolavado.
         </p>
         <div className="flex items-center gap-2 mb-10">
-          <span className={isYearly ? 'text-gray-400' : 'text-white font-semibold'}>Mensual</span>
+          <span className={isQuarterly ? 'text-gray-400' : 'text-white font-semibold'}>Mensual</span>
           <button
-            className={`w-12 h-6 rounded-full bg-white/20 flex items-center px-1 transition-colors duration-200 ${isYearly ? 'bg-orange-500/80' : ''}`}
-            onClick={() => setIsYearly(!isYearly)}
+            className={`w-12 h-6 rounded-full bg-white/20 flex items-center px-1 transition-colors duration-200 ${isQuarterly ? 'bg-orange-500/80' : ''}`}
+            onClick={() => setIsQuarterly(!isQuarterly)}
             aria-label="Cambiar periodo"
           >
             <span
-              className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${isYearly ? 'translate-x-6' : ''}`}
+              className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${isQuarterly ? 'translate-x-6' : ''}`}
             />
           </button>
-          <span className={isYearly ? 'text-white font-semibold' : 'text-gray-400'}>Anual</span>
+          <span className={isQuarterly ? 'text-white font-semibold' : 'text-gray-400'}>Trimestral</span>
         </div>
         <div className="grid grid-cols-1 md:flex md:flex-row gap-8 w-full max-w-4xl justify-center place-items-stretch">
-          {plans.map((plan) => (
+          {planList.length === 0 && (
+            <div className="text-white/70 text-center w-full">Sin planes disponibles.</div>
+          )}
+          {planList.map((plan) => {
+            const features = plan.features ?? [];
+            const unavailable = plan.unavailable ?? [];
+            return (
             <div
               key={plan.name}
               className={`flex-1 bg-white/5 backdrop-blur-sm rounded-2xl shadow-lg border ${plan.highlight ? 'border-orange-500' : 'border-white/10'} p-8 flex flex-col items-center transition-transform h-full min-h-[520px]${typeof window !== 'undefined' && window.innerWidth <= 640 ? '' : ' hover:scale-105'}`}
@@ -71,22 +45,24 @@ export default function PricingPlans() {
               <h3 className="text-2xl font-bold mb-2 text-white">{plan.name}</h3>
               <p className="text-white/70 mb-4 text-center">{plan.description}</p>
               <div className="flex items-end mb-4">
-                <span className="text-4xl font-bold text-white">${isYearly ? plan.price * 10 : plan.price}</span>
-                <span className="text-white/60 ml-1">/ {isYearly ? 'año' : plan.period}</span>
+                <span className="text-4xl font-bold text-white">${
+                  isQuarterly ? plan.quarterlyPrice ?? plan.monthlyPrice * 3 : plan.monthlyPrice
+                }</span>
+                <span className="text-white/60 ml-1">/ {isQuarterly ? 'trimestre' : 'mes'}</span>
               </div>
                 <button
                   className={`w-full py-2 rounded-lg font-semibold mb-6 border border-orange-400 bg-black/40 ${plan.highlight ? 'bg-orange-500 text-white' : 'border-2 border-orange-500 text-orange-500 hover:bg-orange-900/20'}`}
                 >
-                  {plan.cta}
+                  Afiliarme al plan
                 </button>
               <ul className="w-full mb-2">
-                {plan.features.map((feature) => (
+                {features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2 mb-1">
                     <span className="text-green-400">✔</span>
                     <span className="text-white">{feature}</span>
                   </li>
                 ))}
-                {plan.unavailable.map((feature) => (
+                {unavailable.map((feature) => (
                   <li key={feature} className="flex items-center gap-2 mb-1 text-white/40 line-through">
                     <span>✖</span>
                     <span>{feature}</span>
@@ -95,7 +71,7 @@ export default function PricingPlans() {
               </ul>
               <div className="flex-1" />
             </div>
-          ))}
+          );})}
         </div>
       </section>
     </>
