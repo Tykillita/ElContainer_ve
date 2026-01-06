@@ -112,9 +112,26 @@ export default function Progreso() {
       setLoadingClientes(true);
       setErrorClientes(null);
       try {
-        const { data, error } = await supabase.from('users').select('id, name, email, rol');
-        if (error) throw error;
-        if (mounted) setClientes((data ?? []).filter((u: any) => u.rol === 'cliente'));
+        // Consulta clientes desde profiles y cruza con auth.users para obtener email
+          const { data: profiles, error: errorProfiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, role, stamps');
+        if (errorProfiles) throw errorProfiles;
+        // Obtén emails de auth.users
+        const ids = (profiles ?? []).map((p: any) => p.id);
+        let emailsById: Record<string, string> = {};
+        if (ids.length > 0) {
+          const { data: users, error: errorUsers } = await supabase
+            .from('users')
+            .select('id, email')
+            .in('id', ids);
+          if (!errorUsers && users) {
+            users.forEach((u: any) => { emailsById[u.id] = u.email; });
+          }
+        }
+        // Une profiles con emails
+          const clientesFinal = (profiles ?? []).filter((p: any) => p.role === 'cliente').map((p: any) => ({ ...p, email: emailsById[p.id] ?? '' }));
+        if (mounted) setClientes(clientesFinal);
       } catch (e: any) {
         if (mounted) setErrorClientes(e?.message || 'Error al cargar clientes');
       } finally {
@@ -125,34 +142,29 @@ export default function Progreso() {
     return () => { mounted = false; };
   }, []);
 
+  // Los sellos ya vienen en profiles.stamps
   React.useEffect(() => {
-    let mounted = true;
-    async function fetchStamps() {
-      try {
-        const { data, error } = await supabase.from('stamps').select('email, count');
-        if (error) throw error;
-        if (mounted && data) {
-          const map: Record<string, number> = {};
-          data.forEach((row: any) => { map[row.email] = row.count; });
-          setStampsByClient(map);
-        }
-      } catch (e) {
-        // Opcional: set error
-      }
-    }
-    fetchStamps();
-    return () => { mounted = false; };
+    if (!clientes || clientes.length === 0) return;
+    const map: Record<string, number> = {};
+    clientes.forEach((c: any) => {
+      map[c.id] = typeof c.stamps === 'number' ? c.stamps : 0;
+    });
+    setStampsByClient(map);
   }, [clientes]);
 
-  const otorgarSello = async (email: string) => {
-    // Supabase: incrementa el count en tabla 'stamps'
-    await supabase.rpc('otorgar_sello', { user_email: email });
-    setStampsByClient((prev) => ({ ...prev, [email]: Math.min((prev[email] || 0) + 1, 6) }));
+  const otorgarSello = async (id: string) => {
+    const cliente = clientes.find((c: any) => c.id === id);
+    if (!cliente) return;
+    const nuevo = Math.min((stampsByClient[id] || 0) + 1, 6);
+    await supabase.from('profiles').update({ stamps: nuevo }).eq('id', id);
+    setStampsByClient((prev) => ({ ...prev, [id]: nuevo }));
   };
-  const quitarSello = async (email: string) => {
-    // Supabase: decrementa el count en tabla 'stamps'
-    await supabase.rpc('quitar_sello', { user_email: email });
-    setStampsByClient((prev) => ({ ...prev, [email]: Math.max((prev[email] || 0) - 1, 0) }));
+  const quitarSello = async (id: string) => {
+    const cliente = clientes.find((c: any) => c.id === id);
+    if (!cliente) return;
+    const nuevo = Math.max((stampsByClient[id] || 0) - 1, 0);
+    await supabase.from('profiles').update({ stamps: nuevo }).eq('id', id);
+    setStampsByClient((prev) => ({ ...prev, [id]: nuevo }));
   };
 
   return (
@@ -174,25 +186,28 @@ export default function Progreso() {
           ) : clientes.length === 0 ? (
             <div className="text-white/60 text-sm">No hay clientes registrados.</div>
           ) : clientes.map((cliente) => (
-            <div key={cliente.email} className="rounded-xl bg-black/40 border border-white/10 p-3 flex flex-col gap-2">
+            <div key={cliente.id} className="rounded-xl bg-black/40 border border-white/10 p-3 flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-white">{cliente.name ?? cliente.email}</span>
+                <span className="font-semibold text-white">{cliente.full_name ?? cliente.email ?? cliente.id}</span>
                 <div className="flex flex-col gap-2">
                   <button
                     className="rounded-full bg-orange-500 text-white px-3 py-1 text-xs font-semibold hover:bg-orange-400 transition"
-                    onClick={() => otorgarSello(cliente.email)}
+                    onClick={() => otorgarSello(cliente.id)}
                   >Otorgar sello</button>
                   <button
                     className="rounded-full bg-zinc-700 text-white px-3 py-1 text-xs font-semibold hover:bg-zinc-600 transition"
-                    onClick={() => quitarSello(cliente.email)}
+                    onClick={() => quitarSello(cliente.id)}
                   >Quitar sello</button>
                 </div>
               </div>
               <div className="flex gap-1 mt-1">
                 {[...Array(6)].map((_, i) => (
-                  <span key={i} className={`w-6 h-6 rounded-full border ${i < (stampsByClient[cliente.email] || 0) ? 'bg-orange-400 border-orange-400' : 'bg-zinc-700 border-zinc-500'}`}></span>
+                  <span key={i} className={`w-6 h-6 rounded-full border ${i < (stampsByClient[cliente.id] || 0) ? 'bg-orange-400 border-orange-400' : 'bg-zinc-700 border-zinc-500'}`}></span>
                 ))}
               </div>
+              {cliente.email && (
+                <div className="text-xs text-white/40 mt-1">{cliente.email}</div>
+              )}
             </div>
           ))}
           {/* Idea extra: filtro por cliente, historial de sellos, exportar datos, estadísticas */}

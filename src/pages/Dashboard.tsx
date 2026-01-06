@@ -142,31 +142,43 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {role !== 'cliente' && (
-          <section className="mt-6 block md:hidden">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-white">Accesos rápidos</h3>
-              <span className="text-xs text-white/60">Solo admin/IT</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {adminQuickLinks.map(link => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white shadow hover:border-orange-400/60 hover:bg-white/10 transition-colors"
-                >
-                  <span className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-orange-500/15 text-orange-300">
-                    {link.icon}
-                  </span>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-sm">{link.label}</span>
-                    <span className="text-xs text-white/60">Ir a {link.label}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        <section className="mt-6 block md:hidden">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-white">Accesos rápidos</h3>
+            {role !== 'cliente' && <span className="text-xs text-white/60">Solo admin/IT</span>}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {role !== 'cliente' && adminQuickLinks.map(link => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white shadow hover:border-orange-400/60 hover:bg-white/10 transition-colors"
+              >
+                <span className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-orange-500/15 text-orange-300">
+                  {link.icon}
+                </span>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-sm">{link.label}</span>
+                  <span className="text-xs text-white/60">Ir a {link.label}</span>
+                </div>
+              </Link>
+            ))}
+            {role === 'cliente' && (
+              <button
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white shadow hover:border-orange-400/60 hover:bg-white/10 transition-colors w-full"
+                onClick={() => window.location.href = '/logout'}
+              >
+                <span className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-orange-500/15 text-orange-300">
+                  <UserRound className="w-5 h-5" />
+                </span>
+                <div className="flex flex-col">
+                  <span className="font-semibold text-sm">Cerrar sesión</span>
+                  <span className="text-xs text-white/60">Salir de la cuenta</span>
+                </div>
+              </button>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
