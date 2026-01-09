@@ -99,6 +99,7 @@ dist/
 .env
 .env.*
 !.env.example
+.env.local
 
 # IDE
 .vscode/

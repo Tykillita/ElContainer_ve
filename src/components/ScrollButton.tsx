@@ -36,7 +36,7 @@ export default function ScrollButton({
   const [isClicked, setIsClicked] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<'down' | 'up'>('down');
+  
   
   // Refs
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -73,7 +73,6 @@ export default function ScrollButton({
       
       if (Math.abs(scrollDelta) > 1) {
         velocityRef.current = scrollDelta;
-        setScrollDirection(scrollDelta > 0 ? 'down' : 'up');
       }
       
       lastScrollYRef.current = currentScrollY;

@@ -141,12 +141,12 @@ const GeometricShapes: React.FC<GeometricShapesProps> = ({
             height: `${shape.size}px`,
             left: `${shape.initialX}%`,
             top: `${shape.initialY}%`,
-            background: `linear-gradient(45deg, ${shape.color}40, ${shape.color}20)`,
+            backgroundImage: `linear-gradient(45deg, ${shape.color}40, ${shape.color}20)`,
             borderRadius: Math.random() > 0.5 ? '50%' : '0%',
-            animation: `
-              float-${shape.id} ${20 / shape.speed}s ease-in-out infinite,
-              rotate-${shape.id} ${10 / Math.abs(shape.rotationSpeed)}s linear infinite
-            `,
+            animationName: `float-${shape.id}, rotate-${shape.id}`,
+            animationDuration: `${20 / shape.speed}s, ${10 / Math.abs(shape.rotationSpeed)}s`,
+            animationTimingFunction: 'ease-in-out, linear',
+            animationIterationCount: 'infinite, infinite',
             transform: `translate(-50%, -50%)`,
             willChange: 'transform'
           }}
@@ -180,15 +180,11 @@ const EnergyWaves: React.FC<EnergyWavesProps> = ({
           key={i}
           className="absolute inset-0 opacity-20"
           style={{
-            background: `
-              radial-gradient(
-                ellipse at center,
-                transparent 30%,
-                rgba(227, 92, 39, 0.1) 50%,
-                transparent 70%
-              )
-            `,
-            animation: `energyWave-${i} ${isMobile || isLowEndDevice ? (15 + i * 5) * 1.5 : 15 + i * 5}s ease-in-out infinite`,
+            backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0) 30%, rgba(227, 92, 39, 0.1) 50%, rgba(0,0,0,0) 70%)`,
+            animationName: `energyWave-${i}`,
+            animationDuration: `${isMobile || isLowEndDevice ? (15 + i * 5) * 1.5 : 15 + i * 5}s`,
+            animationTimingFunction: 'ease-in-out',
+            animationIterationCount: 'infinite',
             animationDelay: `${i * 2}s`,
             willChange: 'opacity'
           }}
@@ -220,22 +216,25 @@ const AuroraEffect: React.FC<AuroraEffectProps> = ({
       <div
         className="absolute inset-0 opacity-60"
         style={{
-          background: `
+          backgroundImage: `
             linear-gradient(
               45deg,
-              transparent 30%,
+              rgba(0,0,0,0) 30%,
               rgba(227, 92, 39, ${optimizedIntensity * 0.3}) 50%,
-              transparent 70%
+              rgba(0,0,0,0) 70%
             ),
             linear-gradient(
               -45deg,
-              transparent 30%,
+              rgba(0,0,0,0) 30%,
               rgba(251, 146, 60, ${optimizedIntensity * 0.2}) 50%,
-              transparent 70%
+              rgba(0,0,0,0) 70%
             )
           `,
           backgroundSize: '200% 200%',
-          animation: `auroraShift ${isMobile || isLowEndDevice ? 30 : 20}s ease-in-out infinite`,
+          animationName: 'auroraShift',
+          animationDuration: `${isMobile || isLowEndDevice ? 30 : 20}s`,
+          animationTimingFunction: 'ease-in-out',
+          animationIterationCount: 'infinite',
           willChange: 'background-position'
         }}
       />

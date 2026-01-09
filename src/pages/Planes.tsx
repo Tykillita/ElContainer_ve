@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { Link } from 'react-router-dom';
 import PricingPlans from '../components/PricingPlans';
 import { useAuth } from '../context/useAuth';
@@ -26,7 +27,7 @@ export default function Planes() {
     ],
   };
 
-  const planList = plans ?? [];
+  const planList = useMemo(() => plans ?? [], [plans]);
 
   const filteredPlans = useMemo(() => {
     if (selectedPlanId === 'all') return planList;
@@ -63,8 +64,9 @@ export default function Planes() {
   const isAdminView = role === 'admin' || role === 'it';
 
   return (
-    <main className="min-h-screen px-4 py-10 text-white">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <MobileScaleWrapper>
+      <main className="min-h-screen px-4 py-10 text-white">
+        <div className="max-w-5xl mx-auto space-y-6">
         <header className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Planes</h1>
@@ -242,7 +244,8 @@ export default function Planes() {
             <PricingPlans />
           </section>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </MobileScaleWrapper>
   );
 }

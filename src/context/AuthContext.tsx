@@ -1,5 +1,7 @@
 
-import { useEffect, useState, ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+
+import { useEffect, useState, ReactNode, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 import type { User } from '@supabase/supabase-js';
@@ -60,15 +62,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const resolveSignedAvatar = async (meta: User['user_metadata']) => {
+  const resolveSignedAvatar = useCallback(async (meta: User['user_metadata']) => {
     if (meta?.avatar_path) {
       const { data } = await supabase.storage.from('avatars').createSignedUrl(meta.avatar_path, 60 * 60 * 24 * 7); // 7 días
       if (data?.signedUrl) return data.signedUrl;
     }
     return resolveAvatarUrl(meta);
-  };
+  }, []);
 
-  const hydrateUser = async (u: User | null) => {
+  const hydrateUser = useCallback(async (u: User | null) => {
     if (!u) return null;
     const avatarUrl = await resolveSignedAvatar(u.user_metadata);
     const avatarIcon = u.user_metadata?.avatar_icon ?? 'default';
@@ -82,9 +84,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         rol: role
       }
     } as User;
+  }, [resolveSignedAvatar]);
+
+  const getErrorMessage = (e: unknown) => {
+    if (e instanceof Error) return e.message;
+    if (typeof e === 'string') return e;
+    if (e && typeof e === 'object' && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+      return (e as { message: string }).message;
+    }
+    return 'Error de autenticación';
   };
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -93,12 +104,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const hydrated = await hydrateUser(data.user ?? null);
       setUser(hydrated);
       if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
-    } catch (e: any) {
-      setError(e?.message || 'Error de autenticación');
+    } catch (e: unknown) {
+      setError(getErrorMessage(e));
     } finally {
       setLoading(false);
     }
-  };
+  }, [hydrateUser]);
 
   useEffect(() => {
     // Revisar si hay sesión guardada
@@ -106,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (saved) setUser(JSON.parse(saved));
     // Rehidratar y re-firmar al montar
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   const login = async (email: string, password: string, remember: boolean) => {
     setLoading(true);
@@ -131,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, extra?: Record<string, any>) => {
+  const register = async (email: string, password: string, extra?: Record<string, unknown>) => {
     setLoading(true);
     setError(null);
     try {
@@ -142,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           emailRedirectTo: undefined, // No enviar email de confirmación
           data: { avatar_icon: 'default', rol: 'cliente', ...(extra || {}) },
-          // @ts-ignore
+          // @ts-expect-error - Propiedad no tipada en la versión actual del SDK, pero soportada por la configuración.
           sendConfirmationEmail: false
         }
       });
@@ -156,10 +167,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
       setLoading(false);
       return { success: true };
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError('Error de registro');
       setLoading(false);
-      return { success: false, error: e?.message || 'Error de registro' };
+      return { success: false, error: getErrorMessage(e) || 'Error de registro' };
     }
   };
 

@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 
 interface LoadingContextType {
@@ -87,7 +89,7 @@ export const useComponentReady = (id: string, deps: React.DependencyList = []) =
     return () => {
       unregisterComponent(id);
     };
-  }, [id, ...deps]);
+  }, [id, registerComponent, unregisterComponent, markComponentReady, deps]);
 };
 
 // Custom hook to register a component and manually mark it as ready
@@ -103,7 +105,7 @@ export const useManualReady = (id: string, deps: React.DependencyList = []) => {
     return () => {
       unregisterComponent(id);
     };
-  }, [id, ...deps]);
+  }, [id, registerComponent, unregisterComponent, deps]);
   
   const markReady = useCallback(() => {
     markComponentReady(id);

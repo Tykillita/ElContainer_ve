@@ -38,7 +38,7 @@ export default function Sidebar({ expanded, onToggle }: { expanded: boolean; onT
   const userName = meta.full_name || [meta.nombre, meta.apellido].filter(Boolean).join(' ').trim() || meta.nombre || user?.email || 'Usuario';
   const userRole = (user?.user_metadata?.rol as UserRole | undefined) || 'cliente';
   const roleLabel: Record<UserRole, string> = { admin: 'Admin', it: 'IT', cliente: 'Cliente' };
-  const avatarUrl = resolveAvatarUrl(user?.user_metadata as any);
+  const avatarUrl = resolveAvatarUrl(user?.user_metadata as unknown as { avatar_url?: string | null; picture?: string | null });
   const isDefaultAvatar = avatarUrl === DEFAULT_AVATAR_URL;
   return (
     <aside

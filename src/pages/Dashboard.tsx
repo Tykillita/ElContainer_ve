@@ -1,4 +1,5 @@
 import React from 'react';
+import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Tag, Gift, Zap, ShowerHead, Users, Banknote, CalendarClock, Sparkles, ShieldCheck } from 'lucide-react';
@@ -34,8 +35,9 @@ export default function Dashboard() {
     { label: 'Admin Panel', to: '/admin-panel', icon: <ShieldCheck className="w-5 h-5" /> },
   ];
   return (
-    <div className="min-h-screen relative">
-      <main className="flex-1 p-5 sm:p-8">
+    <MobileScaleWrapper>
+      <div className="min-h-screen relative">
+        <main className="flex-1 p-5 sm:p-8">
         <section className="mb-8">
           <div
             className="relative overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-r from-[#050505] via-[#0f1115] to-[#1f2430] px-5 py-6 sm:px-8 sm:py-7 text-white shadow-[0_12px_50px_rgba(0,0,0,0.32)]"
@@ -179,7 +181,8 @@ export default function Dashboard() {
             )}
           </div>
         </section>
-      </main>
-    </div>
+        </main>
+      </div>
+    </MobileScaleWrapper>
   );
 }

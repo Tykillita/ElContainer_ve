@@ -1,5 +1,6 @@
 import { UserRound, Mail, BadgeCheck, CalendarDays, Phone as PhoneIcon } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
@@ -72,18 +73,6 @@ export default function Cuenta() {
     e.target.value = '';
   };
 
-  const handleRemovePhoto = async () => {
-    if (!user) return;
-    setUploading(true);
-    setStatus(null);
-    if (form.avatar_path) {
-      await supabase.storage.from('avatars').remove([form.avatar_path]);
-    }
-    setForm(f => ({ ...f, avatar_url: '', avatar_path: '', avatar_icon: 'default' }));
-    setStatus({ type: 'ok', message: 'Foto eliminada. Guarda para aplicar.' });
-    setUploading(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -118,19 +107,20 @@ export default function Cuenta() {
   const memberSince = user?.created_at ? new Date(user.created_at) : null;
 
   return (
-    <main className="min-h-screen text-slate-100">
-      <div className="max-w-[98vw] xl:max-w-[1600px] mx-auto px-2 sm:px-6 py-10 space-y-8">
+    <MobileScaleWrapper>
+      <main className="min-h-screen text-slate-100">
+        <div className="max-w-[98vw] xl:max-w-[1600px] mx-auto px-2 sm:px-6 py-10 space-y-8">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Cuenta</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">Cuenta</p>
           <h1 className="text-3xl font-bold text-white">Configuración de la cuenta</h1>
-          <p className="text-slate-400">Gestiona la información de tu perfil. Los cambios se reflejan en el panel y la barra lateral.</p>
+          <p className="text-white/70">Gestiona la información de tu perfil. Los cambios se reflejan en el panel y la barra lateral.</p>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[1.7fr_1fr] gap-6 items-start">
           <form onSubmit={handleSubmit} className="rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl shadow-2xl p-6 space-y-6">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white leading-tight">Información del perfil</h2>
-              <p className="text-sm text-slate-400 mt-1">Completa o actualiza tus datos personales.</p>
+              <p className="text-sm text-white/70 mt-1">Completa o actualiza tus datos personales.</p>
             </div>
 
             <div className="flex flex-col gap-7 w-full max-w-2xl mx-auto">
@@ -139,7 +129,7 @@ export default function Cuenta() {
                   <UserRound className="w-4 h-4 text-orange-400" /> Nombre completo
                 </span>
                 <input
-                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition w-full"
+                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition w-full"
                   value={form.nombre}
                   onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
                   placeholder="Escribe tu nombre"
@@ -151,11 +141,11 @@ export default function Cuenta() {
                   <Mail className="w-4 h-4 text-orange-400" /> Correo electrónico
                 </span>
                 <input
-                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-slate-400 w-full"
+                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white/70 w-full"
                   value={user?.email || ''}
                   disabled
                 />
-                <span className="text-[11px] text-slate-500">El correo no se puede modificar</span>
+                <span className="text-[11px] text-white/70">El correo no se puede modificar</span>
               </label>
 
               <label className="flex flex-col gap-2 text-sm w-full">
@@ -163,7 +153,7 @@ export default function Cuenta() {
                   <PhoneIcon className="w-4 h-4 text-orange-400" /> Teléfono
                 </span>
                 <input
-                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition w-full"
+                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition w-full"
                   value={form.phone}
                   onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                   placeholder="Ej: +58 000 0000000"
@@ -175,7 +165,7 @@ export default function Cuenta() {
                   <BadgeCheck className="w-4 h-4 text-orange-400" /> Biografía
                 </span>
                 <textarea
-                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition resize-none w-full"
+                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition resize-none w-full"
                   value={form.bio}
                   onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
                   placeholder="Cuéntanos algo breve..."
@@ -241,7 +231,7 @@ export default function Cuenta() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <span className="text-xs text-slate-400 mt-2">JPG, PNG o GIF (máx 2MB)</span>
+                  <span className="text-xs text-white/70 mt-2">JPG, PNG o GIF (máx 2MB)</span>
                 </div>
               </div>
             </div>
@@ -291,7 +281,8 @@ export default function Cuenta() {
             </div>
           </div>
         </div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </MobileScaleWrapper>
   );
 }

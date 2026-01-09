@@ -1,227 +1,320 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/useAuth';
-import { CalendarDays, Award, EyeOff, Users } from 'lucide-react';
+import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
+import { CalendarDays, Users } from 'lucide-react';
+import MobileScaleWrapper from '../components/MobileScaleWrapper';
+import ReservasFilter from '../components/ReservasFilter';
 
-// Mock data for demo
-const mockStamps = [
-  { id: 1, date: '2025-12-01', revealed: true },
-  { id: 2, date: '2025-12-10', revealed: true },
-  { id: 3, date: '2025-12-20', revealed: false },
-  { id: 4, date: null, revealed: false },
-  { id: 5, date: null, revealed: false },
-  { id: 6, date: null, revealed: false },
-];
-
-const mockCalendar = [
-  '2025-12-01',
-  '2025-12-10',
-];
-
-export default function Progreso() {
-  const { user } = useAuth?.() ?? { user: null };
-  const role = user?.user_metadata?.rol ?? 'cliente';
-  const [stamps, setStamps] = useState(mockStamps);
-
-  // Rasca y descubre: simulado con click/tap
-  const revealStamp = (idx: number) => {
-    setStamps((prev) => prev.map((s, i) => i === idx ? { ...s, revealed: true } : s));
-  };
-
-  // Vista cliente
-  if (role === 'cliente') {
-    return (
-      <main className="min-h-screen px-4 py-8 text-white">
-        <div className="max-w-md mx-auto space-y-6">
-          <header className="flex flex-col gap-1 items-center">
-            <h1 className="text-2xl font-bold">Progreso de Recompensas</h1>
-            <p className="text-white/70 text-sm">¡Lava tu carro y rasca para descubrir tus sellos!</p>
-          </header>
-
-          {/* Tarjeta de sellos */}
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col items-center gap-4 shadow-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Award className="w-5 h-5 text-orange-400" />
-              <span className="font-semibold text-orange-300">Colecciona 6 sellos y gana una recompensa</span>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {stamps.map((stamp, idx) => (
-                <button
-                  key={stamp.id}
-                  className={`relative w-20 h-20 rounded-xl border border-white/10 bg-black/60 flex items-center justify-center shadow-md overflow-hidden group ${stamp.revealed ? '' : 'cursor-pointer active:scale-95 transition-transform'}`}
-                  onClick={() => !stamp.revealed && revealStamp(idx)}
-                  disabled={stamp.revealed}
-                  aria-label={stamp.revealed ? 'Sello descubierto' : 'Rascar para descubrir'}
-                >
-                  {/* Sello descubierto */}
-                  {stamp.revealed ? (
-                    <img
-                      src="/public/resources/img/logo.png"
-                      alt="Sello Autolavado"
-                      className="w-12 h-12 object-contain drop-shadow-lg"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-zinc-400/80 to-zinc-700/90 flex flex-col items-center justify-center">
-                      <EyeOff className="w-8 h-8 text-zinc-200/80 mb-1" />
-                      <span className="text-xs text-zinc-100/80">Rascar</span>
-                    </div>
-                  )}
-                  {/* Overlay animación de rasca (simulada) */}
-                  {!stamp.revealed && (
-                    <div className="absolute inset-0 group-active:opacity-60 transition-opacity bg-zinc-400/60 pointer-events-none" />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="text-xs text-white/60 mt-2">Sello desbloqueado cada vez que lavas tu carro</div>
-          </section>
-
-          {/* Calendario de sellos */}
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-4 mt-2">
-            <div className="flex items-center gap-2 mb-2">
-              <CalendarDays className="w-4 h-4 text-orange-400" />
-              <span className="font-semibold text-white/80 text-sm">Días con sello obtenido</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {mockCalendar.length === 0 ? (
-                <span className="text-xs text-white/50">Aún no has obtenido sellos.</span>
-              ) : (
-                mockCalendar.map((date) => (
-                  <span key={date} className="rounded-full bg-orange-500/20 text-orange-300 px-3 py-1 text-xs font-semibold">
-                    {new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: '2-digit' })}
-                  </span>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
-      </main>
-    );
+// Tipos globales para debug
+declare global {
+  interface Window {
+    _debugProfiles?: unknown;
+    _debugSoloClientes?: unknown;
   }
+}
 
-  // Vista admin/IT
-  // Obtener clientes reales desde Supabase
-  const [clientes, setClientes] = useState<any[]>([]);
+type DbUserRow = {
+  full_name?: string;
+  email?: string;
+  stamps?: number;
+  role?: string;
+};
+
+type AdminUser = {
+  name: string;
+  email: string;
+  stamps: number;
+};
+
+function mapRow(row: DbUserRow): AdminUser {
+  return {
+    name: row.full_name || 'Sin nombre',
+    email: row.email || 'Sin email',
+    stamps: typeof row.stamps === 'number' ? row.stamps : 0,
+  };
+}
+
+const Progreso: React.FC = () => {
+    // Estado para ordenamiento de columnas
+    const [sortBy, setSortBy] = useState<string>('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const { user } = useAuth();
+  const [clientes, setClientes] = useState<AdminUser[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(false);
-  const [stampsByClient, setStampsByClient] = useState<Record<string, number>>({});
   const [errorClientes, setErrorClientes] = useState<string | null>(null);
+  const [stampsByClient, setStampsByClient] = useState<Record<string, number>>({});
 
-  React.useEffect(() => {
+  // Para vista cliente
+  const [revealed, setRevealed] = useState<number[]>([]);
+
+  // Filtros para la tabla de clientes
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  // Filtrado de clientes
+  const clientesFiltrados = clientes.filter(cliente => {
+      // ...existing code...
+    let estadoMatch = true;
+    if (filtroEstado !== 'todos') {
+      switch (filtroEstado) {
+        case 'sin sellos':
+          estadoMatch = cliente.stamps === 0;
+          break;
+        case '1 sello':
+          estadoMatch = cliente.stamps === 1;
+          break;
+        case '2 sellos':
+          estadoMatch = cliente.stamps === 2;
+          break;
+        case '3 sellos':
+          estadoMatch = cliente.stamps === 3;
+          break;
+        case '4 sellos':
+          estadoMatch = cliente.stamps === 4;
+          break;
+        case '5 sellos':
+          estadoMatch = cliente.stamps === 5;
+          break;
+        case '6 sellos':
+          estadoMatch = cliente.stamps === 6;
+          break;
+        default:
+          estadoMatch = true;
+      }
+    }
+    return estadoMatch;
+  });
+
+  // Cargar clientes para admin
+  // Solo cargar clientes si el usuario autenticado es admin o it (según metadata, no profiles)
+  useEffect(() => {
+    const meta = user?.user_metadata || {};
+    const userRole = meta.rol || meta.role;
+    console.log('[Progreso] useEffect ejecutado. user:', user, 'userRole:', userRole);
+    if (!user || (userRole !== 'admin' && userRole !== 'it')) return;
     let mounted = true;
     async function fetchClientes() {
       setLoadingClientes(true);
       setErrorClientes(null);
       try {
-        // Consulta clientes desde profiles y cruza con auth.users para obtener email
-          const { data: profiles, error: errorProfiles } = await supabase
-            .from('profiles')
-            .select('id, full_name, role, stamps');
+        console.log('[Progreso] Consultando supabase...');
+        const query = 'full_name, email, stamps, role';
+        console.log('[Progreso] Ejecutando consulta:', query);
+        const { data: profiles, error: errorProfiles } = await supabase
+          .from('profiles')
+          .select(query);
         if (errorProfiles) throw errorProfiles;
-        // Obtén emails de auth.users
-        const ids = (profiles ?? []).map((p: any) => p.id);
-        let emailsById: Record<string, string> = {};
-        if (ids.length > 0) {
-          const { data: users, error: errorUsers } = await supabase
-            .from('users')
-            .select('id, email')
-            .in('id', ids);
-          if (!errorUsers && users) {
-            users.forEach((u: any) => { emailsById[u.id] = u.email; });
-          }
+        console.log('[Progreso] Resultado crudo:', profiles);
+        if (!profiles || profiles.length === 0) {
+          console.warn('[Progreso] La consulta no devolvió ningún registro.');
         }
-        // Une profiles con emails
-          const clientesFinal = (profiles ?? []).filter((p: any) => p.role === 'cliente').map((p: any) => ({ ...p, email: emailsById[p.id] ?? '' }));
-        if (mounted) setClientes(clientesFinal);
-      } catch (e: any) {
-        if (mounted) setErrorClientes(e?.message || 'Error al cargar clientes');
+        if (mounted) {
+          const soloClientes = (profiles ?? []).filter((p: DbUserRow) => p.role === 'cliente');
+          console.log('[Progreso] soloClientes:', soloClientes);
+          const mapped = soloClientes.map((row: DbUserRow) => mapRow(row));
+          window._debugProfiles = profiles;
+          window._debugSoloClientes = mapped;
+          setClientes(mapped);
+        }
+      } catch (e: unknown) {
+        let msg = 'Error al cargar clientes';
+        if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+          msg = (e as { message?: string }).message!;
+        }
+        setErrorClientes(msg);
+        console.error('[Progreso] Error al cargar clientes:', e);
       } finally {
         if (mounted) setLoadingClientes(false);
       }
     }
     fetchClientes();
     return () => { mounted = false; };
-  }, []);
+  }, [user]);
 
-  // Los sellos ya vienen en profiles.stamps
-  React.useEffect(() => {
+  // Actualizar stampsByClient cuando cambian los clientes
+  useEffect(() => {
     if (!clientes || clientes.length === 0) return;
     const map: Record<string, number> = {};
-    clientes.forEach((c: any) => {
-      map[c.id] = typeof c.stamps === 'number' ? c.stamps : 0;
+    clientes.forEach((c: AdminUser) => {
+      map[c.email] = typeof c.stamps === 'number' ? c.stamps : 0;
     });
     setStampsByClient(map);
   }, [clientes]);
 
-  const otorgarSello = async (id: string) => {
-    const cliente = clientes.find((c: any) => c.id === id);
+  // Otorgar/Quitar sello
+  const otorgarSello = async (email: string) => {
+    const cliente = clientes.find((c: AdminUser) => c.email === email);
     if (!cliente) return;
-    const nuevo = Math.min((stampsByClient[id] || 0) + 1, 6);
-    await supabase.from('profiles').update({ stamps: nuevo }).eq('id', id);
-    setStampsByClient((prev) => ({ ...prev, [id]: nuevo }));
+    const nuevo = Math.min((stampsByClient[email] || 0) + 1, 6);
+    await supabase.from('profiles').update({ stamps: nuevo }).eq('email', email);
+    setStampsByClient((prev) => ({ ...prev, [email]: nuevo }));
   };
-  const quitarSello = async (id: string) => {
-    const cliente = clientes.find((c: any) => c.id === id);
+  const quitarSello = async (email: string) => {
+    const cliente = clientes.find((c: AdminUser) => c.email === email);
     if (!cliente) return;
-    const nuevo = Math.max((stampsByClient[id] || 0) - 1, 0);
-    await supabase.from('profiles').update({ stamps: nuevo }).eq('id', id);
-    setStampsByClient((prev) => ({ ...prev, [id]: nuevo }));
+    const nuevo = Math.max((stampsByClient[email] || 0) - 1, 0);
+    await supabase.from('profiles').update({ stamps: nuevo }).eq('email', email);
+    setStampsByClient((prev) => ({ ...prev, [email]: nuevo }));
   };
 
-  return (
-    <main className="min-h-screen px-4 py-8 text-white">
-      <div className="max-w-md mx-auto space-y-6">
-        <header className="flex flex-col gap-1 items-center">
-          <h1 className="text-2xl font-bold">Panel de Sellos</h1>
-          <p className="text-white/70 text-sm">Otorga y administra sellos de clientes</p>
-        </header>
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4 shadow-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-5 h-5 text-orange-400" />
-            <span className="font-semibold text-orange-300">Clientes con sellos</span>
-          </div>
-          {errorClientes ? (
-            <div className="text-red-400 text-sm">{errorClientes}</div>
-          ) : loadingClientes ? (
-            <div className="text-white/60 text-sm">Cargando clientes...</div>
-          ) : clientes.length === 0 ? (
-            <div className="text-white/60 text-sm">No hay clientes registrados.</div>
-          ) : clientes.map((cliente) => (
-            <div key={cliente.id} className="rounded-xl bg-black/40 border border-white/10 p-3 flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-white">{cliente.full_name ?? cliente.email ?? cliente.id}</span>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="rounded-full bg-orange-500 text-white px-3 py-1 text-xs font-semibold hover:bg-orange-400 transition"
-                    onClick={() => otorgarSello(cliente.id)}
-                  >Otorgar sello</button>
-                  <button
-                    className="rounded-full bg-zinc-700 text-white px-3 py-1 text-xs font-semibold hover:bg-zinc-600 transition"
-                    onClick={() => quitarSello(cliente.id)}
-                  >Quitar sello</button>
-                </div>
-              </div>
-              <div className="flex gap-1 mt-1">
-                {[...Array(6)].map((_, i) => (
-                  <span key={i} className={`w-6 h-6 rounded-full border ${i < (stampsByClient[cliente.id] || 0) ? 'bg-orange-400 border-orange-400' : 'bg-zinc-700 border-zinc-500'}`}></span>
-                ))}
-              </div>
-              {cliente.email && (
-                <div className="text-xs text-white/40 mt-1">{cliente.email}</div>
+  // Vista cliente: mostrar sellos obtenidos
+  useEffect(() => {
+    const meta = user?.user_metadata || {};
+    const userRole = meta.rol || meta.role;
+    if (!user || userRole !== 'cliente') return;
+    async function fetchStamps() {
+      const userId = user?.id;
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('stamps')
+        .eq('id', userId)
+        .single();
+      if (!error && data && typeof data.stamps === 'number') {
+        setRevealed(Array.from({ length: data.stamps }, (_, i) => i));
+      } else {
+        setRevealed([]);
+      }
+    }
+    fetchStamps();
+  }, [user]);
+
+  // Vista cliente
+  const meta = user?.user_metadata || {};
+  const userRole = meta.rol || meta.role;
+  if (user && userRole === 'cliente') {
+    return (
+      <MobileScaleWrapper>
+        <main className="min-h-screen px-4 py-8 text-white">
+          <section className="rounded-2xl border border-white/10 bg-white/5 p-4 mt-2">
+            <div className="flex items-center gap-2 mb-2">
+              <CalendarDays className="w-4 h-4 text-orange-400" />
+              <span className="font-semibold text-white/80 text-sm">Días con sello obtenido</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {revealed.length === 0 ? (
+                <span className="text-xs text-white/50">Aún no has obtenido sellos.</span>
+              ) : (
+                revealed.map((idx) => (
+                  <span key={idx} className="rounded-full bg-orange-500/20 text-orange-300 px-3 py-1 text-xs font-semibold">
+                    Sello #{idx + 1}
+                  </span>
+                ))
               )}
             </div>
-          ))}
-          {/* Idea extra: filtro por cliente, historial de sellos, exportar datos, estadísticas */}
-          <div className="mt-4 text-xs text-white/50">
-            <span className="block mb-1">Ideas extra:</span>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Buscar cliente por nombre/correo</li>
-              <li>Ver historial de sellos otorgados</li>
-              <li>Exportar datos de sellos</li>
-              <li>Estadísticas de uso y recompensas</li>
-            </ul>
+          </section>
+        </main>
+      </MobileScaleWrapper>
+    );
+  }
+  // Vista admin/IT solo si el usuario autenticado es admin/it (según metadata)
+  if (user && (userRole === 'admin' || userRole === 'it')) {
+        // Ordenamiento por columna
+        const sortedClientes = [...clientesFiltrados].sort((a, b) => {
+          if (sortBy === 'name') {
+            return sortOrder === 'asc'
+              ? a.name.localeCompare(b.name)
+              : b.name.localeCompare(a.name);
+          }
+          if (sortBy === 'email') {
+            return sortOrder === 'asc'
+              ? a.email.localeCompare(b.email)
+              : b.email.localeCompare(a.email);
+          }
+          if (sortBy === 'stamps') {
+            return sortOrder === 'asc'
+              ? (a.stamps ?? 0) - (b.stamps ?? 0)
+              : (b.stamps ?? 0) - (a.stamps ?? 0);
+          }
+          return 0;
+        });
+    return (
+      <MobileScaleWrapper>
+        <main className="min-h-screen px-4 py-10 text-white">
+          <div className="max-w-5xl mx-auto space-y-4">
+            <h1 className="text-3xl font-bold">Progreso</h1>
+            <p className="text-white/70">Aquí podrás ver y gestionar los sellos de clientes registrados.</p>
+            {/* Ordenamiento por click en encabezado de tabla. */}
+            <ReservasFilter
+              value={filtroEstado}
+              options={['todos','sin sellos','1 sello','2 sellos','3 sellos','4 sellos','5 sellos','6 sellos']}
+              onChange={setFiltroEstado}
+            />
+            <div className="rounded-2xl border border-white/10 bg-black/60 p-4 min-h-[400px] w-full overflow-x-auto">
+              {errorClientes ? (
+                <div className="text-red-400 text-sm">{errorClientes}</div>
+              ) : loadingClientes ? (
+                <div className="text-white/60 text-sm">Cargando clientes...</div>
+              ) : (
+                <table className="min-w-full text-left">
+                  <thead>
+                    <tr className="text-white/70 text-sm select-none">
+                      <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => {
+                        setSortBy('name');
+                        setSortOrder(sortBy === 'name' && sortOrder === 'asc' ? 'desc' : 'asc');
+                      }}>
+                        Nombre
+                      </th>
+                      <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => {
+                        setSortBy('email');
+                        setSortOrder(sortBy === 'email' && sortOrder === 'asc' ? 'desc' : 'asc');
+                      }}>
+                        Correo
+                      </th>
+                      <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => {
+                        setSortBy('stamps');
+                        setSortOrder(sortBy === 'stamps' && sortOrder === 'asc' ? 'desc' : 'asc');
+                      }}>
+                        Sellos
+                      </th>
+                      <th className="px-6 py-4 font-medium">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedClientes.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-6 text-center text-white/80">No hay clientes registrados.</td>
+                      </tr>
+                    ) : (
+                      sortedClientes.map(cliente => (
+                        <tr key={cliente.email} className="border-t border-white/10 hover:bg-white/5 transition">
+                          <td className="px-6 py-4 font-semibold flex items-center gap-2">
+                            <img src={resolveAvatarUrl() || DEFAULT_AVATAR_URL} alt={cliente.name} className="w-8 h-8 rounded-full object-cover border border-white/20" />
+                            {cliente.name}
+                          </td>
+                          <td className="px-6 py-4">{cliente.email}</td>
+                          <td className="px-6 py-4">
+                            {[...Array(6)].map((_, i) => (
+                              <span key={i} className={`inline-block w-5 h-5 rounded-full border mx-0.5 ${i < (stampsByClient[cliente.email] || cliente.stamps || 0) ? 'bg-orange-400 border-orange-400' : 'bg-zinc-700 border-zinc-500'}`}></span>
+                            ))}
+                          </td>
+                          <td className="px-6 py-4">
+                            <button className="rounded-full bg-orange-500 text-white px-3 py-1 text-xs font-semibold hover:bg-orange-400 transition mr-2" onClick={() => otorgarSello(cliente.email)}>Otorgar</button>
+                            <button className="rounded-full bg-zinc-700 text-white px-3 py-1 text-xs font-semibold hover:bg-zinc-600 transition" onClick={() => quitarSello(cliente.email)}>Quitar</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
+        </main>
+      </MobileScaleWrapper>
+    );
+  }
+  // Si no es admin/it ni cliente, mostrar mensaje amigable
+  return (
+    <MobileScaleWrapper>
+      <main className="min-h-screen flex items-center justify-center px-4 py-8 text-white">
+        <section className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center max-w-md w-full">
+          <h2 className="text-xl font-bold mb-2">Acceso restringido</h2>
+          <p className="text-white/70 mb-2">No tienes permisos para ver esta página.</p>
+          <p className="text-white/50 text-sm">Si crees que esto es un error, contacta al administrador.</p>
         </section>
-      </div>
-    </main>
+      </main>
+    </MobileScaleWrapper>
   );
-}
+};
+
+export default Progreso;
