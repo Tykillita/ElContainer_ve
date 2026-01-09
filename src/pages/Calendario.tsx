@@ -29,7 +29,7 @@ export default function Calendario() {
             <div className="md:w-1/2">
               <Calendar
                 selected={selectedDate}
-                onSelect={setSelectedDate}
+                onSelect={(date: Date | undefined) => date && setSelectedDate(date)}
                 className="rounded-2xl border border-white/10 bg-black/60 p-4"
               />
               <button
