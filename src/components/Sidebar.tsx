@@ -20,14 +20,20 @@ import {
 type UserRole = 'admin' | 'it' | 'cliente';
 
 const sidebarItems: Array<{ label: string; icon: React.ReactNode; path: string; roles: UserRole[] }> = [
-  { label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['admin', 'it', 'cliente'] },
+  { label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['admin', 'it'] },
   { label: 'Lavados', icon: <Sparkles className="w-5 h-5" />, path: '/lavados', roles: ['admin', 'it'] },
-  { label: 'Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['admin', 'it', 'cliente'] },
-  { label: 'Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['admin', 'it', 'cliente'] },
+  { label: 'Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['admin', 'it'] },
+  { label: 'Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['admin', 'it'] },
   { label: 'Clientes', icon: <Users className="w-5 h-5" />, path: '/clientes', roles: ['admin', 'it'] },
-  { label: 'Calendario', icon: <CalendarDays className="w-5 h-5" />, path: '/calendario', roles: ['admin', 'it', 'cliente'] },
+  { label: 'Calendario', icon: <CalendarDays className="w-5 h-5" />, path: '/calendario', roles: ['admin', 'it'] },
   { label: 'Admin Panel', icon: <ShieldCheck className="w-5 h-5" />, path: '/admin-panel', roles: ['admin', 'it'] },
-  { label: 'Cuenta', icon: <User2 className="w-5 h-5" />, path: '/cuenta', roles: ['admin', 'it', 'cliente'] },
+  { label: 'Cuenta', icon: <User2 className="w-5 h-5" />, path: '/cuenta', roles: ['admin', 'it'] },
+  // Cliente: link to client pages
+  { label: 'Mi Panel', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['cliente'], component: 'DashboardCliente' },
+  { label: 'Mi Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['cliente'], component: 'ProgresoCliente' },
+  { label: 'Mis Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['cliente'], component: 'PlanesCliente' },
+  { label: 'Calendario', icon: <CalendarDays className="w-5 h-5" />, path: '/calendario', roles: ['cliente'] },
+  { label: 'Cuenta', icon: <User2 className="w-5 h-5" />, path: '/cuenta', roles: ['cliente'] },
 ];
 
 
@@ -103,7 +109,7 @@ export default function Sidebar({ expanded, onToggle }: { expanded: boolean; onT
                     `flex items-center ${expanded ? 'gap-4 px-3 py-3 justify-start' : 'justify-center py-4'} rounded-lg font-medium transition-colors hover:bg-orange-600/20 text-white/90` +
                     (isActive ? ' bg-orange-900/30' : '')
                   }
-                  end
+                  end={userRole === 'cliente'}
                 >
                   <span className="w-6 h-6 flex items-center justify-center">{item.icon}</span>
                   {expanded && <span className="text-base">{item.label}</span>}

@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 // ...existing code...
 import { useAuth } from '../context/useAuth';
+import PhoneNumberInput from '../components/PhoneNumberInput';
 import Stepper, { Step } from '../components/Stepper';
+import SecurePasswordGenerator from '../components/SecurePasswordGenerator';
 import { useNavigate } from 'react-router-dom';
 // Enlace reutilizable para volver al login
 const LoginLink = () => {
@@ -23,6 +25,7 @@ export default function Onboarding() {
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [telefono, setTelefono] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
   // const [registerSuccess, setRegisterSuccess] = useState(false);
@@ -31,7 +34,7 @@ export default function Onboarding() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<{nombre?: string; apellido?: string; email?: string; password?: string}>({});
+  const [errors, setErrors] = useState<{nombre?: string; apellido?: string; email?: string; password?: string; telefono?: string}>({});
 
   const validateField = (field: string, value: string) => {
     switch (field) {
@@ -43,6 +46,8 @@ export default function Onboarding() {
         return value.trim() && /^\S+@\S+\.\S+$/.test(value) ? '' : 'Ingresa un email válido para avanzar.';
       case 'password':
         return value.length >= 8 ? '' : 'La contraseña debe tener al menos 8 caracteres para avanzar.';
+      case 'telefono':
+        return value.trim() ? '' : 'Debes completar este campo para avanzar.';
       default:
         return '';
     }
@@ -55,6 +60,7 @@ export default function Onboarding() {
       case 'apellido': setApellido(value); break;
       case 'email': setEmail(value); break;
       case 'password': setPassword(value); break;
+      case 'telefono': setTelefono(value); break;
       default: break;
     }
     // Remove error if valid
@@ -82,6 +88,9 @@ export default function Onboarding() {
     if (!password || password.length < 8) {
       newErrors.password = 'La contraseña debe tener al menos 8 caracteres para avanzar.';
     }
+    if (!telefono.trim()) {
+      newErrors.telefono = 'Debes completar este campo para avanzar.';
+    }
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       setStep(2); // Solo pasar al paso de revisión de datos
@@ -92,7 +101,7 @@ export default function Onboarding() {
   const handleConfirmDatos = async () => {
     setRegisterError(null);
     const full_name = `${nombre} ${apellido}`.trim();
-    const result = await register(email, password, { nombre, apellido, full_name });
+    const result = await register(email, password, { nombre, apellido, full_name, telefono });
     if (result.success) {
       setStep(3);
     } else {
@@ -108,7 +117,8 @@ export default function Onboarding() {
         Boolean(apellido.trim()) &&
         Boolean(email.trim()) &&
         /^\S+@\S+\.\S+$/.test(email) &&
-        password.length >= 8;
+        password.length >= 8 &&
+        Boolean(telefono.trim());
     }
     if (currentStep === 2) {
       // No permitir avanzar manualmente al paso 3
@@ -118,7 +128,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-16 md:mt-24 rounded-3xl bg-white/5 border border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg py-4 md:py-6 px-4 md:px-8 flex flex-col items-center !pb-2" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+    <div className="w-full max-w-lg mx-auto mt-6 sm:mt-10 md:mt-24 rounded-3xl bg-white/5 border border-white/15 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-lg py-3 sm:py-4 md:py-6 px-4 sm:px-6 md:px-8 flex flex-col items-center !pb-2" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
       <Stepper
         initialStep={step}
         onStepChange={setStep}
@@ -130,18 +140,18 @@ export default function Onboarding() {
         validateStep={validateStep}
       >
         <Step>
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2 text-lg text-white/80">
               <h3 className="text-2xl font-bold text-orange-400">Datos básicos</h3>
               <p className="text-base">Completa tu nombre y correo para empezar el registro.</p>
             </div>
-            <div className="space-y-7">
+            <div className="space-y-5 sm:space-y-7">
               {/* Grupo de nombre y apellido */}
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <label className="flex-1 space-y-1 text-base text-white/80">
                   <span className="font-semibold">Nombre</span>
                   <input
-                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
+                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 md:py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
                     placeholder="Nombre"
                     value={nombre}
                     onChange={e => handleChange('nombre', e.target.value)}
@@ -155,7 +165,7 @@ export default function Onboarding() {
                 <label className="flex-1 space-y-1 text-base text-white/80">
                   <span className="font-semibold">Apellido</span>
                   <input
-                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
+                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 md:py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
                     placeholder="Apellido"
                     value={apellido}
                     onChange={e => handleChange('apellido', e.target.value)}
@@ -171,7 +181,7 @@ export default function Onboarding() {
               <label className="space-y-1 text-base text-white/80 w-full">
                 <span className="font-semibold">Email</span>
                 <input
-                  className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
+                  className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 md:py-3 text-base outline-none ring-0 focus:border-orange-400 focus:ring-orange-400 transition"
                   type="email"
                   placeholder="tu@email.com"
                   value={email}
@@ -183,12 +193,30 @@ export default function Onboarding() {
                   </span>
                 )}
               </label>
+              {/* Teléfono */}
+              <label className="space-y-1 text-base text-white/80 w-full">
+                <span className="font-semibold">Teléfono</span>
+                <PhoneNumberInput
+                  value={telefono}
+                  onChange={(value) => handleChange('telefono', value)}
+                  defaultCountry="ve"
+                  placeholder="Número de teléfono"
+                  required
+                  heightPx={44}
+                  fontSizePx={16}
+                />
+                {errors.telefono && (
+                  <span className="text-red-400 text-xs mt-1 block animate-fade-in">
+                    {errors.telefono}
+                  </span>
+                )}
+              </label>
               {/* Contraseña */}
               <label className="space-y-1 text-base text-white/80 w-full">
                 <span className="font-semibold">Contraseña</span>
                 <div className="relative">
                   <input
-                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-3 text-base outline-none ring-0 pr-12 focus:border-orange-400 focus:ring-orange-400 transition"
+                    className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 md:py-3 text-base outline-none ring-0 pr-12 focus:border-orange-400 focus:ring-orange-400 transition"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Contraseña (mín. 8 caracteres)"
                     value={password}
@@ -212,6 +240,13 @@ export default function Onboarding() {
                     )}
                   </button>
                 </div>
+                <div className="pt-1">
+                  <SecurePasswordGenerator
+                    disabled={loading}
+                    fullName={[nombre, apellido].filter(Boolean).join(' ').trim()}
+                    onGenerate={(pwd) => handleChange('password', pwd)}
+                  />
+                </div>
                 {errors.password && (
                   <span className="text-red-400 text-xs mt-1 block animate-fade-in">
                     {errors.password}
@@ -234,9 +269,9 @@ export default function Onboarding() {
               )}
             </div>
           </form>
-          <div className="my-6 border-t border-white/10 w-full" />
+          <div className="my-4 md:my-6 border-t border-white/10 w-full" />
           {step !== 3 && (
-            <p className="text-center text-white/70 text-sm mb-4">
+            <p className="text-center text-white/70 text-sm mb-2">
               ¿Ya tienes una cuenta?{' '}
               <LoginLink />
             </p>

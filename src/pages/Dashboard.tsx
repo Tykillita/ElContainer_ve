@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
@@ -6,16 +6,233 @@ import { TrendingUp, Tag, Gift, Zap, ShowerHead, Users, Banknote, CalendarClock,
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 import { UserRound } from 'lucide-react';
 
+import { supabase } from '../lib/supabaseClient';
+
+import DashboardTimeFilter from '../components/DashboardTimeFilter';
+
 export default function Dashboard() {
+  // Opciones de filtro de tiempo
+  const timeOptions = [
+    'hour',
+    'today',
+    'yesterday',
+    'tomorrow',
+    'dayAfterTomorrow',
+    'thisWeek',
+    'lastWeek',
+    'nextWeek',
+    'lastMonth',
+    'nextMonth',
+    'totals',
+  ];
+  const [timeFilter, setTimeFilter] = useState('hour');
+
   const { user } = useAuth();
+
+  // Estado para métricas reales
+  const [metricsData, setMetricsData] = useState({
+    lavados: 0,
+    clientes: 0,
+    ingresos: 0,
+    reservasActivas: 0,
+    loading: true,
+    error: null as string | null,
+  });
+
+  // Sellos reales (profiles.stamps)
+  const [stampsState, setStampsState] = useState({
+    stamps: 0,
+    loading: true,
+    error: null as string | null,
+  });
+
+  // Utilidad para obtener rangos de fechas/horas según filtro
+  function getTimeRange(filter: string) {
+    const now = new Date();
+    let start: Date, end: Date;
+    switch (filter) {
+      case 'hour':
+        start = new Date(now);
+        start.setMinutes(0, 0, 0);
+        end = new Date(start);
+        end.setHours(start.getHours() + 1);
+        break;
+      case 'today':
+        start = new Date(now);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        break;
+      case 'thisWeek':
+        start = new Date(now);
+        start.setDate(now.getDate() - now.getDay());
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 7);
+        break;
+      case 'lastWeek':
+        start = new Date(now);
+        start.setDate(now.getDate() - now.getDay() - 7);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 7);
+        break;
+      case 'nextWeek':
+        start = new Date(now);
+        start.setDate(now.getDate() - now.getDay() + 7);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 7);
+        break;
+      case 'lastMonth':
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        end = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'nextMonth':
+        start = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+        break;
+      case 'tomorrow':
+        start = new Date(now);
+        start.setDate(now.getDate() + 1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        break;
+      case 'yesterday':
+        start = new Date(now);
+        start.setDate(now.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        break;
+      case 'dayAfterTomorrow':
+        start = new Date(now);
+        start.setDate(now.getDate() + 2);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        break;
+      case 'totals':
+      default:
+        start = new Date(2000, 0, 1);
+        end = new Date(2100, 0, 1);
+        break;
+    }
+    return { start, end };
+  }
+
+  // Hook para cargar métricas reales
+  useEffect(() => {
+    async function fetchMetrics() {
+      setMetricsData(prev => ({ ...prev, loading: true, error: null }));
+      try {
+        const { start, end } = getTimeRange(timeFilter);
+        // Lavados realizados (reservas completadas)
+        const { count: lavados } = await supabase
+          .from('reservas')
+          .select('id', { count: 'exact', head: true })
+          .gte('fecha', start.toISOString().slice(0, 10))
+          .lt('fecha', end.toISOString().slice(0, 10))
+          .eq('estado_reserva', 'completado');
+
+        // Clientes registrados
+        const { count: clientes } = await supabase
+          .from('profiles')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', start.toISOString())
+          .lt('created_at', end.toISOString());
+
+        // Ingresos (sumar monto_pago de reservas pagadas)
+        const { data: reservasPagadas } = await supabase
+          .from('reservas')
+          .select('monto_pago, fecha')
+          .gte('fecha', start.toISOString().slice(0, 10))
+          .lt('fecha', end.toISOString().slice(0, 10))
+          .eq('estado_pago', 'pagado');
+        const ingresos = (reservasPagadas || []).reduce((sum, r) => sum + (r.monto_pago || 0), 0);
+
+        // Reservas activas para la hora actual (solo para filtro 'hour', si no, mostrar todas activas en rango)
+        let reservasActivas = 0;
+        if (timeFilter === 'hour') {
+          const now = new Date();
+          const hourStr = now.toTimeString().slice(0, 2); // 'HH'
+          const { data: activas } = await supabase
+            .from('reservas')
+            .select('id, hora_inicio')
+            .eq('fecha', now.toISOString().slice(0, 10))
+            .gte('hora_inicio', `${hourStr}:00`)
+            .lt('hora_inicio', `${('0' + (parseInt(hourStr) + 1)).slice(-2)}:00`)
+            .not('estado_reserva', 'in', ['cancelado', 'completado']);
+          reservasActivas = (activas || []).length;
+        } else {
+          const { count: activasCount } = await supabase
+            .from('reservas')
+            .select('id', { count: 'exact', head: true })
+            .gte('fecha', start.toISOString().slice(0, 10))
+            .lt('fecha', end.toISOString().slice(0, 10))
+            .not('estado_reserva', 'in', ['cancelado', 'completado']);
+          reservasActivas = activasCount || 0;
+        }
+
+        setMetricsData({
+          lavados: lavados || 0,
+          clientes: clientes || 0,
+          ingresos: ingresos || 0,
+          reservasActivas: reservasActivas || 0,
+          loading: false,
+          error: null,
+        });
+      } catch (e) {
+        setMetricsData(prev => ({ ...prev, loading: false, error: (e instanceof Error ? e.message : 'Error al cargar métricas') }));
+      }
+    }
+    fetchMetrics();
+  }, [timeFilter]);
+
+  // Hook para cargar sellos reales del usuario
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchStamps() {
+      if (!user?.id) {
+        setStampsState({ stamps: 0, loading: false, error: null });
+        return;
+      }
+      setStampsState(prev => ({ ...prev, loading: true, error: null }));
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('stamps')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        const stamps = typeof data?.stamps === 'number' ? data.stamps : 0;
+        if (!cancelled) setStampsState({ stamps, loading: false, error: null });
+      } catch (e) {
+        if (!cancelled) {
+          setStampsState({
+            stamps: 0,
+            loading: false,
+            error: e instanceof Error ? e.message : 'Error al cargar sellos',
+          });
+        }
+      }
+    }
+    fetchStamps();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
   const userMeta = (user?.user_metadata ?? null) as { nombre?: string; avatar_url?: string; picture?: string; avatar_icon?: string } | null;
   const nombre = userMeta?.nombre || user?.email || 'Cliente';
   const memberSince = user?.created_at ? new Date(user.created_at) : null;
   const avatarUrl = resolveAvatarUrl(userMeta ?? undefined);
   const isDefaultAvatar = avatarUrl === DEFAULT_AVATAR_URL;
   const role = (user?.user_metadata?.rol as 'admin' | 'it' | 'cliente' | undefined) ?? 'cliente';
-  // Simulación de sellos; conectar con backend cuando esté disponible
-  const sellosAcumulados = 4;
+
+  const sellosAcumulados = stampsState.stamps;
   const sellosParaPremio = 6;
   const sellosCiclo = sellosAcumulados % sellosParaPremio;
   const faltanSellos = sellosCiclo === 0 && sellosAcumulados > 0 ? 0 : sellosParaPremio - sellosCiclo;
@@ -23,10 +240,10 @@ export default function Dashboard() {
 
   // Simulación de métricas del autolavado
   const metrics = [
-    { label: 'Lavados realizados', value: 12, icon: <ShowerHead className="w-6 h-6 text-white" strokeWidth={2.4} /> },
-    { label: 'Clientes atendidos', value: 8, icon: <Users className="w-6 h-6 text-white" strokeWidth={2.4} /> },
-    { label: 'Ingresos hoy', value: '$120', icon: <Banknote className="w-6 h-6 text-white" strokeWidth={2.4} /> },
-    { label: 'Reservas activas', value: 3, icon: <CalendarClock className="w-6 h-6 text-white" strokeWidth={2.4} /> },
+    { label: 'Lavados realizados', value: metricsData.lavados, icon: <ShowerHead className="w-6 h-6 text-white" strokeWidth={2.4} /> },
+    { label: 'Clientes registrados', value: metricsData.clientes, icon: <Users className="w-6 h-6 text-white" strokeWidth={2.4} /> },
+    { label: `Ingresos`, value: `$${metricsData.ingresos}`, icon: <Banknote className="w-6 h-6 text-white" strokeWidth={2.4} /> },
+    { label: 'Reservas activas', value: metricsData.reservasActivas, icon: <CalendarClock className="w-6 h-6 text-white" strokeWidth={2.4} /> },
   ];
 
   const adminQuickLinks = [
@@ -44,8 +261,8 @@ export default function Dashboard() {
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.08),transparent_35%)]" aria-hidden />
             <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              {/* Fecha en móvil en la esquina sup. derecha */}
-              <span className="sm:hidden absolute top-2 right-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90 shadow-sm">
+              {/* Fecha actual: en móvil va absoluta; en desktop va en flujo normal (para no superponerse con el avatar) */}
+              <span className="sm:hidden absolute top-2 right-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90 shadow-sm whitespace-nowrap z-20">
                 {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
               <div className="flex flex-col gap-2 max-w-3xl">
@@ -70,7 +287,7 @@ export default function Dashboard() {
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 shadow-sm">
                     <Tag className="h-4 w-4" strokeWidth={2.4} />
-                    <span>Sellos acumulados: {sellosAcumulados}</span>
+                    <span>Sellos acumulados: {stampsState.loading ? '—' : sellosAcumulados}</span>
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 shadow-sm">
                     <Gift className="h-4 w-4" strokeWidth={2.4} />
@@ -91,8 +308,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-3 text-right text-sm text-white/90">
-                <span className="hidden sm:inline rounded-full bg-white/15 px-3 py-1 shadow-sm">
-                  {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                <span className="hidden sm:inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90 shadow-sm whitespace-nowrap">
+                  {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: '2-digit' })}
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="text-xs text-white/90 text-right">
@@ -120,8 +337,21 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/* Filtro de tiempo debajo de la tarjeta de presentación */}
+        <div className="mb-6">
+          <DashboardTimeFilter
+            value={timeFilter}
+            options={timeOptions}
+            onChange={setTimeFilter}
+          />
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          {metrics.map(m => (
+          {metricsData.loading ? (
+            <div className="col-span-4 text-center text-white/70 py-10">Cargando métricas...</div>
+          ) : metricsData.error ? (
+            <div className="col-span-4 text-center text-rose-300 py-10">{metricsData.error}</div>
+          ) : metrics.map(m => (
             <div key={m.label} className="bg-black/80 border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col items-start gap-2 shadow-lg">
               <span className="text-3xl sm:text-4xl text-white/95">{m.icon}</span>
               <div className="text-xl sm:text-2xl font-bold text-orange-400">{m.value}</div>
@@ -137,10 +367,6 @@ export default function Dashboard() {
               <li>Cliente frecuente: <span className="font-bold text-orange-400">Juan Pérez</span></li>
               <li>Reservas para mañana: <span className="font-bold text-orange-400">2</span></li>
             </ul>
-          </section>
-          <section className="bg-black/70 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-lg">
-            <h2 className="text-lg sm:text-xl font-semibold text-white mb-3">Tip del día</h2>
-            <p className="text-white/80 text-sm sm:text-base">Ofrece un descuento especial a clientes que reserven en línea.</p>
           </section>
         </div>
 

@@ -98,7 +98,7 @@ export default function Stepper({
           })}
         </div>
 
-        <div style={{ marginBottom: '1.25rem' }} />
+        <div style={{ marginBottom: '0.75rem' }} />
         <StepContentWrapper
           isCompleted={isCompleted}
           currentStep={currentStep}
@@ -129,7 +129,7 @@ function StepContentWrapper({ isCompleted, currentStep, direction, children, cla
   return (
     <motion.div
       className={className}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      style={{ position: 'relative', overflowX: 'hidden', overflowY: 'visible' }}
       animate={{ height: heightValue }}
       initial={false}
       transition={{ type: 'spring', duration: 0.4 }}

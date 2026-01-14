@@ -1,0 +1,51 @@
+.ec-phone-input {
+  /* Match existing rounded-lg */
+  --ec-radius: 0.5rem;
+}
+
+.ec-phone-input .react-international-phone-input-container {
+  width: 100%;
+}
+
+.ec-phone-input .react-international-phone-country-selector-button {
+  height: var(--react-international-phone-height) !important;
+  padding: 0 0.75rem !important;
+  border: 1px solid var(--react-international-phone-border-color) !important;
+  background-color: var(--react-international-phone-background-color) !important;
+  border-radius: var(--ec-radius) 0 0 var(--ec-radius) !important;
+}
+
+.ec-phone-input .react-international-phone-input {
+  height: var(--react-international-phone-height) !important;
+  padding: 0 1rem !important;
+  border: 1px solid var(--react-international-phone-border-color) !important;
+  background-color: var(--react-international-phone-background-color) !important;
+  border-radius: 0 var(--ec-radius) var(--ec-radius) 0 !important;
+  color: var(--react-international-phone-text-color) !important;
+  font-family: inherit;
+}
+
+.ec-phone-input .react-international-phone-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ec-phone-input .react-international-phone-input-container:focus-within {
+  border-radius: var(--ec-radius);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.35);
+}
+
+.ec-phone-input .react-international-phone-input-container:focus-within .react-international-phone-country-selector-button,
+.ec-phone-input .react-international-phone-input-container:focus-within .react-international-phone-input {
+  border-color: rgba(249, 115, 22, 0.35) !important;
+}
+
+.ec-phone-input .react-international-phone-country-selector-dropdown {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 0.75rem;
+}
+
+.ec-phone-input .react-international-phone-country-selector-dropdown__list-item:hover,
+.ec-phone-input .react-international-phone-country-selector-dropdown__list-item--selected,
+.ec-phone-input .react-international-phone-country-selector-dropdown__list-item--focused {
+  background-color: rgba(249, 115, 22, 0.18) !important;
+}

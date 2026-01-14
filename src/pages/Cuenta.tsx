@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/useAuth';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 import { Loader2, Save, Upload } from 'lucide-react';
+import PhoneNumberInput from '../components/PhoneNumberInput';
 
 type FormState = {
   nombre: string;
@@ -13,6 +14,11 @@ type FormState = {
   avatar_url: string;
   avatar_path: string;
   bio: string;
+};
+
+type ProfileLite = {
+  full_name: string | null;
+  phone: string | null;
 };
 
 export default function Cuenta() {
@@ -27,17 +33,35 @@ export default function Cuenta() {
   const isDefaultAvatar = avatarPreview === DEFAULT_AVATAR_URL;
 
   useEffect(() => {
-    if (!user) return;
-    const meta = user.user_metadata || {};
-    const fullName = (meta.full_name as string | undefined) || [meta.nombre, meta.apellido].filter(Boolean).join(' ').trim();
-    setForm({
-      nombre: fullName || meta.nombre || user.email || '',
-      phone: meta.phone || '',
-      avatar_icon: (meta.avatar_icon as string) || 'default',
-      avatar_url: meta.avatar_url || meta.picture || '',
-      bio: meta.bio || '',
-      avatar_path: meta.avatar_path || ''
-    });
+    let active = true;
+    const run = async () => {
+      if (!user) return;
+      const meta = user.user_metadata || {};
+      const fullNameMeta = (meta.full_name as string | undefined) || [meta.nombre, meta.apellido].filter(Boolean).join(' ').trim();
+
+      // Preferimos datos de profiles (lo que usa AdminPanel y otras vistas)
+      let profile: ProfileLite | null = null;
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, phone')
+        .eq('id', user.id)
+        .maybeSingle();
+      profile = (profileData ?? null) as ProfileLite | null;
+      if (!active) return;
+
+      setForm({
+        nombre: profile?.full_name || fullNameMeta || meta.nombre || user.email || '',
+        phone: profile?.phone || meta.phone || '',
+        avatar_icon: (meta.avatar_icon as string) || 'default',
+        avatar_url: meta.avatar_url || meta.picture || '',
+        bio: meta.bio || '',
+        avatar_path: meta.avatar_path || ''
+      });
+    };
+    run();
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +123,25 @@ export default function Cuenta() {
       setSaving(false);
       return;
     }
+
+    // Persistir también en public.profiles (fuente de verdad para phone/plan en el panel)
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          id: user.id,
+          full_name: nameTrimmed,
+          phone: form.phone || null,
+          role: (user.user_metadata?.rol as string | undefined) ?? 'cliente'
+        },
+        { onConflict: 'id' }
+      );
+    if (profileError) {
+      setStatus({ type: 'error', message: `Guardado parcial: no se pudo actualizar el perfil en la base de datos (${profileError.message}).` });
+      setSaving(false);
+      return;
+    }
+
     await refreshUser();
     setStatus({ type: 'ok', message: 'Perfil actualizado' });
     setSaving(false);
@@ -152,11 +195,13 @@ export default function Cuenta() {
                 <span className="flex items-center gap-2 font-semibold text-slate-200">
                   <PhoneIcon className="w-4 h-4 text-orange-400" /> Teléfono
                 </span>
-                <input
-                  className="rounded-lg bg-white/10 border border-white/10 px-5 py-3 text-lg text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400/40 transition w-full"
+                <PhoneNumberInput
                   value={form.phone}
-                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                  placeholder="Ej: +58 000 0000000"
+                  onChange={(value) => setForm(f => ({ ...f, phone: value }))}
+                  defaultCountry="ve"
+                  placeholder="Número de teléfono"
+                  heightPx={52}
+                  fontSizePx={18}
                 />
               </label>
 

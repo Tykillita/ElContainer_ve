@@ -50,6 +50,21 @@ export function useReservas() {
     [user]
   );
 
+  // Obtener reservas por cliente (usuario_id)
+  const getReservasByCliente = useCallback(async (clienteId: string) => {
+    setLoading(true);
+    setError(null);
+    const { data, error } = await supabase
+      .from('reservas')
+      .select('*')
+      .eq('usuario_id', clienteId)
+      .order('fecha', { ascending: false })
+      .order('hora_inicio', { ascending: true });
+    setLoading(false);
+    if (error) setError(error.message);
+    return (data || []) as Reserva[];
+  }, []);
+
   // Crear reserva
   const crearReserva = useCallback(async (reserva: Omit<Reserva, 'id'>) => {
     setLoading(true);
@@ -106,6 +121,7 @@ export function useReservas() {
     loading,
     error,
     getReservasByFecha,
+    getReservasByCliente,
     crearReserva,
     editarReserva,
     cancelarReserva,

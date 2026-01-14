@@ -15,9 +15,12 @@ const Booking = lazy(() => import('./pages/Booking'));
 const Blog = lazy(() => import('./pages/Blog'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const DashboardCliente = lazy(() => import('./pages/DashboardCliente'));
 const Lavados = lazy(() => import('./pages/Lavados'));
 const Progreso = lazy(() => import('./pages/Progreso'));
+const ProgresoCliente = lazy(() => import('./pages/ProgresoCliente'));
 const Planes = lazy(() => import('./pages/Planes'));
+const PlanesCliente = lazy(() => import('./pages/PlanesCliente'));
 const Clientes = lazy(() => import('./pages/Clientes'));
 const Calendario = lazy(() => import('./pages/Calendario'));
 const Cuenta = lazy(() => import('./pages/Cuenta'));
@@ -101,20 +104,26 @@ function AppLayout() {
                 <Route path="/contacto" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<DashboardLayout />}>
+                {/* DashboardLayout wraps all dashboard-related routes */}
+                <Route element={<DashboardLayout />}>
+                  {/* Cliente protected routes FIRST */}
+                  <Route element={<ProtectedRoute allowedRoles={[ 'cliente' ]} redirectTo="/dashboard" />}>
+                    <Route path="/dashboard" element={<DashboardCliente />} />
+                    <Route path="/progreso" element={<ProgresoCliente />} />
+                    <Route path="/planes" element={<PlanesCliente />} />
+                  </Route>
+                  {/* Admin/IT protected routes SECOND */}
+                  <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/progreso" element={<Progreso />} />
                     <Route path="/planes" element={<Planes />} />
-                    <Route path="/calendario" element={<Calendario />} />
-                    <Route path="/cuenta" element={<Cuenta />} />
-
-                    <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
-                      <Route path="/lavados" element={<Lavados />} />
-                      <Route path="/clientes" element={<Clientes />} />
-                      <Route path="/admin-panel" element={<AdminPanel />} />
-                    </Route>
+                    <Route path="/lavados" element={<Lavados />} />
+                    <Route path="/clientes" element={<Clientes />} />
+                    <Route path="/admin-panel" element={<AdminPanel />} />
                   </Route>
+                  {/* Common routes for all roles */}
+                  <Route path="/calendario" element={<Calendario />} />
+                  <Route path="/cuenta" element={<Cuenta />} />
                 </Route>
                 {/* Puedes agregar más rutas aquí */}
               </Routes>
