@@ -54,9 +54,6 @@ const DashboardCliente: React.FC = () => {
                       <TrendingUp className="h-4 w-4" strokeWidth={2.4} />
                       Miembro activo
                     </span>
-                    {memberSince && (
-                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">Miembro desde {memberSince.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
-                    )}
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-2xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">
                     <span>¡Hola, {nombre}!</span>

@@ -62,3 +62,60 @@ on public.plans
 for delete
 to authenticated
 using (true);
+
+-- Seed inicial: planes que usa la web (Silver y Black)
+-- Ejecuta este bloque en el SQL Editor de Supabase para crear/actualizar los planes.
+insert into public.plans (
+  id,
+  name,
+  description,
+  monthly_price,
+  quarterly_price,
+  highlight,
+  features,
+  unavailable
+)
+values
+(
+  'silver',
+  'Silver',
+  'Ideal para clientes ocasionales que quieren mantener su auto limpio.',
+  9,
+  25,
+  false,
+  array[
+    '1 lavado exterior al mes',
+    'Descuento en servicios adicionales',
+    'Acceso a promociones exclusivas',
+    'Sin permanencia',
+    'Soporte estándar'
+  ]::text[],
+  array[
+    'Lavado interior',
+    'Prioridad en reservas'
+  ]::text[]
+),
+(
+  'black',
+  'Black',
+  'Para quienes buscan un auto impecable todo el mes.',
+  19,
+  54,
+  true,
+  array[
+    '4 lavados completos al mes',
+    'Lavado interior y exterior',
+    'Prioridad en reservas',
+    'Acceso a promociones exclusivas',
+    'Soporte premium'
+  ]::text[],
+  array[]::text[]
+)
+on conflict (id) do update set
+  name = excluded.name,
+  description = excluded.description,
+  monthly_price = excluded.monthly_price,
+  quarterly_price = excluded.quarterly_price,
+  highlight = excluded.highlight,
+  features = excluded.features,
+  unavailable = excluded.unavailable;

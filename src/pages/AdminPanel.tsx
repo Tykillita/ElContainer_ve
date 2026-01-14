@@ -9,13 +9,16 @@ import {
   Mail,
   Phone,
   Calendar,
-  Trash2,
   MapPin,
   X,
   Sparkles,
   User,
-  BadgeInfo
+  BadgeInfo,
+  MoreVertical
 } from 'lucide-react';
+import { AdminUserOptionsModal } from '../components/AdminUserOptionsModal';
+import UserReservasModal from '../components/UserReservasModal';
+import { useReservas, type Reserva } from '../hooks/useReservas';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL, useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 
@@ -74,6 +77,7 @@ function AdminPanel() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [userOptionsModal, setUserOptionsModal] = useState<{ open: boolean; user: AdminUser | null }>({ open: false, user: null });
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [showCreatePassword, setShowCreatePassword] = useState(false);
@@ -87,6 +91,13 @@ function AdminPanel() {
     phone: '',
     plan: '',
   });
+
+  // State for wash history modal
+  const [washHistoryModal, setWashHistoryModal] = useState<{ open: boolean; user: AdminUser | null }>({ open: false, user: null });
+  const [reservas, setReservas] = useState<Reserva[]>([]);
+  const [reservasLoading, setReservasLoading] = useState(false);
+  const [reservasError, setReservasError] = useState<string | null>(null);
+  const { getReservasByCliente } = useReservas();
 
   // Si el usuario es admin, forzar el rol a cliente al abrir el modal
   useEffect(() => {
@@ -118,6 +129,7 @@ function AdminPanel() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     // Primero intentamos vía RPC para cruzar con auth.users
     const { data: rpcData, error: rpcError } = await supabase.rpc('admin_list_users');
     if (!rpcError && rpcData) {
@@ -136,8 +148,7 @@ function AdminPanel() {
       setLoading(false);
       return;
     }
-    const mapped = (data || []).map(mapRow);
-    setUsers(mapped);
+    setUsers((data || []).map(mapRow));
     setLoading(false);
   }, [mapRow]);
 
@@ -150,6 +161,58 @@ function AdminPanel() {
     if (selectedUser?.id === id) setSelectedUser(null);
     const { error } = await supabase.from('profiles').delete().eq('id', id);
     if (error) setError(error.message);
+  };
+
+  // Opciones del modal
+  const handleOpenUserOptions = (user: AdminUser) => {
+    setUserOptionsModal({ open: true, user });
+  };
+  const handleCloseUserOptions = () => {
+    setUserOptionsModal({ open: false, user: null });
+  };
+  const handleChangeRole = async (role: string) => {
+    if (!userOptionsModal.user) return;
+    const id = userOptionsModal.user.id;
+    const nextRole = role as UserRole;
+    // Actualizar en Supabase
+    const { error } = await supabase.from('profiles').update({ role: nextRole }).eq('id', id);
+    if (!error) {
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, role: nextRole } : u));
+    } else {
+      alert('Error al actualizar el rol: ' + error.message);
+    }
+    handleCloseUserOptions();
+  };
+  const handleAssignPlan = async (planId: string) => {
+    if (!userOptionsModal.user) return;
+    const id = userOptionsModal.user.id;
+    // Actualizar en Supabase
+    const { error } = await supabase.from('profiles').update({ plan: planId }).eq('id', id);
+    if (!error) {
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, plan: planId } : u));
+    } else {
+      alert('Error al actualizar el plan: ' + error.message);
+    }
+    handleCloseUserOptions();
+  };
+  const handleViewHistory = async (user: AdminUser) => {
+    setReservasLoading(true);
+    setReservasError(null);
+    setWashHistoryModal({ open: true, user });
+    try {
+      const data = await getReservasByCliente(user.id);
+      setReservas(data);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Error al cargar reservas';
+      setReservasError(message);
+    } finally {
+      setReservasLoading(false);
+    }
+    handleCloseUserOptions();
+  };
+  const handleDeleteUser = (user: AdminUser) => {
+    removeUser(user.id);
+    handleCloseUserOptions();
   };
 
   const formatDate = (iso: string) => {
@@ -276,7 +339,7 @@ function AdminPanel() {
             onChange={setRoleFilter}
           />
         )}
-        <div className="rounded-3xl bg-black/60 border border-white/10 backdrop-blur p-6 shadow-2xl">
+        <div className="rounded-3xl bg-black/60 border border-white/10 p-6 shadow-2xl">
           {error && (
             <div className="mb-4 rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
               {error}
@@ -355,11 +418,11 @@ function AdminPanel() {
                       <td className="py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => removeUser(user.id)}
-                            className="hover:text-red-500 transition-colors"
-                            aria-label="Eliminar usuario"
+                            onClick={() => handleOpenUserOptions(user)}
+                            className="hover:text-orange-400 transition-colors p-2 rounded-full bg-zinc-800/60 border border-zinc-700 shadow"
+                            aria-label="Opciones de usuario"
                           >
-                            <Trash2 className="w-5 h-5 text-white/70" />
+                            <MoreVertical className="w-5 h-5 text-white/80" />
                           </button>
                         </div>
                       </td>
@@ -368,49 +431,64 @@ function AdminPanel() {
                 })}
               </tbody>
             </table>
+            {(() => {
+              const modalUser = userOptionsModal.user;
+              if (!modalUser) return null;
+              return (
+                <AdminUserOptionsModal
+                  open={userOptionsModal.open}
+                  onClose={handleCloseUserOptions}
+                  user={modalUser}
+                  viewerRole={user?.user_metadata?.rol}
+                  onChangeRole={handleChangeRole}
+                  onAssignPlan={handleAssignPlan}
+                  onViewHistory={() => handleViewHistory(modalUser)}
+                  onDelete={() => handleDeleteUser(modalUser)}
+                  plans={plans.map(p => ({ id: p.id, name: p.name }))}
+                />
+              );
+            })()}
           </div>
           )}
         </div>
       </div>
     </div>
 
-      {selectedUser && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center pointer-events-auto">
-          <div className="relative w-full max-w-3xl rounded-3xl bg-black/95 border border-white/10 p-6 shadow-2xl">
-            <button
-              onClick={() => setSelectedUser(null)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/70"
-              aria-label="Cerrar"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex flex-col items-center md:items-start gap-3">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-orange-400 shadow-lg bg-black/30">
-                  {(() => {
-                    const detailAvatar = resolveAvatarUrl({ avatar_url: selectedUser.avatar ?? undefined }) || DEFAULT_AVATAR_URL;
-                    return (
-                      <img
-                        src={detailAvatar}
-                        alt={selectedUser.name}
-                        className="w-full h-full object-cover object-center avatar-img"
-                      />
-                    );
-                  })()}
-                </div>
-                <div className="text-center md:text-left space-y-1">
-                  <h2 className="text-2xl font-extrabold">{selectedUser.name}</h2>
-                  <p className="text-white/70 text-sm">{selectedUser.bio}</p>
-                  <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 border text-xs font-semibold ${roleStyles[selectedUser.role].className}`}>
-                    {selectedUser.role === 'cliente' ? (
-                      <User className="w-4 h-4" />
-                    ) : (
-                      <ShieldCheck className="w-4 h-4" />
-                    )}
-                    {roleStyles[selectedUser.role].label}
+      {selectedUser && (() => {
+        const su = selectedUser;
+        const detailAvatar = resolveAvatarUrl({ avatar_url: su.avatar ?? undefined }) || DEFAULT_AVATAR_URL;
+        return (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center pointer-events-auto">
+            <div className="relative w-full max-w-3xl rounded-3xl bg-black/95 border border-white/10 p-6 shadow-2xl">
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/70"
+                aria-label="Cerrar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col items-center md:items-start gap-3">
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-orange-400 shadow-lg bg-black/30">
+                    <img
+                      src={detailAvatar}
+                      alt={su.name}
+                      className="w-full h-full object-cover object-center avatar-img"
+                    />
+                  </div>
+                  <div className="text-center md:text-left space-y-1">
+                    <h2 className="text-2xl font-extrabold">{su.name}</h2>
+                    <p className="text-white/70 text-sm">{su.bio}</p>
+                    <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 border text-xs font-semibold ${roleStyles[su.role].className}`}>
+                      {su.role === 'cliente' ? (
+                        <User className="w-4 h-4" />
+                      ) : (
+                        <ShieldCheck className="w-4 h-4" />
+                      )}
+                      {roleStyles[su.role].label}
+                    </div>
                   </div>
                 </div>
-              </div>
 
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center gap-3">
@@ -419,7 +497,7 @@ function AdminPanel() {
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-white/60">Email</p>
-                    <p className="font-semibold text-sm text-white">{selectedUser.email}</p>
+                    <p className="font-semibold text-sm text-white">{su.email}</p>
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center gap-3">
@@ -428,7 +506,7 @@ function AdminPanel() {
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-white/60">Teléfono</p>
-                    <p className="font-semibold text-sm text-white">{selectedUser.phone ?? 'N/D'}</p>
+                    <p className="font-semibold text-sm text-white">{su.phone ?? 'N/D'}</p>
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center gap-3">
@@ -437,7 +515,7 @@ function AdminPanel() {
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-white/60">Alta</p>
-                    <p className="font-semibold text-sm text-white">{formatDate(selectedUser.joined)}</p>
+                    <p className="font-semibold text-sm text-white">{formatDate(su.joined)}</p>
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center gap-3">
@@ -446,7 +524,7 @@ function AdminPanel() {
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-white/60">Ubicación</p>
-                    <p className="font-semibold text-sm text-white">{selectedUser.location ?? 'N/D'}</p>
+                    <p className="font-semibold text-sm text-white">{su.location ?? 'N/D'}</p>
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center gap-3">
@@ -455,16 +533,26 @@ function AdminPanel() {
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-white/60">Plan</p>
-                    <p className="font-semibold text-sm text-white">{selectedUser.plan}</p>
+                    <p className="font-semibold text-sm text-white">{su.plan}</p>
                   </div>
                 </div>
               </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
 
+
+      <UserReservasModal
+        open={washHistoryModal.open}
+        onClose={() => setWashHistoryModal({ open: false, user: null })}
+        reservas={reservas}
+        loading={reservasLoading}
+        error={reservasError}
+        userName={washHistoryModal.user?.name || undefined}
+      />
 
       {createOpen && (
         <div className="fixed inset-0 z-[95] flex items-center justify-center pointer-events-auto">

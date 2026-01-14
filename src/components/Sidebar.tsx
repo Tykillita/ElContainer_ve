@@ -10,6 +10,7 @@ import {
   Sparkles,
   TrendingUp,
   ReceiptText,
+  ClipboardList,
   Users,
   CalendarDays,
   User2,
@@ -29,9 +30,10 @@ const sidebarItems: Array<{ label: string; icon: React.ReactNode; path: string; 
   { label: 'Admin Panel', icon: <ShieldCheck className="w-5 h-5" />, path: '/admin-panel', roles: ['admin', 'it'] },
   { label: 'Cuenta', icon: <User2 className="w-5 h-5" />, path: '/cuenta', roles: ['admin', 'it'] },
   // Cliente: link to client pages
-  { label: 'Mi Panel', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['cliente'], component: 'DashboardCliente' },
-  { label: 'Mi Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['cliente'], component: 'ProgresoCliente' },
-  { label: 'Mis Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['cliente'], component: 'PlanesCliente' },
+  { label: 'Mi Panel', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['cliente'] },
+  { label: 'Mi Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['cliente'] },
+  { label: 'Mis Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['cliente'] },
+  { label: 'Mis Reservas', icon: <ClipboardList className="w-5 h-5" />, path: '/mis-reservas', roles: ['cliente'] },
   { label: 'Calendario', icon: <CalendarDays className="w-5 h-5" />, path: '/calendario', roles: ['cliente'] },
   { label: 'Cuenta', icon: <User2 className="w-5 h-5" />, path: '/cuenta', roles: ['cliente'] },
 ];

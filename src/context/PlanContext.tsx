@@ -121,11 +121,18 @@ export function PlanProvider({ children }: { children: ReactNode }) {
         .order('monthly_price', { ascending: true });
 
       if (err) throw err;
-      if (data && Array.isArray(data) && data.length > 0) {
-        setPlans((data as DbPlanRow[]).map(toUiPlan));
+
+      if (Array.isArray(data)) {
+        const mapped = (data as DbPlanRow[]).map(toUiPlan);
+        if (mapped.length > 0) {
+          setPlans(mapped);
+        } else {
+          // Tabla vacía (o RLS devolviendo 0 filas sin error): usamos defaults para que Home no quede sin planes.
+          console.info('[PlanContext] No plans rows found in Supabase; using default plans.');
+          setPlans(defaultPlans);
+        }
       } else {
-        // Si la tabla existe pero está vacía, dejamos la UI en vacío (no defaults)
-        setPlans([]);
+        setPlans(defaultPlans);
       }
     } catch (e: unknown) {
       // Fallback a defaults si no existe tabla o RLS bloquea

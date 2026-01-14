@@ -7,6 +7,7 @@ import PageLoader from './components/PageLoader';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 import { PlanProvider } from './context/PlanContext';
+import { useAuth } from './context/useAuth';
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Login = lazy(() => import('./pages/Login'));
 const Home = lazy(() => import('./pages/Home'));
@@ -25,6 +26,7 @@ const Clientes = lazy(() => import('./pages/Clientes'));
 const Calendario = lazy(() => import('./pages/Calendario'));
 const Cuenta = lazy(() => import('./pages/Cuenta'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const ReservasCliente = lazy(() => import('./pages/ReservasCliente'));
 // import BeamsFixed from './components/BeamsFixed';
 //import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 
@@ -39,6 +41,24 @@ function AppLayout() {
   const [showInitialLoader, setShowInitialLoader] = useState(true);
   const { isReady, initializePage } = useLoading();
 
+  function DashboardByRole() {
+    const { user } = useAuth();
+    const role = (user?.user_metadata?.rol as 'admin' | 'it' | 'cliente' | undefined) ?? 'cliente';
+    return role === 'admin' || role === 'it' ? <Dashboard /> : <DashboardCliente />;
+  }
+
+  function ProgresoByRole() {
+    const { user } = useAuth();
+    const role = (user?.user_metadata?.rol as 'admin' | 'it' | 'cliente' | undefined) ?? 'cliente';
+    return role === 'admin' || role === 'it' ? <Progreso /> : <ProgresoCliente />;
+  }
+
+  function PlanesByRole() {
+    const { user } = useAuth();
+    const role = (user?.user_metadata?.rol as 'admin' | 'it' | 'cliente' | undefined) ?? 'cliente';
+    return role === 'admin' || role === 'it' ? <Planes /> : <PlanesCliente />;
+  }
+
   // Function to be called when the page has completely rendered
   const handlePageLoadComplete = () => {
     setShowInitialLoader(false);
@@ -50,7 +70,7 @@ function AppLayout() {
     initializePage();
   }, [initializePage]);
   const location = useLocation();
-  const isDashboardArea = ['/dashboard','/lavados','/progreso','/planes','/clientes','/calendario','/cuenta','/admin-panel']
+  const isDashboardArea = ['/dashboard','/lavados','/progreso','/planes','/clientes','/calendario','/cuenta','/admin-panel','/mis-reservas']
     .some(path => location.pathname.startsWith(path));
   const mainRef = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
@@ -106,24 +126,29 @@ function AppLayout() {
                 <Route path="/onboarding" element={<Onboarding />} />
                 {/* DashboardLayout wraps all dashboard-related routes */}
                 <Route element={<DashboardLayout />}>
-                  {/* Cliente protected routes FIRST */}
-                  <Route element={<ProtectedRoute allowedRoles={[ 'cliente' ]} redirectTo="/dashboard" />}>
-                    <Route path="/dashboard" element={<DashboardCliente />} />
-                    <Route path="/progreso" element={<ProgresoCliente />} />
-                    <Route path="/planes" element={<PlanesCliente />} />
+                  {/* Must be logged in to access dashboard area */}
+                  <Route element={<ProtectedRoute redirectTo="/login" />}>
+                    {/* Shared paths; component chosen by role */}
+                    <Route path="/dashboard" element={<DashboardByRole />} />
+                    <Route path="/progreso" element={<ProgresoByRole />} />
+                    <Route path="/planes" element={<PlanesByRole />} />
+
+                    {/* Common routes for all roles */}
+                    <Route path="/calendario" element={<Calendario />} />
+                    <Route path="/cuenta" element={<Cuenta />} />
+
+                    {/* Cliente-only routes */}
+                    <Route element={<ProtectedRoute allowedRoles={[ 'cliente' ]} redirectTo="/dashboard" />}>
+                      <Route path="/mis-reservas" element={<ReservasCliente />} />
+                    </Route>
+
+                    {/* Admin/IT-only routes */}
+                    <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
+                      <Route path="/lavados" element={<Lavados />} />
+                      <Route path="/clientes" element={<Clientes />} />
+                      <Route path="/admin-panel" element={<AdminPanel />} />
+                    </Route>
                   </Route>
-                  {/* Admin/IT protected routes SECOND */}
-                  <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/progreso" element={<Progreso />} />
-                    <Route path="/planes" element={<Planes />} />
-                    <Route path="/lavados" element={<Lavados />} />
-                    <Route path="/clientes" element={<Clientes />} />
-                    <Route path="/admin-panel" element={<AdminPanel />} />
-                  </Route>
-                  {/* Common routes for all roles */}
-                  <Route path="/calendario" element={<Calendario />} />
-                  <Route path="/cuenta" element={<Cuenta />} />
                 </Route>
                 {/* Puedes agregar más rutas aquí */}
               </Routes>

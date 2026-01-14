@@ -17,6 +17,16 @@ Notas:
 - La app intenta leer/escribir en `plans` desde el contexto `PlanContext`.
 - Si RLS bloquea escrituras, revisa/ajusta las policies del SQL.
 
+### Seed (planes por defecto)
+
+Si migraste la lógica a Supabase y la tabla `public.plans` está vacía, la UI mostrará "Sin planes disponibles".
+Para crear los 2 planes base (Silver y Black):
+
+- Abre Supabase → **SQL Editor**
+- Ejecuta el script [supabase/plans.sql](supabase/plans.sql) (incluye un `INSERT ... ON CONFLICT` al final)
+
+Esto crea/actualiza los planes con ids `silver` y `black`.
+
 ## Perfiles (profiles)
 
 Si al guardar datos en la página de Cuenta ves un error como:
