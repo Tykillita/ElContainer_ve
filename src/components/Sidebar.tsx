@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import elcontainerLogo from '../../public/elcontainer_vector.svg';
+import elcontainerLogo from '../resources/svg/elcontainer_vector.svg';
 import { useAuth } from '../context/useAuth';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 import { UserRound } from 'lucide-react';
