@@ -613,3 +613,10 @@ select::-webkit-scrollbar-thumb {
     display: none;
   }
 }
+
+/* Focus visible global (accesibilidad teclado) */
+:focus-visible {
+  outline: 2px solid #eb5228;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

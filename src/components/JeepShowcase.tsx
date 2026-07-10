@@ -1,6 +1,5 @@
 import jeepImage from '../resources/img/jeep_gladiador.webp'
 import OptimizedImage from './OptimizedImage'
-import { useMobileOptimization } from '../hooks/useMobileOptimization'
 
 type JeepShowcaseProps = {
   variant?: 'dark' | 'clean'
@@ -8,10 +7,6 @@ type JeepShowcaseProps = {
 
 export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
   const isClean = variant === 'clean'
-  const { isMobile } = useMobileOptimization()
-
-  // Don't render on mobile devices
-  if (isMobile) return null;
 
   return (
     <div
@@ -32,8 +27,8 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
       <div
         className={
           isClean
-            ? 'relative mx-auto flex h-[22rem] w-full max-w-none items-center justify-center sm:h-[28rem] md:h-[38rem] lg:h-[40rem] xl:h-[40rem] 2xl:h-[40rem] overflow-visible'
-            : 'relative mx-auto flex h-[22rem] max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[30rem] xl:h-[30rem] 2xl:h-[30rem] overflow-visible'
+            ? 'relative mx-auto flex h-auto w-full max-w-none items-center justify-center sm:h-[28rem] md:h-[38rem] lg:h-[40rem] xl:h-[40rem] 2xl:h-[40rem] overflow-visible'
+            : 'relative mx-auto flex h-auto max-w-4xl items-center justify-center sm:h-[26rem] md:h-[32rem] lg:h-[30rem] xl:h-[30rem] 2xl:h-[30rem] overflow-visible'
         }
       >
         <div className="relative overflow-visible" style={{ overflow: 'visible !important' }}>
@@ -42,8 +37,8 @@ export default function JeepShowcase({ variant = 'clean' }: JeepShowcaseProps) {
             alt="Jeep Gladiador"
             className={
               isClean
-                ? 'h-full w-auto max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
-                : 'h-full w-auto object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
+                ? 'w-full h-auto max-w-full sm:h-full sm:w-auto sm:max-w-none object-contain drop-shadow-[0_40px_80px_rgba(0,0,0,0.2)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
+                : 'w-full h-auto max-w-full sm:h-full sm:w-auto sm:max-w-none object-contain drop-shadow-[0_35px_70px_rgba(0,0,0,0.35)] translate-y-[-3px] sm:translate-y-[-5px] md:translate-y-[-8px] lg:translate-y-[-6px] xl:translate-y-[-6px] 2xl:translate-y-[-6px] z-10 scale-[1.0] lg:scale-[0.60] xl:scale-[0.60] 2xl:scale-[0.60]'
             }
             style={{
               transform: 'perspective(1000px) rotateX(2deg) scale(1.0)',

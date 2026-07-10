@@ -173,6 +173,20 @@ html, body {
     min-height: 260px;
     padding: 0.75rem;
   }
+  /* El stepper medía 431px en un card de ~310px y se recortaba 20px por lado */
+  .outer-container.auto-stepper,
+  .auto-stepper .step-circle-container,
+  .auto-stepper .step-content,
+  .auto-stepper .step-content-default,
+  .auto-stepper .step-indicator-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .auto-stepper .step-item {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 /* Ensure card styling is applied when auto-stepper has card class */

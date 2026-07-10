@@ -65,7 +65,7 @@ export default function Home() {
               fontSize: titleSize
             }}
           >
-            <span className="md:text-[1.2em] lg:text-[1.28em] text-[1.5em] whitespace-nowrap">
+            <span className="text-[1.05em] sm:text-[1.3em] md:text-[1.2em] lg:text-[1.28em] whitespace-nowrap">
               EL CONTAINER
             </span>
             <span
@@ -105,7 +105,7 @@ export default function Home() {
               </ScrollButton>
             </div>
             {/* Línea divisoria solo en móvil, más abajo del botón */}
-            <div className="sm:hidden w-full mt-40 mb-0">
+            <div className="sm:hidden w-full mt-16 mb-0">
               <hr className="border-t border-white/15 w-full" />
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function Home() {
           {/* Eliminado botón duplicado en móvil dentro de LazySection */}
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
             <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-24 sm:mt-14">
-              <div className="relative w-full max-w-[340px] ml-20 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
+              <div className="relative w-full max-w-[340px] mx-auto sm:mx-0 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/0 to-black/30" />
                 <div className="overflow-visible">
                   <JeepShowcase variant="clean" />
