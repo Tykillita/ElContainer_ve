@@ -22,6 +22,7 @@ type UserRole = 'admin' | 'it' | 'cliente';
 
 const sidebarItems: Array<{ label: string; icon: React.ReactNode; path: string; roles: UserRole[] }> = [
   { label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard', roles: ['admin', 'it'] },
+  { label: 'Reservas', icon: <ClipboardList className="w-5 h-5" />, path: '/reservas-admin', roles: ['admin', 'it'] },
   { label: 'Lavados', icon: <Sparkles className="w-5 h-5" />, path: '/lavados', roles: ['admin', 'it'] },
   { label: 'Progreso', icon: <TrendingUp className="w-5 h-5" />, path: '/progreso', roles: ['admin', 'it'] },
   { label: 'Planes', icon: <ReceiptText className="w-5 h-5" />, path: '/planes', roles: ['admin', 'it'] },

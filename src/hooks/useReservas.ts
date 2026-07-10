@@ -12,6 +12,7 @@ export type Reserva = {
   hora_inicio: string;
   servicio: string;
   estado_reserva: string;
+  estado_lavado?: string;
   estado_pago: string;
   metodo_pago?: string;
   monto_pago?: number;
@@ -27,6 +28,30 @@ export type Reserva = {
   creado_en?: string;
   actualizado_en?: string;
 };
+
+type ReservasAdminFilters = {
+  estadoReserva?: string;
+  estadoLavado?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
+};
+
+const INACTIVE_RESERVA_STATES = '(cancelada,desaprobada,cancelado,completado)';
+
+export function canClienteCancelarReserva(fecha: string, timeZone = 'America/Caracas') {
+  const now = new Date();
+  const todayStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+  const todayMs = Date.parse(`${todayStr}T00:00:00Z`);
+  const reservaMs = Date.parse(`${fecha}T00:00:00Z`);
+  if (!Number.isFinite(todayMs) || !Number.isFinite(reservaMs)) return false;
+  const diffDays = Math.floor((reservaMs - todayMs) / (1000 * 60 * 60 * 24));
+  return diffDays >= 3;
+}
 
 export function useReservas() {
   const { user } = useAuth();
@@ -44,7 +69,10 @@ export function useReservas() {
       }
       const { data, error } = await query.order('hora_inicio', { ascending: true });
       setLoading(false);
-      if (error) setError(error.message);
+      if (error) {
+        setError(error.message);
+        throw new Error(error.message);
+      }
       return (data || []) as Reserva[];
     },
     [user]
@@ -61,8 +89,115 @@ export function useReservas() {
       .order('fecha', { ascending: false })
       .order('hora_inicio', { ascending: true });
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
     return (data || []) as Reserva[];
+  }, []);
+
+  const getReservasAdmin = useCallback(async (filters?: ReservasAdminFilters) => {
+    setLoading(true);
+    setError(null);
+    let query = supabase.from('reservas').select('*');
+    if (filters?.estadoReserva && filters.estadoReserva !== 'todos') {
+      query = query.eq('estado_reserva', filters.estadoReserva);
+    }
+    if (filters?.estadoLavado && filters.estadoLavado !== 'todos') {
+      query = query.eq('estado_lavado', filters.estadoLavado);
+    }
+    if (filters?.fechaDesde) {
+      query = query.gte('fecha', filters.fechaDesde);
+    }
+    if (filters?.fechaHasta) {
+      query = query.lte('fecha', filters.fechaHasta);
+    }
+    const { data, error } = await query
+      .order('fecha', { ascending: true })
+      .order('hora_inicio', { ascending: true });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
+    return (data || []) as Reserva[];
+  }, []);
+
+  const getReservasOperativas = useCallback(async (fechaDesde: string, fechaHasta: string) => {
+    setLoading(true);
+    setError(null);
+    const { data, error } = await supabase
+      .from('reservas')
+      .select('*')
+      .eq('estado_reserva', 'aprobada')
+      .gte('fecha', fechaDesde)
+      .lte('fecha', fechaHasta)
+      .order('fecha', { ascending: true })
+      .order('hora_inicio', { ascending: true });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
+    return (data || []) as Reserva[];
+  }, []);
+
+  // KPIs para dashboard (periodo [start, end]
+  const getDashboardKPIs = useCallback(async (start: string, end: string) => {
+    const from = start;
+    const to = end;
+    // Lavados realizados (aprobada + no_iniciado?) Use completado
+    const { count: lavados, error: lavError } = await supabase
+      .from('reservas')
+      .select('id', { count: 'exact', head: true })
+      .gte('fecha', from)
+      .lte('fecha', to)
+      .eq('estado_reserva', 'aprobada')
+      .eq('estado_lavado', 'completado');
+    // Reservas activas
+    const { count: reservasActivas, error: raError } = await supabase
+      .from('reservas')
+      .select('id', { count: 'exact', head: true })
+      .gte('fecha', from)
+      .lte('fecha', to)
+      .not('estado_reserva', 'in', ['cancelada', 'completado']);
+    // Ingresos
+    const { data: reservasPagadas } = await supabase
+      .from('reservas')
+      .select('monto_pago')
+      .gte('fecha', from)
+      .lte('fecha', to)
+      .eq('estado_pago', 'pagado');
+    const ingresos = (reservasPagadas || []).reduce((sum, r: any) => sum + (r.monto_pago ?? 0), 0);
+    // Clientes registrados
+    const { count: clientes } = await supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', from)
+      .lte('created_at', to);
+    return {
+      lavados: typeof lavados === 'number' ? lavados : 0,
+      reservasActivas: typeof reservasActivas === 'number' ? reservasActivas : 0,
+      ingresos: ingresos || 0,
+      clientes: clientes || 0,
+    } as { lavados: number; reservasActivas: number; ingresos: number; clientes: number };
+  }, []);
+
+  // Distribución por servicio (cuenta por servicio en rango)
+  const getDashboardServiceCounts = useCallback(async (start: string, end: string) => {
+    const { data } = await supabase
+      .from('reservas')
+      .select('servicio')
+      .gte('fecha', start)
+      .lte('fecha', end)
+      .eq('estado_reserva', 'aprobada');
+    const map = new Map<string, number>();
+    (data || []).forEach((r: any) => {
+      const s = r.servicio || 'Otros';
+      map.set(s, (map.get(s) || 0) + 1);
+    });
+    const res = Array.from(map.entries()).map(([service, count]) => ({ service, count }));
+    return res;
   }, []);
 
   // Crear reserva
@@ -71,7 +206,10 @@ export function useReservas() {
     setError(null);
     const { data, error } = await supabase.from('reservas').insert([reserva]).select();
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
     return data && data.length > 0 ? (data[0] as Reserva) : null;
   }, []);
 
@@ -81,13 +219,23 @@ export function useReservas() {
     setError(null);
     const { data, error } = await supabase.from('reservas').update(updates).eq('id', id).select();
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
     return data && data.length > 0 ? (data[0] as Reserva) : null;
   }, []);
 
   // Cancelar reserva (cambia estado_reserva)
   const cancelarReserva = useCallback(async (id: string) => {
-    return editarReserva(id, { estado_reserva: 'cancelado' });
+    return editarReserva(id, { estado_reserva: 'cancelada' });
+  }, [editarReserva]);
+
+  const cancelarReservaCliente = useCallback(async (reserva: Reserva) => {
+    if (!canClienteCancelarReserva(reserva.fecha)) {
+      throw new Error('Solo puedes cancelar con minimo 3 dias de anticipacion.');
+    }
+    return editarReserva(reserva.id, { estado_reserva: 'cancelada' });
   }, [editarReserva]);
 
   // Validar disponibilidad (devuelve true si el horario está libre)
@@ -100,9 +248,12 @@ export function useReservas() {
       .select('id')
       .eq('fecha', fecha)
       .eq('hora_inicio', hora_inicio)
-      .not('estado_reserva', 'in', ['cancelado', 'completado']);
+      .not('estado_reserva', 'in', INACTIVE_RESERVA_STATES);
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
     return !data || data.length === 0;
   }, []);
 
@@ -113,7 +264,10 @@ export function useReservas() {
     const reservas = fechas.map(f => ({ ...reserva, fecha: f }));
     const { data, error } = await supabase.from('reservas').insert(reservas).select();
     setLoading(false);
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+      throw new Error(error.message);
+    }
     return (data || []) as Reserva[];
   }, []);
 
@@ -122,9 +276,15 @@ export function useReservas() {
     error,
     getReservasByFecha,
     getReservasByCliente,
+    getReservasAdmin,
+    getReservasOperativas,
+    getDashboardKPIs,
+    getDashboardServiceCounts,
     crearReserva,
     editarReserva,
     cancelarReserva,
+    cancelarReservaCliente,
+    canClienteCancelarReserva,
     validarDisponibilidad,
     repetirReserva,
   };

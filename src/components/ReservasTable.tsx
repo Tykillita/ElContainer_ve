@@ -8,18 +8,41 @@ interface ReservasTableProps {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   onSortChange?: (col: string) => void;
+  renderActions?: (reserva: Reserva) => React.ReactNode;
+  onRowClick?: (reserva: Reserva) => void;
+  statusField?: 'estado_reserva' | 'estado_lavado';
+  statusHeader?: string;
 }
 
 const statusColors: Record<string, string> = {
+  por_aprobar: 'text-yellow-300',
+  aprobada: 'text-green-400',
+  desaprobada: 'text-rose-300',
+  cancelada: 'text-red-400',
+  no_iniciado: 'text-white/80',
+  en_proceso: 'text-blue-400',
+  carro_listo: 'text-emerald-300',
   completado: 'text-green-400',
+  pendiente: 'text-yellow-300',
   cancelado: 'text-red-400',
-  pendiente: 'text-yellow-400',
   'en proceso': 'text-blue-400',
-  'carro listo': 'text-green-300',
-  'en espera': 'text-orange-400',
+  'carro listo': 'text-emerald-300',
+  'en espera': 'text-yellow-300',
 };
 
-export const ReservasTable: React.FC<ReservasTableProps> = ({ reservas, loading, error, sortBy, sortOrder, onSortChange }) => {
+export const ReservasTable: React.FC<ReservasTableProps> = ({
+  reservas,
+  loading,
+  error,
+  sortBy,
+  sortOrder,
+  onSortChange,
+  renderActions,
+  onRowClick,
+  statusField = 'estado_reserva',
+  statusHeader = 'Estado',
+}) => {
+  const colSpan = renderActions ? 7 : 6;
   // Responsive: la tabla se muestra igual en desktop y móvil, el contenedor externo controla el diseño de tarjeta
   return (
     <div className="w-full overflow-x-auto">
@@ -41,32 +64,42 @@ export const ReservasTable: React.FC<ReservasTableProps> = ({ reservas, loading,
             <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => onSortChange && onSortChange('monto_pago')}>
               Monto {sortBy === 'monto_pago' && (sortOrder === 'asc' ? '▲' : '▼')}
             </th>
-            <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => onSortChange && onSortChange('estado_reserva')}>
-              Estado {sortBy === 'estado_reserva' && (sortOrder === 'asc' ? '▲' : '▼')}
+            <th className="px-6 py-4 font-medium cursor-pointer hover:text-orange-400 transition" onClick={() => onSortChange && onSortChange(statusField)}>
+              {statusHeader} {sortBy === statusField && (sortOrder === 'asc' ? '▲' : '▼')}
             </th>
+            {renderActions && <th className="px-6 py-4 font-medium">Acciones</th>}
           </tr>
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={6} className="px-6 py-6 text-center text-white/70">Cargando...</td></tr>
+            <tr><td colSpan={colSpan} className="px-6 py-6 text-center text-white/70">Cargando...</td></tr>
           ) : error ? (
-            <tr><td colSpan={6} className="px-6 py-6 text-center text-red-400">{error}</td></tr>
+            <tr><td colSpan={colSpan} className="px-6 py-6 text-center text-red-400">{error}</td></tr>
           ) : reservas.length === 0 ? (
-            <tr><td colSpan={6} className="px-6 py-6 text-center text-white/80">No hay reservas.</td></tr>
+            <tr><td colSpan={colSpan} className="px-6 py-6 text-center text-white/80">No hay reservas.</td></tr>
           ) : (
             reservas.map(reserva => (
-              <tr key={reserva.id} className="border-t border-white/10 hover:bg-white/5 transition">
+              <tr
+                key={reserva.id}
+                className={`border-t border-white/10 transition ${onRowClick ? 'hover:bg-white/5 cursor-pointer' : 'hover:bg-white/5'}`}
+                onClick={onRowClick ? () => onRowClick(reserva) : undefined}
+              >
                 <td className="px-6 py-4 font-semibold">{reserva.servicio}</td>
                 <td className="px-6 py-4">{reserva.nombre_cliente}</td>
                 <td className="px-6 py-4">{reserva.fecha}</td>
                 <td className="px-6 py-4">{reserva.hora_inicio}</td>
                 <td className="px-6 py-4">{reserva.monto_pago ? `$${reserva.monto_pago.toFixed(2)}` : '-'}</td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center gap-2 font-medium ${statusColors[reserva.estado_reserva] || 'text-white/80'}`}>
-                    <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: getStatusDotColor(reserva.estado_reserva)}}></span>
-                    {capitalize(reserva.estado_reserva)}
+                  <span className={`inline-flex items-center gap-2 font-medium ${statusColors[(reserva[statusField] || '') as string] || 'text-white/80'}`}>
+                    <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: getStatusDotColor((reserva[statusField] || '') as string)}}></span>
+                    {capitalize(String(reserva[statusField] || '-'))}
                   </span>
                 </td>
+                {renderActions && (
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    {renderActions(reserva)}
+                  </td>
+                )}
               </tr>
             ))
           )}
@@ -77,11 +110,18 @@ export const ReservasTable: React.FC<ReservasTableProps> = ({ reservas, loading,
 };
 
 function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.replace(/_/g, ' ').replace(/^./, (s) => s.toUpperCase());
 }
 
 function getStatusDotColor(status: string) {
   switch (status) {
+    case 'por_aprobar': return '#facc15';
+    case 'aprobada': return '#4ade80';
+    case 'desaprobada': return '#fb7185';
+    case 'cancelada': return '#ef4444';
+    case 'no_iniciado': return '#a3a3a3';
+    case 'en_proceso': return '#3b82f6';
+    case 'carro_listo': return '#6ee7b7';
     case 'completado': return '#22c55e';
     case 'cancelado': return '#ef4444';
     case 'pendiente': return '#facc15';

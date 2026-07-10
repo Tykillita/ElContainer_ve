@@ -9,6 +9,13 @@ interface ReservasFilterProps {
 
 const statusColors: Record<string, string> = {
   todos: 'bg-orange-400',
+  por_aprobar: 'bg-yellow-300',
+  aprobada: 'bg-green-400',
+  desaprobada: 'bg-rose-300',
+  cancelada: 'bg-red-400',
+  no_iniciado: 'bg-zinc-400',
+  en_proceso: 'bg-blue-400',
+  carro_listo: 'bg-emerald-300',
   completado: 'bg-green-400',
   cancelado: 'bg-red-400',
   pendiente: 'bg-yellow-400',
@@ -78,7 +85,7 @@ export const ReservasFilter: React.FC<ReservasFilterProps> = ({ value, options, 
 };
 
 function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.replace(/_/g, ' ').replace(/^./, (s) => s.toUpperCase());
 }
 
 export default ReservasFilter;
