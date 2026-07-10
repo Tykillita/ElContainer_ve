@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { collection, deleteDoc, doc, getDocs, orderBy, query, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../lib/firebaseClient';
 
 export type Plan = {
   id: string;
@@ -115,29 +116,21 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      const { data, error: err } = await supabase
-        .from('plans')
-        .select('id,name,description,monthly_price,quarterly_price,highlight,features,unavailable')
-        .order('monthly_price', { ascending: true });
+      const snap = await getDocs(query(collection(db, 'plans'), orderBy('monthly_price', 'asc')));
+      const data = snap.docs.map((d) => ({ ...(d.data() as Omit<DbPlanRow, 'id'>), id: d.id }));
 
-      if (err) throw err;
-
-      if (Array.isArray(data)) {
-        const mapped = (data as DbPlanRow[]).map(toUiPlan);
-        if (mapped.length > 0) {
-          setPlans(mapped);
-        } else {
-          // Tabla vacía (o RLS devolviendo 0 filas sin error): usamos defaults para que Home no quede sin planes.
-          console.info('[PlanContext] No plans rows found in Supabase; using default plans.');
-          setPlans(defaultPlans);
-        }
+      const mapped = (data as DbPlanRow[]).map(toUiPlan);
+      if (mapped.length > 0) {
+        setPlans(mapped);
       } else {
+        // Colección vacía: usamos defaults para que Home no quede sin planes.
+        console.info('[PlanContext] No plans docs found in Firestore; using default plans.');
         setPlans(defaultPlans);
       }
     } catch (e: unknown) {
-      // Fallback a defaults si no existe tabla o RLS bloquea
-      const msg = e instanceof Error ? e.message : 'No se pudieron cargar planes desde Supabase.';
-      console.warn('[PlanContext] Supabase fetch failed, using default plans:', msg);
+      // Fallback a defaults si no existe la colección o rules bloquean
+      const msg = e instanceof Error ? e.message : 'No se pudieron cargar planes desde Firestore.';
+      console.warn('[PlanContext] Firestore fetch failed, using default plans:', msg);
       setError(msg);
       setPlans(defaultPlans);
     } finally {
@@ -165,22 +158,19 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     const optimistic: Plan = toUiPlan(payload);
     setPlans((prev) => [optimistic, ...prev]);
 
-    const { data: inserted, error: err } = await supabase
-      .from('plans')
-      .insert(payload)
-      .select('id,name,description,monthly_price,quarterly_price,highlight,features,unavailable')
-      .single();
-
-    if (err) {
+    try {
+      const docData: Partial<DbPlanRow> = { ...payload };
+      delete docData.id;
+      await setDoc(doc(db, 'plans', id), docData);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al crear plan';
       setPlans((prev) => prev.filter((p) => p.id !== id));
-      setError(err.message);
-      console.error('[PlanContext] addPlan failed:', err.message);
+      setError(msg);
+      console.error('[PlanContext] addPlan failed:', msg);
       return null;
     }
 
-    const created = toUiPlan(inserted as DbPlanRow);
-    setPlans((prev) => prev.map((p) => (p.id === id ? created : p)));
-    return created;
+    return optimistic;
   }, []);
 
   const deletePlan = useCallback(async (id: string) => {
@@ -190,11 +180,13 @@ export function PlanProvider({ children }: { children: ReactNode }) {
       return prev.filter((p) => p.id !== id);
     });
 
-    const { error: err } = await supabase.from('plans').delete().eq('id', id);
-    if (err) {
+    try {
+      await deleteDoc(doc(db, 'plans', id));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al eliminar plan';
       setPlans(snapshot);
-      setError(err.message);
-      console.error('[PlanContext] deletePlan failed:', err.message);
+      setError(msg);
+      console.error('[PlanContext] deletePlan failed:', msg);
       return false;
     }
     return true;
@@ -205,11 +197,13 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     setPlans((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)));
 
     (async () => {
-      const patch = toDbPatch(data);
-      const { error: err } = await supabase.from('plans').update(patch).eq('id', id);
-      if (err) {
-        setError(err.message);
-        console.error('[PlanContext] updatePlan failed:', err.message);
+      try {
+        const patch = toDbPatch(data);
+        await updateDoc(doc(db, 'plans', id), patch as Record<string, any>);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Error al actualizar plan';
+        setError(msg);
+        console.error('[PlanContext] updatePlan failed:', msg);
         // Mejor esfuerzo: recargar desde BD
         await refreshPlans();
       }

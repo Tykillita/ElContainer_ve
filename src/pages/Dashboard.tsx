@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { ShowerHead, Users, Banknote, CalendarClock, Sparkles, ShieldCheck } from 'lucide-react';
 import { UserRound } from 'lucide-react';
 
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { collection, getCountFromServer, getDocs, query, where } from 'firebase/firestore';
 
 import DashboardTimeFilter from '../components/DashboardTimeFilter';
 
@@ -119,51 +120,45 @@ export default function Dashboard() {
       setMetricsData(prev => ({ ...prev, loading: true, error: null }));
       try {
         const { start, end } = getTimeRange(timeFilter);
-        // Lavados realizados (reservas completadas)
-        const { count: lavados } = await supabase
-          .from('reservas')
-          .select('id', { count: 'exact', head: true })
-          .gte('fecha', start.toISOString().slice(0, 10))
-          .lt('fecha', end.toISOString().slice(0, 10))
-          .eq('estado_reserva', 'completado');
+        const startStr = start.toISOString().slice(0, 10);
+        const endStr = end.toISOString().slice(0, 10);
+        const inactivos = ['cancelada', 'desaprobada', 'cancelado', 'completado'];
+
+        // Reservas del rango una sola vez; métricas se computan en memoria
+        // ponytail: volumen pequeño (negocio local); si crece, mover a agregaciones por métrica
+        const snap = await getDocs(query(
+          collection(db, 'reservas'),
+          where('fecha', '>=', startStr),
+          where('fecha', '<', endStr)
+        ));
+        const enRango = snap.docs.map((d) => d.data() as { estado_reserva?: string; estado_pago?: string; monto_pago?: number; fecha?: string; hora_inicio?: string });
+
+        const lavados = enRango.filter((r) => r.estado_reserva === 'completado').length;
+        const ingresos = enRango.filter((r) => r.estado_pago === 'pagado').reduce((sum, r) => sum + (r.monto_pago || 0), 0);
 
         // Clientes registrados
-        const { count: clientes } = await supabase
-          .from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .gte('created_at', start.toISOString())
-          .lt('created_at', end.toISOString());
+        const clientesSnap = await getCountFromServer(query(
+          collection(db, 'profiles'),
+          where('created_at', '>=', start.toISOString()),
+          where('created_at', '<', end.toISOString())
+        ));
+        const clientes = clientesSnap.data().count;
 
-        // Ingresos (sumar monto_pago de reservas pagadas)
-        const { data: reservasPagadas } = await supabase
-          .from('reservas')
-          .select('monto_pago, fecha')
-          .gte('fecha', start.toISOString().slice(0, 10))
-          .lt('fecha', end.toISOString().slice(0, 10))
-          .eq('estado_pago', 'pagado');
-        const ingresos = (reservasPagadas || []).reduce((sum, r) => sum + (r.monto_pago || 0), 0);
-
-        // Reservas activas para la hora actual (solo para filtro 'hour', si no, mostrar todas activas en rango)
+        // Reservas activas para la hora actual (solo para filtro 'hour', si no, todas activas en rango)
         let reservasActivas = 0;
         if (timeFilter === 'hour') {
           const now = new Date();
           const hourStr = now.toTimeString().slice(0, 2); // 'HH'
-          const { data: activas } = await supabase
-            .from('reservas')
-            .select('id, hora_inicio')
-            .eq('fecha', now.toISOString().slice(0, 10))
-            .gte('hora_inicio', `${hourStr}:00`)
-            .lt('hora_inicio', `${('0' + (parseInt(hourStr) + 1)).slice(-2)}:00`)
-            .not('estado_reserva', 'in', '(cancelada,desaprobada,cancelado,completado)');
-          reservasActivas = (activas || []).length;
+          const nextHour = `${('0' + (parseInt(hourStr) + 1)).slice(-2)}:00`;
+          const hoy = now.toISOString().slice(0, 10);
+          reservasActivas = enRango.filter((r) =>
+            r.fecha === hoy &&
+            (r.hora_inicio || '') >= `${hourStr}:00` &&
+            (r.hora_inicio || '') < nextHour &&
+            !inactivos.includes(r.estado_reserva || '')
+          ).length;
         } else {
-          const { count: activasCount } = await supabase
-            .from('reservas')
-            .select('id', { count: 'exact', head: true })
-            .gte('fecha', start.toISOString().slice(0, 10))
-            .lt('fecha', end.toISOString().slice(0, 10))
-            .not('estado_reserva', 'in', '(cancelada,desaprobada,cancelado,completado)');
-          reservasActivas = activasCount || 0;
+          reservasActivas = enRango.filter((r) => !inactivos.includes(r.estado_reserva || '')).length;
         }
 
         setMetricsData({

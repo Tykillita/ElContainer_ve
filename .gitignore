@@ -161,3 +161,4 @@ pnpm-lock.yaml
 # Sentry
 .sentryclirc
 tsconfig.app.tsbuildinfo
+.firebase/

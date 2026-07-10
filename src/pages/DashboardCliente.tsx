@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { useAuth } from '../context/useAuth';
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { doc, getDoc } from 'firebase/firestore';
 import { TrendingUp, Tag, Gift } from 'lucide-react';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 
@@ -14,12 +15,12 @@ const DashboardCliente: React.FC = () => {
     async function fetchStamps() {
       if (!user?.id) return;
       setLoadingStamps(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('stamps')
-        .eq('id', user.id)
-        .maybeSingle();
-      setStamps(data?.stamps ?? 0);
+      try {
+        const snap = await getDoc(doc(db, 'profiles', user.id));
+        setStamps(snap.exists() ? (snap.data().stamps ?? 0) : 0);
+      } catch {
+        setStamps(0);
+      }
       setLoadingStamps(false);
     }
     fetchStamps();

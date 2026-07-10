@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { collection, doc, getDoc, getDocs, limit, query, updateDoc, where } from 'firebase/firestore';
+
+async function updateProfileByEmail(email: string, patch: Record<string, any>) {
+  const snap = await getDocs(query(collection(db, 'profiles'), where('email', '==', email), limit(1)));
+  if (!snap.empty) await updateDoc(snap.docs[0].ref, patch);
+}
 import { useAuth } from '../context/useAuth';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 import { CalendarDays, Users } from 'lucide-react';
@@ -96,13 +102,8 @@ const Progreso: React.FC = () => {
       setLoadingClientes(true);
       setErrorClientes(null);
       try {
-        console.log('[Progreso] Consultando supabase...');
-        const query = 'full_name, email, stamps, role';
-        console.log('[Progreso] Ejecutando consulta:', query);
-        const { data: profiles, error: errorProfiles } = await supabase
-          .from('profiles')
-          .select(query);
-        if (errorProfiles) throw errorProfiles;
+        const snap = await getDocs(collection(db, 'profiles'));
+        const profiles = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as DbUserRow & { id: string });
         console.log('[Progreso] Resultado crudo:', profiles);
         if (!profiles || profiles.length === 0) {
           console.warn('[Progreso] La consulta no devolvió ningún registro.');
@@ -145,14 +146,14 @@ const Progreso: React.FC = () => {
     const cliente = clientes.find((c: AdminUser) => c.email === email);
     if (!cliente) return;
     const nuevo = Math.min((stampsByClient[email] || 0) + 1, 6);
-    await supabase.from('profiles').update({ stamps: nuevo }).eq('email', email);
+    await updateProfileByEmail(email, { stamps: nuevo });
     setStampsByClient((prev) => ({ ...prev, [email]: nuevo }));
   };
   const quitarSello = async (email: string) => {
     const cliente = clientes.find((c: AdminUser) => c.email === email);
     if (!cliente) return;
     const nuevo = Math.max((stampsByClient[email] || 0) - 1, 0);
-    await supabase.from('profiles').update({ stamps: nuevo }).eq('email', email);
+    await updateProfileByEmail(email, { stamps: nuevo });
     setStampsByClient((prev) => ({ ...prev, [email]: nuevo }));
   };
 
@@ -164,14 +165,15 @@ const Progreso: React.FC = () => {
     async function fetchStamps() {
       const userId = user?.id;
       if (!userId) return;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('stamps')
-        .eq('id', userId)
-        .single();
-      if (!error && data && typeof data.stamps === 'number') {
-        setRevealed(Array.from({ length: data.stamps }, (_, i) => i));
-      } else {
+      try {
+        const snap = await getDoc(doc(db, 'profiles', userId));
+        const stamps = snap.exists() ? snap.data().stamps : undefined;
+        if (typeof stamps === 'number') {
+          setRevealed(Array.from({ length: stamps }, (_, i) => i));
+        } else {
+          setRevealed([]);
+        }
+      } catch {
         setRevealed([]);
       }
     }

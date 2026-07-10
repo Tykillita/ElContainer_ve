@@ -7,4 +7,6 @@
 - `src/context/` estado global con React Context y hooks.
 - `src/lib/` servicios/abstracciones para datos y utilidades.
 - `src/styles/` tema, tokens y CSS extra a Tailwind.
-- `supabase/` configura base de datos, seeds y notas de migraciones.
+- `firestore.rules`, `storage.rules`, `firebase.json` configuran Firebase (Firestore, Storage, Hosting).
+- `scripts/` script de migración de datos Supabase -> Firebase.
+- `supabase/` legado: esquema previo en Postgres (referencia histórica).

@@ -1,0 +1,59 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "fecha", "order": "ASCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "usuario_id", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "usuario_id", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado_reserva", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado_lavado", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reservas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado_reserva", "order": "ASCENDING" },
+        { "fieldPath": "estado_lavado", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "ASCENDING" },
+        { "fieldPath": "hora_inicio", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

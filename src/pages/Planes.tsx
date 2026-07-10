@@ -5,7 +5,8 @@ import PricingPlans from '../components/PricingPlans';
 import { useAuth } from '../context/useAuth';
 import { usePlans, Plan } from '../context/PlanContext';
 import { Pencil, Filter, Users, Wallet, Trash2, X } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 type UserRole = 'admin' | 'it' | 'cliente';
 type CreateItemType = 'benefit' | 'contra';
@@ -147,7 +148,7 @@ export default function Planes() {
     });
 
     if (!created) {
-      setCreateError('No se pudo crear el plan. Revisa tu conexión y políticas (RLS) de Supabase.');
+      setCreateError('No se pudo crear el plan. Revisa tu conexión y las reglas de Firestore.');
       return;
     }
 
@@ -164,13 +165,9 @@ export default function Planes() {
       setSubscribersLoading(true);
       setSubscribersError(null);
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, full_name, plan, joined_at, created_at, role')
-          .eq('role', 'cliente')
-          .not('plan', 'is', null);
-
-        if (error) throw error;
+        const snap = await getDocs(query(collection(db, 'profiles'), where('role', '==', 'cliente')));
+        // Filtro de plan en memoria (evita índice extra por != null)
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r: any) => r.plan);
 
         const grouped: Record<string, { id: string; name: string; since: string }[]> = {};
         (data ?? []).forEach((row: any) => {
