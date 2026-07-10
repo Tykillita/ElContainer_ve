@@ -1,4 +1,4 @@
-import jeepImage from '../resources/img/jeep_gladiador.png'
+import jeepImage from '../resources/img/jeep_gladiador.webp'
 import OptimizedImage from './OptimizedImage'
 import { useMobileOptimization } from '../hooks/useMobileOptimization'
 

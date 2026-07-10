@@ -15,16 +15,22 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
-                manualChunks: {
-                    // Split vendor dependencies into separate chunks
-                    'react-vendor': ['react', 'react-dom'],
-                    'router-vendor': ['react-router-dom'],
-                    'three-vendor': ['three'],
-                    'r3f-vendor': ['@react-three/fiber', '@react-three/drei', '@react-three/rapier'],
-                    'ui-vendor': ['lucide-react', 'clsx', 'class-variance-authority', 'tailwind-merge'],
-                    'md-vendor': ['remark-parse', 'remark-gfm', 'remark-rehype', 'rehype-stringify', 'unified'],
-                    'color-vendor': ['color-thief-react'],
-                    'motion-vendor': ['motion', 'styled-components']
+                // Funcion (no objeto): la forma objeto mete los chunks en el grafo inicial
+                // y precargaba three/r3f (~1MB) en todas las paginas aunque solo Beams los usa.
+                manualChunks: function (id) {
+                    // Modulos virtuales de vite (p.ej. \0vite/preload-helper) al vendor comun;
+                    // sueltos, rollup los colocaba dentro de three-vendor y el entry lo precargaba
+                    if (!id.includes('node_modules')) {
+                        return id.startsWith('\0') || id.includes('vite/') ? 'vendor' : undefined;
+                    }
+                    // three aislado para que solo cargue con Beams; firebase separado para cache.
+                    // Resto en un solo vendor: si se deja a rollup, colocaba helpers compartidos
+                    // (react, use-sync-external-store) dentro de three-vendor y el entry lo precargaba.
+                    if (/node_modules[\\/](three|@react-three)[\\/]/.test(id))
+                        return 'three-vendor';
+                    if (/node_modules[\\/](@firebase|firebase)[\\/]/.test(id))
+                        return 'firebase-vendor';
+                    return 'vendor';
                 }
             }
         },

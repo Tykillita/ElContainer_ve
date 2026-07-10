@@ -5,8 +5,7 @@ import JeepShowcase from '../components/JeepShowcase'
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
 import ScrollButton from '../components/ScrollButton'
-import logo from '../resources/img/elcontainer_logo.png'
-import { useState, useEffect } from 'react';
+import logo from '../resources/img/elcontainer_logo.webp'
 import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
 import '../styles/MarqueeBenefitsMobile.css';
 import FloatingElement from '../components/FloatingElement';
@@ -34,26 +33,8 @@ export default function Home() {
 
   const infoRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDivElement>(null)
-  // Tamaño dinámico del título según ancho de pantalla
-  const [titleSize, setTitleSize] = useState('clamp(2.2rem,8vw,3.2rem)');
-
-  useEffect(() => {
-    function handleResize() {
-      const width = window.innerWidth;
-      if (width <= 370) {
-        setTitleSize('clamp(1.7rem,7vw,2.2rem)');
-      } else if (width <= 400) {
-        setTitleSize('clamp(2.0rem,8vw,2.7rem)');
-      } else if (width <= 430) {
-        setTitleSize('clamp(2.2rem,8vw,3.2rem)');
-      } else {
-        setTitleSize('clamp(2.5rem,9vw,3.5rem)');
-      }
-    }
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // clamp() ya escala con el viewport; sin listener de resize
+  const titleSize = 'clamp(1.7rem,8vw,3.5rem)';
 
   return (
     <>
