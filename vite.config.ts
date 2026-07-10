@@ -28,7 +28,7 @@ export default defineConfig({
           // three aislado para que solo cargue con Beams; firebase separado para cache.
           // Resto en un solo vendor: si se deja a rollup, colocaba helpers compartidos
           // (react, use-sync-external-store) dentro de three-vendor y el entry lo precargaba.
-          if (/node_modules[\\/](three|@react-three)[\\/]/.test(id)) return 'three-vendor';
+          if (/node_modules[\\/](three|three-stdlib|@react-three|maath|camera-controls|detect-gpu|@use-gesture|suspend-react|its-fine|troika-three-text|@monogrid|meshline)[\\/]/.test(id)) return 'three-vendor';
           if (/node_modules[\\/](@firebase|firebase)[\\/]/.test(id)) return 'firebase-vendor';
           return 'vendor';
         }

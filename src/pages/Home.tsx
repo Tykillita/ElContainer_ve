@@ -1,7 +1,8 @@
-import { useRef } from 'react'
+import { useRef, lazy, Suspense } from 'react'
 import PricingPlans from '../components/PricingPlans'
 import AutoStepper from '../components/AutoStepper'
 import JeepShowcase from '../components/JeepShowcase'
+const JeepShowcase3D = lazy(() => import('../components/JeepShowcase3D'))
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
 import ScrollButton from '../components/ScrollButton'
@@ -133,7 +134,15 @@ export default function Home() {
               <div className="relative w-full max-w-[340px] mx-auto sm:mx-0 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/0 to-black/30" />
                 <div className="overflow-visible">
-                  <JeepShowcase variant="clean" />
+                  {/* 3D interactivo en desktop; imagen ligera en móvil */}
+                  <div className="hidden sm:block">
+                    <Suspense fallback={<JeepShowcase variant="clean" />}>
+                      <JeepShowcase3D />
+                    </Suspense>
+                  </div>
+                  <div className="sm:hidden">
+                    <JeepShowcase variant="clean" />
+                  </div>
                 </div>
               </div>
             </div>
