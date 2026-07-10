@@ -267,10 +267,6 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
 
   // Optimize visual effects for performance while maintaining quality
   const optimizedEffects = isMobile || isLowEndDevice;
-  const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // WebGL (three.js ~1MB) solo en desktop con motion habilitado; el resto recibe gradiente CSS
-  const enableWebGL = showBeams && !optimizedEffects && !prefersReducedMotion;
   
   // Adjust effect parameters for mobile optimization
   const animatedBackgroundOpacity = optimizedEffects ? 'opacity-50' : 'opacity-70';
@@ -281,20 +277,12 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
   return (
     <div className={`fixed inset-0 ${className}`}>
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
-      {enableWebGL ? (
+      {showBeams && (
         <div className="fixed inset-0 z-0">
           <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'black' }} />}>
             <Beams />
           </Suspense>
         </div>
-      ) : showBeams && (
-        <div
-          className="fixed inset-0 z-0"
-          style={{
-            background:
-              'radial-gradient(ellipse at 30% 20%, rgba(235,82,40,0.10), transparent 45%), radial-gradient(ellipse at 75% 70%, rgba(255,255,255,0.05), transparent 40%), #000'
-          }}
-        />
       )}
 
       {showAnimatedBackground && (
