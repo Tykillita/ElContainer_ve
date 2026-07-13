@@ -25,7 +25,7 @@ const QUICK_COLORS: Array<{ name: string; hex: string }> = [
 
 export default function ReservasCliente() {
   const { user } = useAuth();
-  const { getReservasByCliente, crearReserva, validarDisponibilidad, loading, error } = useReservas();
+  const { getReservasByCliente, crearReserva, validarDisponibilidad, cancelarReservaCliente, canClienteCancelarReserva, loading, error } = useReservas();
 
   const [reservas, setReservas] = useState<Reserva[]>([]);
   const [estado, setEstado] = useState<string>('todos');
@@ -40,8 +40,12 @@ export default function ReservasCliente() {
 
   const fetchReservas = async () => {
     if (!user?.id) return;
-    const res = await getReservasByCliente(user.id);
-    setReservas(res);
+    try {
+      const res = await getReservasByCliente(user.id);
+      setReservas(res);
+    } catch {
+      setReservas([]);
+    }
   };
 
   useEffect(() => {
@@ -113,7 +117,8 @@ export default function ReservasCliente() {
       fecha: form.date,
       hora_inicio: form.slot,
       servicio: form.service,
-      estado_reserva: 'pendiente',
+      estado_reserva: 'por_aprobar',
+      estado_lavado: 'no_iniciado',
       estado_pago: 'pendiente',
       notas_cliente: notasParts.length ? notasParts.join('\n') : undefined,
       creado_en: new Date().toISOString(),
@@ -145,7 +150,7 @@ export default function ReservasCliente() {
 
           <ReservasFilter
             value={estado}
-            options={['todos', 'completado', 'pendiente', 'cancelado', 'en proceso', 'carro listo', 'en espera']}
+            options={['todos', 'por_aprobar', 'aprobada', 'desaprobada', 'cancelada']}
             onChange={setEstado}
           />
 
@@ -157,7 +162,31 @@ export default function ReservasCliente() {
               sortBy={sortBy}
               sortOrder={sortOrder}
               onSortChange={onSortChange}
+              renderActions={(reserva) => {
+                const canCancel = canClienteCancelarReserva(reserva.fecha);
+                const isOpenState = ['por_aprobar', 'aprobada'].includes(reserva.estado_reserva);
+                if (!isOpenState) return <span className="text-xs text-white/50">Sin acciones</span>;
+                return (
+                  <button
+                    type="button"
+                    disabled={!canCancel}
+                    onClick={async () => {
+                      try {
+                        await cancelarReservaCliente(reserva);
+                        await fetchReservas();
+                      } catch (err) {
+                        alert(err instanceof Error ? err.message : 'No se pudo cancelar la reserva.');
+                      }
+                    }}
+                    className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-200 disabled:cursor-not-allowed disabled:opacity-40"
+                    title={canCancel ? 'Cancelar reserva' : 'Solo puedes cancelar con minimo 3 dias de anticipacion'}
+                  >
+                    Cancelar
+                  </button>
+                );
+              }}
             />
+            <p className="mt-3 text-xs text-white/60">Las reservas solo se pueden cancelar con minimo 3 dias de anticipacion (America/Caracas).</p>
           </div>
         </div>
 

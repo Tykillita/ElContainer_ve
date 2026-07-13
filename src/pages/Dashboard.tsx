@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { useAuth } from '../context/useAuth';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Tag, Gift, Zap, ShowerHead, Users, Banknote, CalendarClock, Sparkles, ShieldCheck } from 'lucide-react';
-import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
+import { ShowerHead, Users, Banknote, CalendarClock, Sparkles, ShieldCheck } from 'lucide-react';
 import { UserRound } from 'lucide-react';
 
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { collection, getCountFromServer, getDocs, query, where } from 'firebase/firestore';
 
 import DashboardTimeFilter from '../components/DashboardTimeFilter';
 
@@ -26,7 +26,6 @@ export default function Dashboard() {
     'totals',
   ];
   const [timeFilter, setTimeFilter] = useState('hour');
-
   const { user } = useAuth();
 
   // Estado para métricas reales
@@ -35,13 +34,6 @@ export default function Dashboard() {
     clientes: 0,
     ingresos: 0,
     reservasActivas: 0,
-    loading: true,
-    error: null as string | null,
-  });
-
-  // Sellos reales (profiles.stamps)
-  const [stampsState, setStampsState] = useState({
-    stamps: 0,
     loading: true,
     error: null as string | null,
   });
@@ -128,51 +120,45 @@ export default function Dashboard() {
       setMetricsData(prev => ({ ...prev, loading: true, error: null }));
       try {
         const { start, end } = getTimeRange(timeFilter);
-        // Lavados realizados (reservas completadas)
-        const { count: lavados } = await supabase
-          .from('reservas')
-          .select('id', { count: 'exact', head: true })
-          .gte('fecha', start.toISOString().slice(0, 10))
-          .lt('fecha', end.toISOString().slice(0, 10))
-          .eq('estado_reserva', 'completado');
+        const startStr = start.toISOString().slice(0, 10);
+        const endStr = end.toISOString().slice(0, 10);
+        const inactivos = ['cancelada', 'desaprobada', 'cancelado', 'completado'];
+
+        // Reservas del rango una sola vez; métricas se computan en memoria
+        // ponytail: volumen pequeño (negocio local); si crece, mover a agregaciones por métrica
+        const snap = await getDocs(query(
+          collection(db, 'reservas'),
+          where('fecha', '>=', startStr),
+          where('fecha', '<', endStr)
+        ));
+        const enRango = snap.docs.map((d) => d.data() as { estado_reserva?: string; estado_pago?: string; monto_pago?: number; fecha?: string; hora_inicio?: string });
+
+        const lavados = enRango.filter((r) => r.estado_reserva === 'completado').length;
+        const ingresos = enRango.filter((r) => r.estado_pago === 'pagado').reduce((sum, r) => sum + (r.monto_pago || 0), 0);
 
         // Clientes registrados
-        const { count: clientes } = await supabase
-          .from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .gte('created_at', start.toISOString())
-          .lt('created_at', end.toISOString());
+        const clientesSnap = await getCountFromServer(query(
+          collection(db, 'profiles'),
+          where('created_at', '>=', start.toISOString()),
+          where('created_at', '<', end.toISOString())
+        ));
+        const clientes = clientesSnap.data().count;
 
-        // Ingresos (sumar monto_pago de reservas pagadas)
-        const { data: reservasPagadas } = await supabase
-          .from('reservas')
-          .select('monto_pago, fecha')
-          .gte('fecha', start.toISOString().slice(0, 10))
-          .lt('fecha', end.toISOString().slice(0, 10))
-          .eq('estado_pago', 'pagado');
-        const ingresos = (reservasPagadas || []).reduce((sum, r) => sum + (r.monto_pago || 0), 0);
-
-        // Reservas activas para la hora actual (solo para filtro 'hour', si no, mostrar todas activas en rango)
+        // Reservas activas para la hora actual (solo para filtro 'hour', si no, todas activas en rango)
         let reservasActivas = 0;
         if (timeFilter === 'hour') {
           const now = new Date();
           const hourStr = now.toTimeString().slice(0, 2); // 'HH'
-          const { data: activas } = await supabase
-            .from('reservas')
-            .select('id, hora_inicio')
-            .eq('fecha', now.toISOString().slice(0, 10))
-            .gte('hora_inicio', `${hourStr}:00`)
-            .lt('hora_inicio', `${('0' + (parseInt(hourStr) + 1)).slice(-2)}:00`)
-            .not('estado_reserva', 'in', ['cancelado', 'completado']);
-          reservasActivas = (activas || []).length;
+          const nextHour = `${('0' + (parseInt(hourStr) + 1)).slice(-2)}:00`;
+          const hoy = now.toISOString().slice(0, 10);
+          reservasActivas = enRango.filter((r) =>
+            r.fecha === hoy &&
+            (r.hora_inicio || '') >= `${hourStr}:00` &&
+            (r.hora_inicio || '') < nextHour &&
+            !inactivos.includes(r.estado_reserva || '')
+          ).length;
         } else {
-          const { count: activasCount } = await supabase
-            .from('reservas')
-            .select('id', { count: 'exact', head: true })
-            .gte('fecha', start.toISOString().slice(0, 10))
-            .lt('fecha', end.toISOString().slice(0, 10))
-            .not('estado_reserva', 'in', ['cancelado', 'completado']);
-          reservasActivas = activasCount || 0;
+          reservasActivas = enRango.filter((r) => !inactivos.includes(r.estado_reserva || '')).length;
         }
 
         setMetricsData({
@@ -190,53 +176,7 @@ export default function Dashboard() {
     fetchMetrics();
   }, [timeFilter]);
 
-  // Hook para cargar sellos reales del usuario
-  useEffect(() => {
-    let cancelled = false;
-    async function fetchStamps() {
-      if (!user?.id) {
-        setStampsState({ stamps: 0, loading: false, error: null });
-        return;
-      }
-      setStampsState(prev => ({ ...prev, loading: true, error: null }));
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('stamps')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-        const stamps = typeof data?.stamps === 'number' ? data.stamps : 0;
-        if (!cancelled) setStampsState({ stamps, loading: false, error: null });
-      } catch (e) {
-        if (!cancelled) {
-          setStampsState({
-            stamps: 0,
-            loading: false,
-            error: e instanceof Error ? e.message : 'Error al cargar sellos',
-          });
-        }
-      }
-    }
-    fetchStamps();
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id]);
-
-  const userMeta = (user?.user_metadata ?? null) as { nombre?: string; avatar_url?: string; picture?: string; avatar_icon?: string } | null;
-  const nombre = userMeta?.nombre || user?.email || 'Cliente';
-  const memberSince = user?.created_at ? new Date(user.created_at) : null;
-  const avatarUrl = resolveAvatarUrl(userMeta ?? undefined);
-  const isDefaultAvatar = avatarUrl === DEFAULT_AVATAR_URL;
   const role = (user?.user_metadata?.rol as 'admin' | 'it' | 'cliente' | undefined) ?? 'cliente';
-
-  const sellosAcumulados = stampsState.stamps;
-  const sellosParaPremio = 6;
-  const sellosCiclo = sellosAcumulados % sellosParaPremio;
-  const faltanSellos = sellosCiclo === 0 && sellosAcumulados > 0 ? 0 : sellosParaPremio - sellosCiclo;
-  const porcentajeFaltante = Math.round((faltanSellos / sellosParaPremio) * 100);
 
   // Simulación de métricas del autolavado
   const metrics = [
@@ -255,89 +195,6 @@ export default function Dashboard() {
     <MobileScaleWrapper>
       <div className="min-h-screen relative">
         <main className="flex-1 p-5 sm:p-8">
-        <section className="mb-8">
-          <div
-            className="relative overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-r from-[#050505] via-[#0f1115] to-[#1f2430] px-5 py-6 sm:px-8 sm:py-7 text-white shadow-[0_12px_50px_rgba(0,0,0,0.32)]"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.06),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.08),transparent_35%)]" aria-hidden />
-            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              {/* Fecha actual: en móvil va absoluta; en desktop va en flujo normal (para no superponerse con el avatar) */}
-              <span className="sm:hidden absolute top-2 right-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90 shadow-sm whitespace-nowrap z-20">
-                {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </span>
-              <div className="flex flex-col gap-2 max-w-3xl">
-                <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.08em] text-white/90">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1">
-                    <Zap className="h-4 w-4" strokeWidth={2.4} />
-                    Miembro activo
-                  </span>
-                  {memberSince && (
-                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">Miembro desde {memberSince.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}</span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-3 text-2xl sm:text-4xl font-extrabold leading-tight drop-shadow-sm">
-                  <span>¡Hola, {nombre}!</span>
-                  <span className="text-white/90">👋</span>
-                </div>
-                <p className="text-white/90 text-sm sm:text-lg">Gracias por seguir lavando con nosotros. Cada visita suma sellos para tu próximo lavado gratis.</p>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-white/95 font-semibold">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 shadow-sm">
-                    <TrendingUp className="h-4 w-4" strokeWidth={2.4} />
-                    <span>Progreso: {100 - porcentajeFaltante}%</span>
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 shadow-sm">
-                    <Tag className="h-4 w-4" strokeWidth={2.4} />
-                    <span>Sellos acumulados: {stampsState.loading ? '—' : sellosAcumulados}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-2 shadow-sm">
-                    <Gift className="h-4 w-4" strokeWidth={2.4} />
-                    <span>Cada 6 sellos = 1 lavado gratis</span>
-                  </span>
-                </div>
-                <div className="w-full max-w-xl mt-1">
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-white/90 mb-1">
-                    <span>Rumbo al próximo gratis</span>
-                    <span>Faltan {faltanSellos} sello{faltanSellos === 1 ? '' : 's'} ({porcentajeFaltante}%)</span>
-                  </div>
-                  <div className="h-2.5 w-full rounded-full bg-white/20 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-white/90 transition-all duration-500"
-                      style={{ width: `${100 - porcentajeFaltante}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-3 text-right text-sm text-white/90">
-                <span className="hidden sm:inline-flex rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white/90 shadow-sm whitespace-nowrap">
-                  {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'short', day: '2-digit' })}
-                </span>
-                <div className="flex items-center gap-3">
-                  <div className="text-xs text-white/90 text-right">
-                    <div className="uppercase font-semibold tracking-[0.08em]">Miembro desde</div>
-                    <div className="text-base font-bold leading-tight">
-                      {memberSince ? memberSince.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                    </div>
-                  </div>
-                  {avatarUrl ? (
-                    <div className="h-14 w-14 rounded-full shadow-lg ring-2 ring-white/70 bg-transparent flex items-center justify-center overflow-hidden">
-                      {isDefaultAvatar ? (
-                        <UserRound size={28} color="#fff" strokeWidth={2.2} />
-                      ) : (
-                        <img src={avatarUrl} alt="Perfil" className="object-cover w-full h-full" />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="h-14 w-14 rounded-full bg-white/90 text-orange-600 font-black text-lg flex items-center justify-center shadow-lg">
-                      {nombre?.charAt(0)?.toUpperCase() || '•'}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Filtro de tiempo debajo de la tarjeta de presentación */}
         <div className="mb-6">
           <DashboardTimeFilter
             value={timeFilter}

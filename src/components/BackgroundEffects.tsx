@@ -264,7 +264,7 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
   className = ''
 }) => {
   const { isMobile, isLowEndDevice } = useMobileOptimization();
-  
+
   // Optimize visual effects for performance while maintaining quality
   const optimizedEffects = isMobile || isLowEndDevice;
   
@@ -279,7 +279,7 @@ const BackgroundCompositor: React.FC<BackgroundCompositorProps> = ({
       {/* Beams al fondo absoluto, z-[-3] para que no tape los demás */}
       {showBeams && (
         <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'black' }} />}>  
+          <Suspense fallback={<div className="beams-fallback" style={{ width: '100%', height: '100%', background: 'black' }} />}>
             <Beams />
           </Suspense>
         </div>

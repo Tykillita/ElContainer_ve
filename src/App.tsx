@@ -27,6 +27,8 @@ const Calendario = lazy(() => import('./pages/Calendario'));
 const Cuenta = lazy(() => import('./pages/Cuenta'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const ReservasCliente = lazy(() => import('./pages/ReservasCliente'));
+const ReservasAdmin = lazy(() => import('./pages/ReservasAdmin'));
+const AdminDashboardMobile = lazy(() => import('./pages/AdminDashboardMobile'));
 // import BeamsFixed from './components/BeamsFixed';
 //import ParticleSystem, { AmbientLight } from './components/ParticleSystem';
 
@@ -70,7 +72,7 @@ function AppLayout() {
     initializePage();
   }, [initializePage]);
   const location = useLocation();
-  const isDashboardArea = ['/dashboard','/lavados','/progreso','/planes','/clientes','/calendario','/cuenta','/admin-panel','/mis-reservas']
+  const isDashboardArea = ['/dashboard','/lavados','/reservas-admin','/progreso','/planes','/clientes','/calendario','/cuenta','/admin-panel','/mis-reservas']
     .some(path => location.pathname.startsWith(path));
   const mainRef = React.useRef<HTMLDivElement>(null);
   React.useLayoutEffect(() => {
@@ -144,6 +146,8 @@ function AppLayout() {
 
                     {/* Admin/IT-only routes */}
                     <Route element={<ProtectedRoute allowedRoles={[ 'admin', 'it' ]} redirectTo="/dashboard" />}>
+                      <Route path="/reservas-admin" element={<ReservasAdmin />} />
+                      <Route path="/admin-dashboard" element={<AdminDashboardMobile />} />
                       <Route path="/lavados" element={<Lavados />} />
                       <Route path="/clientes" element={<Clientes />} />
                       <Route path="/admin-panel" element={<AdminPanel />} />

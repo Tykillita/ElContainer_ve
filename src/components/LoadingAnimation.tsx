@@ -230,21 +230,21 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
             setTimeout(() => {
               setIsExiting(true);
               setTimeout(() => onComplete?.(), 300); // Match CSS transition time
-            }, 500);
+            }, 100);
           }
           // If we are waiting and already ready, call onComplete
           else if (isReady) {
             setTimeout(() => {
               setIsExiting(true);
               setTimeout(() => onComplete?.(), 300); // Match CSS transition time
-            }, 500);
+            }, 100);
           }
-          
+
           return 100;
         }
-        return prev + 2;
+        return prev + 8;
       });
-    }, 50);
+    }, 40);
 
     return () => {
       clearInterval(timer);
@@ -258,7 +258,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       setTimeout(() => {
         setIsExiting(true);
         setTimeout(() => onComplete(), 300); // Match CSS transition time
-      }, 500);
+      }, 100);
     }
   }, [progress, waitForReady, isReady, onComplete]);
 

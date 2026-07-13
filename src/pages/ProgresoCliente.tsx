@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import MobileScaleWrapper from '../components/MobileScaleWrapper';
 import { useAuth } from '../context/useAuth';
-import { supabase } from '../lib/supabaseClient';
+import { db } from '../lib/firebaseClient';
+import { doc, getDoc } from 'firebase/firestore';
 import { CalendarDays } from 'lucide-react';
 
 const ProgresoCliente: React.FC = () => {
@@ -13,14 +14,15 @@ const ProgresoCliente: React.FC = () => {
     async function fetchStamps() {
       const userId = user?.id;
       if (!userId) return;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('stamps')
-        .eq('id', userId)
-        .single();
-      if (!error && data && typeof data.stamps === 'number') {
-        setRevealed(Array.from({ length: data.stamps }, (_, i) => i));
-      } else {
+      try {
+        const snap = await getDoc(doc(db, 'profiles', userId));
+        const stamps = snap.exists() ? snap.data().stamps : undefined;
+        if (typeof stamps === 'number') {
+          setRevealed(Array.from({ length: stamps }, (_, i) => i));
+        } else {
+          setRevealed([]);
+        }
+      } catch {
         setRevealed([]);
       }
     }

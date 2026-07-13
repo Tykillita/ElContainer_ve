@@ -2,10 +2,16 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import { useEffect, useState, ReactNode, useCallback } from 'react';
-import { supabase } from '../lib/supabaseClient';
-
-import type { User } from '@supabase/supabase-js';
-import { AuthContext } from './AuthContextContext';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  type User as FirebaseUser,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebaseClient';
+import { AuthContext, type AppUser } from './AuthContextContext';
 
 import { useContext } from 'react';
 const DEFAULT_AVATAR_URL = 'https://api.iconify.design/lucide:user-round.svg?color=%23f97316&width=28&height=28';
@@ -55,36 +61,35 @@ export function useAuth() {
 
 export { AuthContext };
 
-
+// Construye el AppUser combinando Firebase Auth + doc profiles/{uid}
+async function hydrateUser(fbUser: FirebaseUser | null): Promise<AppUser | null> {
+  if (!fbUser) return null;
+  let profile: Record<string, any> = {};
+  try {
+    const snap = await getDoc(doc(db, 'profiles', fbUser.uid));
+    if (snap.exists()) profile = snap.data();
+  } catch {
+    // Sin perfil aún: usamos defaults
+  }
+  const role = (profile.role as UserRole) ?? 'cliente';
+  return {
+    id: fbUser.uid,
+    email: fbUser.email ?? undefined,
+    created_at: fbUser.metadata.creationTime,
+    user_metadata: {
+      ...profile,
+      rol: role,
+      role,
+      avatar_url: resolveAvatarUrl(profile),
+      avatar_icon: profile.avatar_icon ?? 'default',
+    },
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const resolveSignedAvatar = useCallback(async (meta: User['user_metadata']) => {
-    if (meta?.avatar_path) {
-      const { data } = await supabase.storage.from('avatars').createSignedUrl(meta.avatar_path, 60 * 60 * 24 * 7); // 7 días
-      if (data?.signedUrl) return data.signedUrl;
-    }
-    return resolveAvatarUrl(meta);
-  }, []);
-
-  const hydrateUser = useCallback(async (u: User | null) => {
-    if (!u) return null;
-    const avatarUrl = await resolveSignedAvatar(u.user_metadata);
-    const avatarIcon = u.user_metadata?.avatar_icon ?? 'default';
-    const role = (u.user_metadata?.rol as UserRole) ?? 'cliente';
-    return {
-      ...u,
-      user_metadata: {
-        ...u.user_metadata,
-        avatar_url: avatarUrl,
-        avatar_icon: avatarIcon,
-        rol: role
-      }
-    } as User;
-  }, [resolveSignedAvatar]);
 
   const getErrorMessage = (e: unknown) => {
     if (e instanceof Error) return e.message;
@@ -99,9 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: supabaseError } = await supabase.auth.getUser();
-      if (supabaseError) throw supabaseError;
-      const hydrated = await hydrateUser(data.user ?? null);
+      const hydrated = await hydrateUser(auth.currentUser);
       setUser(hydrated);
       if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
     } catch (e: unknown) {
@@ -109,34 +112,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [hydrateUser]);
+  }, []);
 
   useEffect(() => {
-    // Revisar si hay sesión guardada
+    // Sesión cacheada para primer render rápido
     const saved = localStorage.getItem('auth_user');
-    if (saved) setUser(JSON.parse(saved));
-    // Rehidratar y re-firmar al montar
-    refreshUser();
-  }, [refreshUser]);
+    if (saved) {
+      try { setUser(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+    // Firebase restaura la sesión de forma asíncrona
+    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+      const hydrated = await hydrateUser(fbUser);
+      setUser(hydrated);
+      if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
+      else localStorage.removeItem('auth_user');
+    });
+    return unsub;
+  }, []);
 
   const login = async (email: string, password: string, remember: boolean) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: supabaseError } = await supabase.auth.signInWithPassword({ email, password });
-      if (supabaseError) {
-        setError(supabaseError.message);
-        setLoading(false);
-        return false;
-      }
-      const hydrated = await hydrateUser(data.user ?? null);
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const hydrated = await hydrateUser(cred.user);
       setUser(hydrated);
       if (remember && hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
       else localStorage.removeItem('auth_user');
       setLoading(false);
       return true;
-    } catch {
-      setError('Error de autenticación');
+    } catch (e: unknown) {
+      setError(getErrorMessage(e));
       setLoading(false);
       return false;
     }
@@ -146,23 +152,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      // Registro sin confirmación automática de email
-      const { data, error: supabaseError } = await supabase.auth.signUp({
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const meta = { avatar_icon: 'default', rol: 'cliente', ...(extra || {}) } as Record<string, any>;
+      const profile = {
         email,
-        password,
-        options: {
-          emailRedirectTo: undefined, // No enviar email de confirmación
-          data: { avatar_icon: 'default', rol: 'cliente', ...(extra || {}) },
-          // @ts-expect-error - Propiedad no tipada en la versión actual del SDK, pero soportada por la configuración.
-          sendConfirmationEmail: false
-        }
-      });
-      if (supabaseError) {
-        setError(supabaseError.message);
-        setLoading(false);
-        return { success: false, error: supabaseError.message };
-      }
-      const hydrated = await hydrateUser(data.user ?? null);
+        full_name: meta.full_name ?? ([meta.nombre, meta.apellido].filter(Boolean).join(' ').trim() || null),
+        nombre: meta.nombre ?? null,
+        apellido: meta.apellido ?? null,
+        phone: meta.telefono ?? meta.phone ?? null,
+        role: 'cliente',
+        avatar_icon: meta.avatar_icon,
+        created_at: new Date().toISOString(),
+        joined_at: new Date().toISOString(),
+      };
+      await setDoc(doc(db, 'profiles', cred.user.uid), profile, { merge: true });
+      const hydrated = await hydrateUser(cred.user);
       setUser(hydrated);
       if (hydrated) localStorage.setItem('auth_user', JSON.stringify(hydrated));
       setLoading(false);
@@ -175,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     setUser(null);
     localStorage.removeItem('auth_user');
   };
@@ -186,5 +190,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-

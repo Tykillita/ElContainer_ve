@@ -1,7 +1,9 @@
 import { UserRound, Mail, BadgeCheck, CalendarDays, Phone as PhoneIcon } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import MobileScaleWrapper from '../components/MobileScaleWrapper';
-import { supabase } from '../lib/supabaseClient';
+import { db, storage } from '../lib/firebaseClient';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { useAuth } from '../context/useAuth';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL } from '../context/AuthContext';
 import { Loader2, Save, Upload } from 'lucide-react';
@@ -41,12 +43,10 @@ export default function Cuenta() {
 
       // Preferimos datos de profiles (lo que usa AdminPanel y otras vistas)
       let profile: ProfileLite | null = null;
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name, phone')
-        .eq('id', user.id)
-        .maybeSingle();
-      profile = (profileData ?? null) as ProfileLite | null;
+      try {
+        const snap = await getDoc(doc(db, 'profiles', user.id));
+        profile = snap.exists() ? (snap.data() as ProfileLite) : null;
+      } catch { /* sin perfil aún */ }
       if (!active) return;
 
       setForm({
@@ -75,23 +75,22 @@ export default function Cuenta() {
     setUploading(true);
     setStatus(null);
     const ext = file.name.split('.').pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, {
-      cacheControl: '3600',
-      upsert: true,
-      contentType: file.type
-    });
-    if (uploadError) {
-      setStatus({ type: 'error', message: uploadError.message });
+    const path = `avatars/${user.id}/${Date.now()}.${ext}`;
+    let downloadUrl = '';
+    try {
+      const ref = storageRef(storage, path);
+      await uploadBytes(ref, file, { cacheControl: 'public, max-age=3600', contentType: file.type });
+      downloadUrl = await getDownloadURL(ref);
+      if (form.avatar_path && form.avatar_path !== path) {
+        await deleteObject(storageRef(storage, form.avatar_path)).catch(() => {});
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : 'Error al subir imagen' });
       setUploading(false);
       e.target.value = '';
       return;
     }
-    if (form.avatar_path && form.avatar_path !== path) {
-      await supabase.storage.from('avatars').remove([form.avatar_path]);
-    }
-    const { data: signed } = await supabase.storage.from('avatars').createSignedUrl(path, 60 * 60 * 24 * 7);
-    setForm(f => ({ ...f, avatar_url: signed?.signedUrl || '', avatar_icon: f.avatar_icon, avatar_path: path }));
+    setForm(f => ({ ...f, avatar_url: downloadUrl, avatar_icon: f.avatar_icon, avatar_path: path }));
     setStatus({ type: 'ok', message: 'Imagen cargada. Guarda para aplicar.' });
     setUploading(false);
     e.target.value = '';
@@ -105,39 +104,20 @@ export default function Cuenta() {
     const nameTrimmed = form.nombre.trim();
     const [firstName, ...rest] = nameTrimmed.split(/\s+/);
     const apellido = rest.join(' ').trim();
-    const { error } = await supabase.auth.updateUser({
-      data: {
+    // profiles/{uid} es la única fuente de verdad del perfil
+    try {
+      await setDoc(doc(db, 'profiles', user.id), {
         nombre: firstName || nameTrimmed,
         apellido: apellido || null,
         full_name: nameTrimmed,
-        phone: form.phone,
+        phone: form.phone || null,
         avatar_icon: form.avatar_icon,
         avatar_url: form.avatar_url || null,
         avatar_path: form.avatar_path || null,
-        bio: form.bio,
-        rol: user.user_metadata?.rol || 'cliente'
-      }
-    });
-    if (error) {
-      setStatus({ type: 'error', message: error.message });
-      setSaving(false);
-      return;
-    }
-
-    // Persistir también en public.profiles (fuente de verdad para phone/plan en el panel)
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert(
-        {
-          id: user.id,
-          full_name: nameTrimmed,
-          phone: form.phone || null,
-          role: (user.user_metadata?.rol as string | undefined) ?? 'cliente'
-        },
-        { onConflict: 'id' }
-      );
-    if (profileError) {
-      setStatus({ type: 'error', message: `Guardado parcial: no se pudo actualizar el perfil en la base de datos (${profileError.message}).` });
+        bio: form.bio
+      }, { merge: true });
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : 'No se pudo actualizar el perfil' });
       setSaving(false);
       return;
     }

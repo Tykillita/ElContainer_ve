@@ -20,7 +20,10 @@ import { AdminUserOptionsModal } from '../components/AdminUserOptionsModal';
 import UserReservasModal from '../components/UserReservasModal';
 import { useReservas, type Reserva } from '../hooks/useReservas';
 import { resolveAvatarUrl, DEFAULT_AVATAR_URL, useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabaseClient';
+import { db, firebaseConfig } from '../lib/firebaseClient';
+import { collection, deleteDoc, doc, getDocs, orderBy, query, setDoc, updateDoc } from 'firebase/firestore';
+import { initializeApp, deleteApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
 
 export type UserRole = 'admin' | 'it' | 'cliente';
 
@@ -130,26 +133,15 @@ function AdminPanel() {
     setLoading(true);
     setError(null);
 
-    // Primero intentamos vía RPC para cruzar con auth.users
-    const { data: rpcData, error: rpcError } = await supabase.rpc('admin_list_users');
-    if (!rpcError && rpcData) {
-      setUsers((rpcData as DbUserRow[]).map(mapRow));
+    try {
+      const snap = await getDocs(query(collection(db, 'profiles'), orderBy('created_at', 'desc')));
+      const data = snap.docs.map((d) => ({ ...(d.data() as Omit<DbUserRow, 'id'>), id: d.id }));
+      setUsers(data.map(mapRow));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cargar usuarios');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Fallback: leer profiles directo
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, role, plan, phone, joined_at, created_at')
-      .order('created_at', { ascending: false });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
-    setUsers((data || []).map(mapRow));
-    setLoading(false);
   }, [mapRow]);
 
   const removeUser = async (id: string) => {
@@ -159,8 +151,11 @@ function AdminPanel() {
     if (!confirmed) return;
     setUsers(prev => prev.filter(u => u.id !== id));
     if (selectedUser?.id === id) setSelectedUser(null);
-    const { error } = await supabase.from('profiles').delete().eq('id', id);
-    if (error) setError(error.message);
+    try {
+      await deleteDoc(doc(db, 'profiles', id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al eliminar usuario');
+    }
   };
 
   // Opciones del modal
@@ -174,24 +169,22 @@ function AdminPanel() {
     if (!userOptionsModal.user) return;
     const id = userOptionsModal.user.id;
     const nextRole = role as UserRole;
-    // Actualizar en Supabase
-    const { error } = await supabase.from('profiles').update({ role: nextRole }).eq('id', id);
-    if (!error) {
+    try {
+      await updateDoc(doc(db, 'profiles', id), { role: nextRole });
       setUsers(prev => prev.map(u => u.id === id ? { ...u, role: nextRole } : u));
-    } else {
-      alert('Error al actualizar el rol: ' + error.message);
+    } catch (e) {
+      alert('Error al actualizar el rol: ' + (e instanceof Error ? e.message : e));
     }
     handleCloseUserOptions();
   };
   const handleAssignPlan = async (planId: string) => {
     if (!userOptionsModal.user) return;
     const id = userOptionsModal.user.id;
-    // Actualizar en Supabase
-    const { error } = await supabase.from('profiles').update({ plan: planId }).eq('id', id);
-    if (!error) {
+    try {
+      await updateDoc(doc(db, 'profiles', id), { plan: planId });
       setUsers(prev => prev.map(u => u.id === id ? { ...u, plan: planId } : u));
-    } else {
-      alert('Error al actualizar el plan: ' + error.message);
+    } catch (e) {
+      alert('Error al actualizar el plan: ' + (e instanceof Error ? e.message : e));
     }
     handleCloseUserOptions();
   };
@@ -227,34 +220,29 @@ function AdminPanel() {
       return;
     }
     setCreating(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: createForm.email,
-      password: createForm.password,
-      options: {
-        data: {
-          full_name: createForm.fullName,
-          rol: createForm.role,
-          phone: createForm.phone,
-          avatar_url: null
-        }
-      }
-    });
-    if (error) {
-      setCreateError(error.message);
-      setCreating(false);
-      return;
-    }
-    const userId = data.user?.id;
-    if (userId) {
-      await supabase.from('profiles').upsert({
-        id: userId,
+    // App secundaria: crear el usuario sin pisar la sesión del admin
+    const secondary = initializeApp(firebaseConfig, `admin-create-${Date.now()}`);
+    try {
+      const secondaryAuth = getAuth(secondary);
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, createForm.email, createForm.password);
+      await setDoc(doc(db, 'profiles', cred.user.uid), {
+        email: createForm.email,
         full_name: createForm.fullName,
         role: createForm.role,
         plan: createForm.plan || null,
         phone: createForm.phone,
+        avatar_url: null,
+        created_at: new Date().toISOString(),
         joined_at: new Date().toISOString()
-      });
+      }, { merge: true });
+      await fbSignOut(secondaryAuth);
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : 'Error al crear usuario');
+      setCreating(false);
+      await deleteApp(secondary).catch(() => {});
+      return;
     }
+    await deleteApp(secondary).catch(() => {});
     setCreating(false);
     setCreateOpen(false);
     setShowCreatePassword(false);
@@ -317,7 +305,7 @@ function AdminPanel() {
               <span className="text-xs uppercase tracking-[0.15em] text-orange-100">Admin Panel</span>
             </div>
             <h1 className="text-3xl font-extrabold leading-tight mt-10">Control de usuarios</h1>
-            <p className="text-white/70">Gestiona roles y planes con datos reales de Supabase.</p>
+            <p className="text-white/70">Gestiona roles y planes con datos reales de Firebase.</p>
           </div>
           <button
             className="inline-flex items-center gap-2 self-start rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 hover:bg-orange-400 transition-colors"

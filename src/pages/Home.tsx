@@ -1,12 +1,11 @@
-import { useRef } from 'react'
+import { useRef, lazy, Suspense } from 'react'
 import PricingPlans from '../components/PricingPlans'
 import AutoStepper from '../components/AutoStepper'
-import JeepShowcase from '../components/JeepShowcase'
+const JeepShowcase3D = lazy(() => import('../components/JeepShowcase3D'))
 import { SpeedIcon, PaintIcon, SecurityIcon } from '../components/icons/Benefits'
 import LazySection from '../components/LazySection'
 import ScrollButton from '../components/ScrollButton'
-import logo from '../resources/img/elcontainer_logo.png'
-import { useState, useEffect } from 'react';
+import logo from '../resources/img/elcontainer_logo.webp'
 import MarqueeBenefitsMobile from '../components/MarqueeBenefitsMobile';
 import '../styles/MarqueeBenefitsMobile.css';
 import FloatingElement from '../components/FloatingElement';
@@ -34,26 +33,8 @@ export default function Home() {
 
   const infoRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDivElement>(null)
-  // Tamaño dinámico del título según ancho de pantalla
-  const [titleSize, setTitleSize] = useState('clamp(2.2rem,8vw,3.2rem)');
-
-  useEffect(() => {
-    function handleResize() {
-      const width = window.innerWidth;
-      if (width <= 370) {
-        setTitleSize('clamp(1.7rem,7vw,2.2rem)');
-      } else if (width <= 400) {
-        setTitleSize('clamp(2.0rem,8vw,2.7rem)');
-      } else if (width <= 430) {
-        setTitleSize('clamp(2.2rem,8vw,3.2rem)');
-      } else {
-        setTitleSize('clamp(2.5rem,9vw,3.5rem)');
-      }
-    }
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // clamp() ya escala con el viewport; sin listener de resize
+  const titleSize = 'clamp(1.7rem,8vw,3.5rem)';
 
   return (
     <>
@@ -84,7 +65,7 @@ export default function Home() {
               fontSize: titleSize
             }}
           >
-            <span className="md:text-[1.2em] lg:text-[1.28em] text-[1.5em] whitespace-nowrap">
+            <span className="text-[1.05em] sm:text-[1.3em] md:text-[1.2em] lg:text-[1.28em] whitespace-nowrap">
               EL CONTAINER
             </span>
             <span
@@ -124,7 +105,7 @@ export default function Home() {
               </ScrollButton>
             </div>
             {/* Línea divisoria solo en móvil, más abajo del botón */}
-            <div className="sm:hidden w-full mt-40 mb-0">
+            <div className="sm:hidden w-full mt-16 mb-0">
               <hr className="border-t border-white/15 w-full" />
             </div>
           </div>
@@ -149,10 +130,12 @@ export default function Home() {
           {/* Eliminado botón duplicado en móvil dentro de LazySection */}
           <div className="relative grid grid-cols-1 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-start justify-items-start gap-y-4 sm:gap-8 lg:gap-12 xl:gap-14">
             <div className="flex justify-start min-w-0 mb-2 sm:mb-0 sm:justify-start lg:ml-16 mt-24 sm:mt-14">
-              <div className="relative w-full max-w-[340px] ml-20 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
+              <div className="relative w-full max-w-[340px] mx-auto sm:mx-0 sm:ml-8 sm:max-w-md md:max-w-2xl lg:max-w-5xl overflow-visible rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-[0_18px_70px_rgba(0,0,0,0.35)]">
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-white/0 to-black/30" />
                 <div className="overflow-visible">
-                  <JeepShowcase variant="clean" />
+                  <Suspense fallback={null}>
+                    <JeepShowcase3D />
+                  </Suspense>
                 </div>
               </div>
             </div>
