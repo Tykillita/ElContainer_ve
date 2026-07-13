@@ -239,7 +239,7 @@ export default function JeepShowcase3D() {
       )}
       <Canvas
         dpr={[1, 1.75]}
-        camera={{ fov: 35, position: [5.6, 2, 7.2] }}
+        camera={{ fov: 35, position: [4.3, 1.55, 5.5] }}
         gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
         className={`transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
         // pan-y: drag horizontal rota el jeep, scroll vertical sigue funcionando en touch
